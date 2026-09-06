@@ -1,0 +1,2723 @@
+/* ============================================================
+   Folio — Obsidian Theme
+   字体: Anthropic Sans / Inter (正文·标题·UI) · JetBrains Mono (代码)
+         标题自 v1.1.9 起默认无衬线（中英混排更稳）；
+         原衬线社论标题保留为 opt-in: snippets/folio-heading-font-serif.css
+   色彩: Ivory #FAF9F5 · Slate #141413 · Clay #D97757
+   ============================================================*/
+
+/* ── 字体族（开源平替 + CJK 回退） ── */
+
+body {
+  --font-text-theme:       'Anthropic Sans', 'Inter', 'Instrument Sans', system-ui, "Segoe UI", Roboto, Helvetica, Arial, "Source Han Sans SC", "Source Han Sans CN", "Noto Sans CJK SC", "思源黑体", "PingFang SC", "Microsoft YaHei", sans-serif;
+  /* 衬线栈：主题默认不消费（标题走 --font-text-theme），由 snippets/folio-heading-font-serif.css 按需启用 */
+  --font-heading-theme:    'Anthropic Serif', 'Source Serif 4', 'Source Serif Pro', 'Source Serif', Georgia, "GenRyuMin2 TW", "源流明體月", "GenRyuMin2 TC", "源流明體丹", "GenRyuMin2 JP", "源流明朝", "GenRyuMin", "源流明體", "Source Han Serif SC", "Source Han Serif CN", "Noto Serif CJK SC", "思源宋体", "Songti SC", "STSong", serif;
+  --font-monospace-theme:  'Anthropic Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-interface-theme:  'Anthropic Sans', 'Instrument Sans', 'Inter', system-ui, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  /* ── 圆角（对齐 Obsidian 官方变量，不自造） ── */
+  /* Obsidian 1.x 已内置 --radius-s/m/l/xl，此处仅确认值 */
+  --radius-s:   4px;   /* inline code, small elements */
+  --radius-m:   8px;   /* buttons, inputs, code blocks */
+  --radius-l:   16px;  /* cards, modals, embeds */
+  --radius-xl:  24px;  /* image hero */
+  --radius-pill: 100vw; /* tags, toggles */
+
+  /* ── 核心组件覆写 ── */
+  --blockquote-border-thickness: 0px;
+  --checkbox-radius:             50%;
+  --checkbox-size:               16px;
+  --checkbox-border-width:       1.5px;
+  --checkbox-border-color:       rgba(20, 20, 19, 0.2);
+  --checkbox-border-color-hover: var(--interactive-accent);
+  --checkbox-color:              var(--interactive-accent);
+  --checkbox-color-hover:        var(--interactive-accent);
+  --checkbox-marker-color:       var(--background-primary);
+
+  /* ── 过渡（统一速率，不在组件里各写各的） ── */
+  --anim-fast:   0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
+  --anim-medium: 0.2s  ease;
+
+  /* ── 共享 SVG 资源（一处维护） ── */
+  --quote-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b08968'><path d='M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z'/></svg>");
+  /* Obsidian 官方 logo 几何线稿（轮廓 + 真实切面缝线，源自官方 SVG 路径，作蒙版用 stroke=black） */
+  --obsidian-gem-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='none' stroke='black' stroke-width='34' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M382.3 475.6c-3.1 23.4-26 41.6-48.7 35.3-32.4-8.9-69.9-22.8-103.6-25.4l-51.7-4a34 34 0 0 1-22-10.2l-89-91.7a34 34 0 0 1-6.7-37.7s55-121 57.1-127.3c2-6.3 9.6-61.2 14-90.6 1.2-7.9 5-15 11-20.3L248 8.9a34.1 34.1 0 0 1 49.6 4.3L386 125.6a37 37 0 0 1 7.6 22.4c0 21.3 1.8 65 13.6 93.2 11.5 27.3 32.5 57 43.5 71.5a17.3 17.3 0 0 1 1.3 19.2 1494 1494 0 0 1-44.8 70.6c-15 22.3-21.9 49.9-25 73.1z'/%3E%3Cpath d='M278.4 307.8c-19.7-49.4-25.8-86.4-24.5-115.9a171 171 0 0 1 19.4-71c2.3-4.8 4.8-9.5 7.2-14.1 7.1-13.9 14-27 17.6-41.4a96 96 0 0 0-2-54'/%3E%3Cpath d='M188.5 291.3c17.6 42.8 18.8 103-22.6 187'/%3E%3Cpath d='M311.3 315.4c-36-13.4-75.2-9-115 .7'/%3E%3C/svg%3E");
+
+  /* ── 标题字号（Obsidian 读取 --h1-size 等来渲染编辑器） ── */
+  --inline-title-size: 1.75em;
+  --h1-size: 1.75em;
+  --h2-size: 1.3em;
+  --h3-size: 1.15em;
+  --h4-size: 1.05em;
+  --h5-size: 1.0em;
+  --h6-size: 0.92em;
+
+  /* ── 间距排版 (Spacing) ── */
+  --list-spacing: 0.25em;  /* 列表项/待办项间距：收紧，使连续列表不显松散（单项内换行仅靠 line-height，无此 margin） */
+  --p-spacing: 1.2rem;    /* 段落间距 */
+
+  /* ── Callout 颜色（典雅书卷色板，模式无关） ── */
+  --callout-color-info:     #6A9BCC;   /* Sky */
+  --callout-color-warning:  #D4A27F;   /* Kraft */
+  --callout-color-error:    #C46686;   /* Fig */
+  --callout-color-success:  #788C5D;   /* Olive */
+  --callout-color-clay:     #D97757;   /* Clay */
+  --callout-color-slate:    #5E5D59;   /* Slate Light */
+  --callout-color-heather:  #827DBD;   /* Heather */
+
+  /* ── 辅助文字层级（页岩灰色系） ── */
+  --slate-light:  #B0AEA5;   /* Slate Light — 次要文字、图标 */
+
+  /* ── 表格默认间距排版（通透卡片：更大留白）── */
+  --table-padding-x: 16px;
+  --table-padding-y: 10px;
+  --table-header-padding-x: 16px;
+  --table-header-padding-y: 13px;
+  --table-line-height: 1.45;
+  --table-frame-color: rgba(176, 137, 104, 0.5);  /* 保留（当前无框，备用） */
+  --table-border-width: 0px;   /* 关掉 Obsidian 默认单元格边框，三线由主题显式绘制 */
+
+  /* ── Mermaid 图表字体 ── */
+  --font-mermaid: var(--font-interface-theme);
+
+  /* ── 字体平滑与排版 ── */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-interface-theme);
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
+
+/* ============================================================
+   @settings — Folio 可视化配置（Style Settings 插件）
+   ────────────────────────────────────────────────────
+   设计原则：
+   1. 主题 token 定义一字不改。Style Settings 通过
+      body.theme-*.css-settings-manager 注入覆盖，特异性 (0,2,1)
+      天然压过主题的 body.theme-* (0,1,1)，无需自引用 var() hack。
+   2. 零运行时开销：不引入 color-mix、不加变量层级。
+   3. 只暴露纯视觉、低耦合项。accent 派生态（hover/selected 等）
+      不联动 —— 见 STYLE_SETTINGS_TEST.md「已知非联动项」。
+   ============================================================ */
+
+/* @settings
+
+name: Folio
+id: folio-theme
+settings:
+
+  # ─── 强调色 ───
+  -
+    id: interactive-accent
+    title: 强调色（Accent / Clay）
+    description: 主强调色。改动会联动 checkbox、滑块、active 图标、链接高亮等所有引用 --interactive-accent 的组件。hover 态等派生色不联动。
+    type: variable-themed-color
+    format: hex
+    opacity: false
+    default-light: '#D97757'
+    default-dark: '#D97757'
+
+  # ─── 标题字号 ───
+  -
+    id: inline-title-size
+    title: Inline Title 字号
+    type: variable-text
+    default: '1.75em'
+  -
+    id: h1-size
+    title: H1 字号
+    type: variable-text
+    default: '1.75em'
+  -
+    id: h2-size
+    title: H2 字号
+    type: variable-text
+    default: '1.3em'
+  -
+    id: h3-size
+    title: H3 字号
+    type: variable-text
+    default: '1.15em'
+
+  # ─── 圆角 ───
+  -
+    id: radius-s
+    title: 小圆角（inline code / 小元素）
+    type: variable-text
+    default: '4px'
+  -
+    id: radius-m
+    title: 中圆角（按钮 / 输入框 / 代码块）
+    type: variable-text
+    default: '8px'
+  -
+    id: radius-l
+    title: 大圆角（卡片 / 模态框 / 嵌入）
+    type: variable-text
+    default: '16px'
+
+  # ─── Callout 色板（典雅书卷色，模式无关） ───
+  -
+    id: callout-color-info
+    title: Callout Info（Sky）
+    type: variable-color
+    format: hex
+    default: '#6A9BCC'
+  -
+    id: callout-color-warning
+    title: Callout Warning（Kraft）
+    type: variable-color
+    format: hex
+    default: '#D4A27F'
+  -
+    id: callout-color-error
+    title: Callout Error（Fig）
+    type: variable-color
+    format: hex
+    default: '#C46686'
+  -
+    id: callout-color-success
+    title: Callout Success（Olive）
+    type: variable-color
+    format: hex
+    default: '#788C5D'
+  -
+    id: callout-color-clay
+    title: Callout Clay
+    type: variable-color
+    format: hex
+    default: '#D97757'
+  -
+    id: callout-color-slate
+    title: Callout Slate
+    type: variable-color
+    format: hex
+    default: '#5E5D59'
+  -
+    id: callout-color-heather
+    title: Callout Heather
+    type: variable-color
+    format: hex
+    default: '#827DBD'
+
+  # ─── 间距排版 ───
+  -
+    id: p-spacing
+    title: 段落间距
+    type: variable-text
+    default: '1.2rem'
+  -
+    id: list-spacing
+    title: 列表项间距
+    type: variable-text
+    default: '0.25em'
+  -
+    id: table-padding-x
+    title: 表格水平内边距
+    type: variable-text
+    default: '16px'
+  -
+    id: table-padding-y
+    title: 表格垂直内边距
+    type: variable-text
+    default: '10px'
+*/
+
+/* ── 亮色模式 ──────────────────────────────────────────────── */
+
+body.theme-light {
+  background-color: #FAF9F5;  /* 窗口 resize 时最先涂的颜色，消除白闪 */
+
+  /* 背景层级（从亮到暗）*/
+  --background-primary:             #FAF9F5;   /* Ivory Light — 编辑器 */
+  --background-primary-alt:         #F0EEE6;   /* Ivory Medium — tab 栏/状态栏 */
+  --background-secondary:           #EBE9E0;   /* Ivory Dark — 侧边栏 */
+  --background-secondary-alt:       #E8E6DC;   /* Ivory Darker — inline code */
+  --folio-floating-surface:         #FFFDF7;   /* 浮层卡片：暖白，逐通道亮于页面，靠阴影抬升 */
+  --background-modifier-border:     rgba(20, 20, 19, 0.08);
+  --background-modifier-form-field: #FFFFFF;
+  --background-modifier-form-field-highlighted: #FFF8F0;
+  --background-modifier-box-shadow: rgba(20, 20, 19, 0.06);
+  --background-modifier-success:    #E8F0E4;
+  --background-modifier-error:      #F5E8E8;
+  --background-modifier-cover:      rgba(250, 249, 245, 0.92);
+
+  /* 文字层级 */
+  --text-normal:          #3D3D3A;   /* Slate Medium */
+  --text-muted:           #5E5D59;   /* Slate Light */
+  --text-faint:           var(--slate-light);  /* Slate Light — 次要文字 */
+  --text-on-accent:       #FAF9F5;
+  --text-on-accent-inverted: #FAF9F5;
+  --text-error:           #A63D2F;
+  --text-success:         #5A7A3A;
+  --text-highlight-bg:    rgba(217, 119, 87, 0.15);
+  --text-accent:          #D97757;   /* Clay */
+  --text-accent-hover:    #C6613F;   /* Accent */
+
+  /* 强调色 */
+  --interactive-accent:      #D97757;
+  --interactive-accent-hover:#C6613F;
+  --interactive-accent-rgb:  217, 119, 87;
+  /* Obsidian 内部 focus/选中用 --color-accent，不设则默认蓝 */
+  --color-accent:   #D97757;
+  --color-accent-1: rgba(217, 119, 87, 0.15);
+  --color-accent-2: rgba(217, 119, 87, 0.08);
+
+  /* 标题颜色 */
+  --h1-color: #141413;
+  --h2-color: #141413;
+  --h3-color: #141413;
+  --h4-color: #1A1A18;
+  --h5-color: #3D3D3A;
+  --h6-color: #5E5D59;
+
+  /* 导航 */
+  --nav-item-background-hover:    rgba(217, 119, 87, 0.08);
+  --nav-item-background-active:   rgba(217, 119, 87, 0.14);
+  --nav-item-background-selected: rgba(217, 119, 87, 0.14);
+  --nav-item-color:          #5E5D59;
+  --nav-item-color-hover:    #141413;
+  --nav-item-color-active:   #D97757;
+  --nav-item-color-selected: #D97757;
+
+  /* 图标 */
+  --icon-color:        #8A8985;
+  --icon-color-hover:  #5E5D59;
+  --icon-color-active: #D97757;
+  --icon-color-focused:#D97757;
+
+  /* 标签页（官方变量，由 Obsidian 内部 CSS 读取并渲染） */
+  --tab-text-color-focused-active:         #141413;
+  --tab-text-color-focused-active-current: #D97757;
+  --tab-background-active: var(--background-primary);
+  --tab-outline-color:     #E2E0D7;   /* 实色描边，避免 rgba 在弧线处叠加变粗 */
+  --tab-outline-width:     1px;
+
+  /* 滑块（官方变量） */
+  --slider-track-background:  #D4D2C9;
+  --slider-track-height:      4px;
+  --slider-thumb-border-color: var(--background-primary);
+  --slider-thumb-border-width: 2px;
+  --slider-thumb-height:      16px;
+  --slider-thumb-width:       16px;
+  --slider-thumb-radius:      50%;
+
+  /* 标签（.tag 规则实际消费的 token） */
+  --tag-background:       rgba(217, 119, 87, 0.10);
+  --tag-background-hover: rgba(217, 119, 87, 0.18);
+  --tag-color:            #A47665;   /* 较深陶土文字 */
+  --tag-color-hover:      #8C6051;
+
+  /* 滚动条 */
+  --scrollbar-bg:              #EBE9E0;
+  --scrollbar-thumb-bg:        #D4D2C9;
+  --scrollbar-active-thumb-bg: #D97757;
+
+  /* 杂项 */
+  --highlight-mix-blend-mode: darken;
+  --divider-color:       rgba(20, 20, 19, 0.08);
+  --prompt-border-color: rgba(20, 20, 19, 0.08);
+
+  /* 表格（官方变量 + 强制禁用交替效果） */
+  --table-column-alt-background:   transparent;
+  --table-row-alt-background:      transparent;
+  --table-row-background-hover:    rgba(217, 119, 87, 0.06);  /* 悬停：淡陶土色 */
+  --table-rule:    rgba(20, 20, 19, 0.68);   /* 三线颜色（比纯文字色略柔） */
+  --tooltip-bg:    #141413;
+  --tooltip-color: #FAF9F5;
+
+  /* 文字色微染背景（替代 color-mix 运行时计算） */
+  --bg-text-tint:  rgba(61, 61, 58, 0.08);
+
+  /* 阴影体系（统一为完整声明，而非单层颜色） */
+  --shadow-subtle:   0 1px 3px rgba(20, 20, 19, 0.06);
+  --shadow-medium:   0 4px 12px rgba(20, 20, 19, 0.08);
+  --shadow-large:    0 8px 24px rgba(20, 20, 19, 0.10);
+  --shadow-modal:    0 16px 48px rgba(20, 20, 19, 0.12), 0 4px 16px rgba(20, 20, 19, 0.08);
+
+  /* 语法高亮色板 (暖调书卷风格) */
+  --code-keyword:   #C6613F;  /* Clay 深色变体 - 关键字 */
+  --code-string:    #5A7A3A;  /* Olive 深色 - 字符串 */
+  --code-number:    #A63D2F;  /* Fig 深色 - 数字 */
+  --code-comment:   #8A8985;  /* Slate Faint - 注释 */
+  --code-function:  #4A7AA8;  /* Sky 深色 - 函数 */
+  --code-type:      #6E6AA8;  /* Heather 深色 - 类型 */
+  --code-variable:  #141413;  /* Slate Dark - 变量 */
+  --code-property:  #3D3D3A;  /* Slate Medium - 属性 */
+  --code-operator:  #5E5D59;  /* Slate Light - 运算符 */
+}
+
+/* ── 暗色模式 ──────────────────────────────────────────────── */
+
+body.theme-dark {
+  background-color: #1A1A18;  /* 窗口 resize 时最先涂的颜色，消除白闪 */
+
+  --background-primary:             #1A1A18;
+  --background-primary-alt:         #1E1E1C;
+  --background-secondary:           #141413;
+  --background-secondary-alt:       #111110;
+  --folio-floating-surface:         #242422;   /* 暗色浮层：比页面更亮一档，制造抬升 */
+  --background-modifier-border:     rgba(250, 249, 245, 0.08);
+  --background-modifier-form-field: #242422;
+  --background-modifier-form-field-highlighted: #2A2720;
+  --background-modifier-box-shadow: rgba(0, 0, 0, 0.3);
+  --background-modifier-success:    #1B2E1B;
+  --background-modifier-error:      #2E1B1B;
+  --background-modifier-cover:      rgba(26, 26, 24, 0.92);
+
+  --text-normal:          rgba(250, 249, 245, 0.87);
+  --text-muted:           rgba(250, 249, 245, 0.62);
+  --text-faint:           rgba(250, 249, 245, 0.42);
+  --text-on-accent:       #FAF9F5;
+  --text-on-accent-inverted: #1A1A18;
+  --text-error:           #E07060;
+  --text-success:         #7AAF5A;
+  --text-highlight-bg:    rgba(217, 119, 87, 0.25);
+  --text-accent:          #D97757;
+  --text-accent-hover:    #E8916A;
+
+  --interactive-accent:       #D97757;
+  --interactive-accent-hover: #E8916A;
+  --interactive-accent-rgb:   217, 119, 87;
+  --color-accent:   #D97757;
+  --color-accent-1: rgba(217, 119, 87, 0.2);
+  --color-accent-2: rgba(217, 119, 87, 0.1);
+
+  --h1-color: #FAF9F5;
+  --h2-color: #FAF9F5;
+  --h3-color: #FAF9F5;
+  --h4-color: rgba(250, 249, 245, 0.90);
+  --h5-color: rgba(250, 249, 245, 0.80);
+  --h6-color: rgba(250, 249, 245, 0.60);
+
+  --nav-item-background-hover:    rgba(217, 119, 87, 0.10);
+  --nav-item-background-active:   rgba(217, 119, 87, 0.16);
+  --nav-item-background-selected: rgba(217, 119, 87, 0.16);
+  --nav-item-color:          rgba(250, 249, 245, 0.60);
+  --nav-item-color-hover:    rgba(250, 249, 245, 0.85);
+  --nav-item-color-active:   #D97757;
+  --nav-item-color-selected: #D97757;
+
+  --icon-color:        rgba(250, 249, 245, 0.40);
+  --icon-color-hover:  rgba(250, 249, 245, 0.60);
+  --icon-color-active: #D97757;
+  --icon-color-focused:#D97757;
+
+  --tab-text-color-focused-active:         rgba(250, 249, 245, 0.85);
+  --tab-text-color-focused-active-current: #D97757;
+  --tab-background-active: var(--background-primary);
+  --tab-outline-color:     #2A2A27;   /* 实色描边，避免 rgba 在弧线处叠加变粗 */
+  --tab-outline-width:     1px;
+
+  /* 滑块（官方变量） */
+  --slider-track-background:  #333331;
+  --slider-track-height:      4px;
+  --slider-thumb-border-color: var(--background-primary);
+  --slider-thumb-border-width: 2px;
+  --slider-thumb-height:      16px;
+  --slider-thumb-width:       16px;
+  --slider-thumb-radius:      50%;
+
+  --tag-background:       rgba(217, 119, 87, 0.12);
+  --tag-background-hover: rgba(217, 119, 87, 0.20);
+  --tag-color:            #D9A08C;   /* 浅陶土文字，暗底可读（≈7.7:1） */
+  --tag-color-hover:      #E9B7A4;
+
+  /* 复选框边框：body 里的深色描边在暗底上不可见，换象牙描边 */
+  --checkbox-border-color: rgba(250, 249, 245, 0.25);
+
+  --scrollbar-bg:              #1A1A18;
+  --scrollbar-thumb-bg:        #333331;
+  --scrollbar-active-thumb-bg: #D97757;
+
+  --highlight-mix-blend-mode: screen;
+  --divider-color:       rgba(250, 249, 245, 0.08);
+  --prompt-border-color: rgba(250, 249, 245, 0.08);
+
+  --tooltip-bg:    #FAF9F5;
+  --tooltip-color: #141413;
+
+  --bg-text-tint:  rgba(250, 249, 245, 0.07);
+
+  /* 表格（官方变量 + 强制禁用交替效果） */
+  --table-column-alt-background:   transparent;
+  --table-row-alt-background:      transparent;
+  --table-row-background-hover:    rgba(217, 119, 87, 0.10);  /* 悬停：淡陶土色 */
+  --table-rule:    rgba(250, 249, 245, 0.62);   /* 三线颜色（暗色：柔化的浅色）*/
+
+  /* 阴影体系（统一为完整声明，而非单层颜色） */
+  --shadow-subtle:   0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-medium:   0 4px 12px rgba(0, 0, 0, 0.20);
+  --shadow-large:    0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-modal:    0 16px 48px rgba(0, 0, 0, 0.30), 0 4px 16px rgba(0, 0, 0, 0.20);
+
+  /* 语法高亮色板 (暖调书卷风格) */
+  --code-keyword:   #E8916A;  /* Accent 浅色变体 - 关键字 */
+  --code-string:    #7AAF5A;  /* Olive 浅色 - 字符串 */
+  --code-number:    #E07060;  /* Fig 浅色 - 数字 */
+  --code-comment:   #706F6A;  /* Slate Faint 暗色 - 注释 */
+  --code-function:  #7CB3E6;  /* Sky 浅色 - 函数 */
+  --code-type:      #9E9AD6;  /* Heather 浅色 - 类型 */
+  --code-variable:  rgba(250, 249, 245, 0.87); /* Ivory - 变量 */
+  --code-property:  rgba(250, 249, 245, 0.75); /* Ivory Medium - 属性 */
+  --code-operator:  rgba(250, 249, 245, 0.60); /* Ivory Light - 运算符 */
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ════════════════════════════════════════════════════════════ */
+
+/* ── 标题排版设计（高度契合典雅社论风格的衬线标题） ── */
+
+/* 基础 font-family，一次性声明 */
+.markdown-rendered h1,
+.markdown-rendered h2,
+.markdown-rendered h3,
+.markdown-rendered h4,
+.markdown-rendered h5,
+.inline-title {
+  font-family: var(--font-text-theme) !important;
+}
+
+.markdown-rendered h1 {
+  font-weight: 700;
+  line-height: 1.1;   letter-spacing: -0.025em;
+  color: var(--h1-color);
+  margin-top: 2.5em;  margin-bottom: 0.6em;   /* 文中 H1 与 H2 同级留白，不再贴死上文 */
+}
+/* 文档顶部（紧随标题区/首个内容块）的 H1 不需要大间距 */
+.markdown-preview-sizer > .mod-header + div > h1,
+.markdown-preview-sizer > div:first-child > h1 {
+  margin-top: 0;
+}
+
+.inline-title {
+  font-weight: 700;
+  line-height: 1.1;   letter-spacing: -0.025em;
+  color: var(--h1-color);
+}
+
+.markdown-rendered h2 {
+  font-weight: 600;
+  line-height: 1.15;  letter-spacing: -0.02em;
+  color: var(--h2-color);
+  margin-top: 2.5em;  margin-bottom: 0.75em;
+}
+
+.markdown-rendered h3 {
+  font-weight: 600;
+  line-height: 1.2;   letter-spacing: -0.01em;
+  color: var(--h3-color);
+  margin-top: 2em;    margin-bottom: 0.35em;
+}
+
+.markdown-rendered h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--h4-color);
+  margin-top: 1.5em;  margin-bottom: 0.3em;
+}
+
+.markdown-rendered h5 {
+  font-weight: 600;
+  line-height: 1.3;   letter-spacing: 0.02em;
+  color: var(--h5-color);
+  margin-top: 1.5em;  margin-bottom: 0.3em;
+}
+
+.markdown-rendered h6 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 600;
+  line-height: 1.4;   letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--h6-color);
+  margin-top: 1.5em;  margin-bottom: 0.3em;
+}
+
+/* 标题连续出现时缩小间距（div.el-h* 是兄弟，h* 在 div 内部）
+   :where 兜底覆盖任意级别相邻（含跳级如 h2→h4），零特异性，下面的精调规则优先 */
+.markdown-rendered :where(.el-h1, .el-h2, .el-h3, .el-h4, .el-h5, .el-h6) + :where(.el-h1, .el-h2, .el-h3, .el-h4, .el-h5, .el-h6) > :where(h1, h2, h3, h4, h5, h6) { margin-top: 0.8em; }
+.markdown-rendered div.el-h1 + div.el-h2 > h2 { margin-top: 1.0em; }
+.markdown-rendered div.el-h2 + div.el-h3 > h3 { margin-top: 0.8em; }
+.markdown-rendered div.el-h3 + div.el-h4 > h4 { margin-top: 0.5em; }
+
+/* Live Preview 行容器 — font-size 由 --h*-size 变量统一控制，此处不再硬写 */
+
+.HyperMD-header-1,
+.cm-header-1 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 700; letter-spacing: -0.025em;
+}
+.HyperMD-header-2,
+.cm-header-2 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 600; letter-spacing: -0.02em;
+}
+.HyperMD-header-3,
+.cm-header-3 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 600;
+}
+.HyperMD-header-4,
+.cm-header-4,
+.HyperMD-header-5,
+.cm-header-5 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 600;
+}
+.HyperMD-header-6,
+.cm-header-6 {
+  font-family: var(--font-text-theme) !important;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em;
+}
+
+/* ── 正文排版设计（排除 codeblock 和 heading 行） ── */
+
+.cm-line:not(.HyperMD-codeblock):not(.HyperMD-header),
+.markdown-rendered p,
+.markdown-rendered li,
+.markdown-rendered dd {
+  font-family: var(--font-text-theme);
+  line-height: 1.65;
+  font-size: 1.0625em; /* 17px (精细化社论字号，16px * 1.0625 = 17px) */
+}
+
+/* 区分段落间距与换行间距 */
+.markdown-rendered p {
+  margin-bottom: var(--p-spacing, 1.2em);
+}
+
+/* 区分不同列表项之间的间距 (收紧，与段落间距拉开差距) */
+.markdown-rendered li {
+  margin-bottom: var(--list-spacing, 0.25em);
+}
+/* 嵌套/松散列表：上面的 1.0625em 会随层级复利放大（li li、li>p 逐层相乘），重置回父级字号 */
+.markdown-rendered li li,
+.markdown-rendered li p {
+  font-size: 1em;
+}
+.markdown-rendered ul,
+.markdown-rendered ol {
+  margin-block: 0.4em;
+}
+.markdown-rendered li > p {
+  margin-bottom: 0.15em;
+}
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-list-line {
+  padding-bottom: var(--list-spacing, 0.25em) !important;
+}
+
+/* 内容区粗体/斜体 — 用 .markdown-rendered 约束，不影响 UI */
+.markdown-rendered strong,
+.markdown-source-view .cm-strong { font-weight: 700; }
+
+.markdown-rendered em,
+.markdown-source-view .cm-em     { font-style: italic; }
+
+/* ── 链接（仅内容区，不干扰侧边栏等 UI 链接） ── */
+
+/* 方案 A：隐匿修饰线（Ghost Underline）
+   核心设计哲学：
+   1. 静态克制：完全融入上下文环境（自动继承文字颜色，下划线自带 40% 透明度）
+   2. 交互清晰：触碰时给予强烈的视觉反馈（统一亮起主题陶土色）
+   3. 极简纯净：彻底清除 Obsidian 原生附带的杂乱图标和背景
+*/
+.markdown-rendered a,
+.markdown-source-view.mod-cm6 a,
+.cm-link,
+.cm-url,
+.internal-link,
+.external-link,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link {
+  color: inherit !important;
+  text-decoration: underline !important;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent) !important; 
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 4px !important;
+  text-decoration-skip-ink: auto !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: color var(--anim-medium), text-decoration-color var(--anim-medium);
+}
+
+.markdown-rendered a:hover,
+.markdown-source-view.mod-cm6 a:hover,
+.cm-link:hover,
+.internal-link:hover,
+.external-link:hover,
+.markdown-source-view.mod-cm6 .cm-hmd-internal-link:hover {
+  color: var(--text-accent) !important;
+  text-decoration-color: var(--text-accent) !important;
+}
+
+/* 标签胶囊与脚注序号不是"链接"视觉语言，豁免上面的鬼影下划线 */
+a.tag,
+.markdown-rendered a.tag,
+.footnote-ref a,
+.footnote-link,
+.footnote-backref {
+  text-decoration: none !important;
+}
+
+/* ── 引用块 ── */
+
+/* ── 阅读模式 ── */
+.markdown-rendered blockquote {
+  position: relative;
+  border-left: none !important;
+  background: transparent !important;
+  padding: 0 0 0 28px !important; 
+  margin: 1.5em 0;
+  font-style: normal;
+  color: var(--text-muted);
+}
+/* 小巧精致的设计感引号 SVG */
+.markdown-rendered blockquote::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+  background-image: var(--quote-icon);
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+/* 字号/行高不再缩小，与编辑模式（正文 17px）观感对齐 */
+.markdown-rendered blockquote p {
+  margin-bottom: 0;
+}
+
+/* ── 实时预览模式 (Live Preview) ── */
+.markdown-source-view.mod-cm6 .HyperMD-quote {
+  border-left: none !important;
+  background: transparent !important;
+  font-style: normal !important;
+  color: var(--text-muted) !important;
+}
+
+/* 彻底消灭原生的左侧实线！ */
+.markdown-source-view.mod-cm6 .cm-blockquote-border {
+  display: none !important;
+}
+
+/* 将原本的 > 符号伪装成小巧的设计感引号 */
+.markdown-source-view.mod-cm6 .cm-formatting-quote {
+  color: transparent !important;
+  position: relative;
+  display: inline-block;
+  width: 28px; /* 与阅读模式的 28px padding 保持完美一致 */
+}
+
+.markdown-source-view.mod-cm6 .cm-formatting-quote::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+  background-image: var(--quote-icon);
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+/* 核心魔法：如果当前行是引用块，且上一行也是引用块，则隐藏当前行的引号图标。
+   这样就能把多行引用在 Live Preview 中视觉上合并成一个完整的引用块！*/
+.cm-line.HyperMD-quote + .cm-line.HyperMD-quote .cm-formatting-quote::before {
+  display: none !important;
+}
+
+/* Callout 豁免：callout 底层语法也是 blockquote，点击展开源码时其 `>` 行
+   同样带 HyperMD-quote，会被上面的引号伪装误伤（冒出引号图标 + 透明占位块）。
+   标题行特有 HyperMD-callout class——去掉图标、恢复 `>` 可见，编辑时一目了然 */
+.markdown-source-view.mod-cm6 .HyperMD-callout .cm-formatting-quote::before {
+  display: none !important;
+}
+.markdown-source-view.mod-cm6 .HyperMD-callout .cm-formatting-quote {
+  color: var(--text-faint) !important;
+  width: auto;
+}
+/* 紧随标题行的内容行同样恢复 `>`（内容行没有专属 class，用相邻链覆盖常见深度） */
+.markdown-source-view.mod-cm6 .HyperMD-callout + .HyperMD-quote .cm-formatting-quote,
+.markdown-source-view.mod-cm6 .HyperMD-callout + .HyperMD-quote + .HyperMD-quote .cm-formatting-quote,
+.markdown-source-view.mod-cm6 .HyperMD-callout + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote .cm-formatting-quote,
+.markdown-source-view.mod-cm6 .HyperMD-callout + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote .cm-formatting-quote,
+.markdown-source-view.mod-cm6 .HyperMD-callout + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote + .HyperMD-quote .cm-formatting-quote {
+  color: var(--text-faint) !important;
+  width: auto;
+}
+
+/* ── 代码 ── */
+
+/* 行内代码（编辑器 + 阅读模式统一） */
+.cm-inline-code,
+.cm-s-obsidian .cm-inline-code,
+.markdown-rendered code {
+  font-family: var(--font-monospace-theme);
+  background: var(--background-secondary-alt);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  padding: 2px 6px;
+  font-size: 0.85em;
+  color: var(--text-normal);
+}
+
+/* 代码块 (阅读视图 & 渲染的嵌入代码块) */
+.markdown-rendered pre {
+  font-family: var(--font-monospace-theme);
+  background: var(--background-primary-alt);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  padding: 18px 20px;
+  line-height: 1.6;
+  font-size: 0.875em;
+}
+
+/* 编辑视图 (Live Preview) 中的代码块行 */
+.HyperMD-codeblock {
+  font-family: var(--font-monospace-theme);
+  background: var(--background-primary-alt);
+  font-size: 0.875em;
+  line-height: 1.6;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  border-left: 1px solid var(--background-modifier-border) !important;
+  border-right: 1px solid var(--background-modifier-border) !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 代码块起始行 */
+.HyperMD-codeblock-begin {
+  border-top: 1px solid var(--background-modifier-border) !important;
+  border-top-left-radius: var(--radius-m) !important;
+  border-top-right-radius: var(--radius-m) !important;
+  padding-top: 18px !important;
+}
+
+/* 代码块结束行 */
+.HyperMD-codeblock-end {
+  border-bottom: 1px solid var(--background-modifier-border) !important;
+  border-bottom-left-radius: var(--radius-m) !important;
+  border-bottom-right-radius: var(--radius-m) !important;
+  padding-bottom: 18px !important;
+}
+
+/* ── 语法高亮映射 (CodeMirror 6 Editor & Prism.js Reader) ── */
+
+/* 关键字 */
+.cm-keyword,
+.token.keyword {
+  color: var(--code-keyword) !important;
+  font-weight: 600;
+}
+
+/* 字符串 */
+.cm-string,
+.token.string {
+  color: var(--code-string) !important;
+}
+
+/* 数字与常量 */
+.cm-number,
+.cm-atom,
+.token.number,
+.token.boolean,
+.token.constant {
+  color: var(--code-number) !important;
+}
+
+/* 注释 */
+.cm-comment,
+.token.comment {
+  color: var(--code-comment) !important;
+  font-style: italic;
+}
+
+/* 函数名 */
+.cm-def,
+.token.function {
+  color: var(--code-function) !important;
+}
+
+/* 类型与类名 */
+.cm-type,
+.token.class-name,
+.token.type {
+  color: var(--code-type) !important;
+}
+
+/* 属性名 */
+.cm-property,
+.token.property,
+.token.attr-name {
+  color: var(--code-property) !important;
+}
+
+/* 运算符与标点 */
+.cm-operator,
+.cm-punctuation,
+.token.operator,
+.token.punctuation {
+  color: var(--code-operator) !important;
+}
+
+/* 变量 */
+.cm-variable,
+.token.variable {
+  color: var(--code-variable) !important;
+}
+
+/* ── 列表 ── */
+
+.markdown-rendered ul li::marker,
+.markdown-rendered ol li::marker {
+  color: var(--interactive-accent);
+}
+
+/* Live Preview 列表标记（不用 !important，直接用足够的选择器特异性） */
+.markdown-source-view .cm-formatting-list-ol,
+.markdown-source-view .cm-formatting-list-ul {
+  color: var(--interactive-accent);
+}
+
+/* ── 分隔线 ── */
+
+hr,
+.markdown-rendered hr,
+.HyperMD-hr {
+  border: none;
+  height: 1px;
+  background: var(--background-modifier-border);
+  margin: 48px 0;
+}
+
+/* ── 标签 ── */
+
+.tag,
+.cm-hashtag {
+  background: var(--tag-background); /* 极轻微的陶土底色 */
+  color: var(--tag-color); /* 陶土文字色，token 分模式取值保证可读性 */
+  border: none; /* 彻底去除边框 */
+  border-radius: var(--radius-pill); /* 恢复标准的胶囊圆角 */
+  padding: 3px 10px;
+  font-size: 0.8em;
+  font-weight: 500;
+  font-family: var(--font-interface-theme);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  vertical-align: baseline;
+}
+
+/* 渲染模式下强制文字颜色一致 */
+.markdown-rendered a.tag,
+.markdown-rendered td a.tag,
+.markdown-rendered th a.tag,
+.markdown-rendered li a.tag,
+.markdown-rendered blockquote a.tag,
+a.tag {
+  color: var(--tag-color) !important;
+}
+
+.tag:hover {
+  background: var(--tag-background-hover); /* 悬停时底色稍微加深一点点 */
+  color: var(--tag-color-hover) !important; /* 悬停时文字对比更强一点 */
+}
+
+/* Live Preview 标签同样有 hover 反馈（与阅读模式一致）。
+   胶囊拆成 begin/end 两半，悬停任一半时用兄弟选择器点亮另一半 */
+.cm-hashtag:hover,
+.cm-hashtag-begin:hover + .cm-hashtag-end,
+.cm-hashtag-begin:has(+ .cm-hashtag-end:hover) {
+  background: var(--tag-background-hover);
+  color: var(--tag-color-hover);
+}
+
+/* Live Preview：完美的胶囊拼接（因为没有边框，所以拼接毫无破绽） */
+.cm-hashtag.cm-hashtag-begin {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+  padding-left: 10px; padding-right: 1px;
+}
+.cm-hashtag.cm-hashtag-end {
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  padding-left: 1px; padding-right: 10px;
+}
+
+/* ── 复选框（Circle Minimal · 圆形极简风） ── */
+
+.task-list-item-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border: var(--checkbox-border-width) solid var(--checkbox-border-color);
+  border-radius: var(--checkbox-radius);
+  background: transparent;
+  cursor: pointer;
+  /* 弹性回弹：勾选时填充"落定"（reduced-motion 下由全局规则禁用） */
+  transition: background-color 0.22s cubic-bezier(0.34, 1.4, 0.64, 1),
+              border-color     0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+  vertical-align: middle;
+  position: relative;
+}
+
+.task-list-item-checkbox:hover {
+  border-color: var(--checkbox-border-color-hover);
+}
+
+.task-list-item-checkbox:checked {
+  background: var(--checkbox-color);
+  border-color: var(--checkbox-color);
+}
+
+/* 极简短勾 — 必须走 Obsidian 原生 ::after mask 通道：
+   原生对勾以 ::after 蒙版绘制在最上层，input 的 background-image
+   会被它整个盖住（此前改勾"不生效"的根因），故在同一通道替换造型 */
+.task-list-item-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--checkbox-marker-color);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10.6 6 L7.2 9.9 L5.4 8.1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M10.6 6 L7.2 9.9 L5.4 8.1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100%;
+  mask-size: 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* 伪元素扩大点击范围（不影响布局）——挂在 ::before，
+   避免 ::after 被勾选态征用为对勾后热区缩水（取消勾选变难点） */
+.task-list-item-checkbox::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+/* ── 已完成任务褪色（整行透明度降低，不依赖删除线） ── */
+/* 覆盖阅读模式和实时预览模式 */
+.markdown-rendered .task-list-item.is-checked,
+.markdown-rendered li[data-task="x"],
+.markdown-rendered li[data-task="X"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="x"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="X"] {
+  opacity: 0.45 !important;
+  text-decoration: none !important;
+  color: var(--text-normal) !important;
+}
+
+/* 取消内部任何可能附带的删除线 */
+.markdown-rendered li[data-task="x"] s,
+.markdown-rendered li[data-task="X"] s,
+.markdown-rendered li[data-task="x"] del,
+.markdown-rendered li[data-task="X"] del,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="x"] .cm-strikethrough,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="X"] .cm-strikethrough {
+  text-decoration: none !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   UI CHROME
+   ════════════════════════════════════════════════════════════ */
+
+/* ── 顶部栏（统一所有区域背景，消除色差分界线） ── */
+
+.titlebar,
+.mod-top-left-space,
+.mod-top-right-space,
+.workspace-tabs.mod-top-left-space,
+.workspace-tab-header-container {
+  background: var(--background-primary-alt);
+}
+
+.workspace-tab-header-container {
+  border-bottom: 1px solid var(--tab-outline-color);  /* 与页签描边统一实色 */
+}
+
+.titlebar-button-container {
+  opacity: 0.7;
+  transition: opacity var(--anim-fast);
+}
+.titlebar-button-container:hover { opacity: 1; }
+
+/* ── 标签页（样式由 body 中的官方变量控制，此处仅设字体） ── */
+
+.workspace-tab-header {
+  font-family: var(--font-interface-theme);
+  font-size: 0.85em;
+}
+/* 页签标题：随父级界面字体（不再 monospace 大写，科技感过强），
+   但字号压小以容纳更长的文档名，一眼可辨 */
+.workspace-tab-header-inner-title {
+  font-size: 0.78em;
+}
+
+/* 当前活跃页签：加重字重，与颜色（Clay）双通道区分 */
+.workspace-tab-header.is-active .workspace-tab-header-inner-title {
+  font-weight: 600;
+}
+
+/* 锁定页签图标 — 简约竖线圆钉（修正选择器：.mod-pinned 在 close-button 上） */
+.workspace-tab-header-inner-close-button.mod-pinned > svg,
+.workspace-tab-header-status-icon.mod-pinned > svg {
+  display: none !important;
+}
+.workspace-tab-header-inner-close-button.mod-pinned::before,
+.workspace-tab-header-status-icon.mod-pinned::before {
+  content: '';
+  display: block;
+  width: var(--icon-size, 16px);
+  height: var(--icon-size, 16px);
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='8' r='3' fill='black'/%3E%3Cline x1='12' y1='11' x2='12' y2='19'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='8' r='3' fill='black'/%3E%3Cline x1='12' y1='11' x2='12' y2='19'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* ── 侧边栏 ── */
+
+.workspace-ribbon {
+  background: var(--background-secondary);
+  border-right: 1px solid var(--background-modifier-border);
+}
+
+/* ── GPU 合成 + Containment（渲染性能优化） ── */
+
+.workspace {
+  background: var(--background-primary);
+}
+
+.workspace-split.mod-left-split,
+.workspace-split.mod-right-split {
+  background: var(--background-secondary);
+}
+
+.workspace-leaf-content {
+  contain: paint;
+}
+
+/* ── 大纲视图（TOC）与正文标题字体族统一 ── */
+.workspace-leaf-content[data-type="outline"] .tree-item-inner,
+.outline-view-container .tree-item-inner,
+.outline-item-self {
+  font-family: var(--font-text-theme) !important;
+}
+
+.workspace-leaf-content[data-type="outline"] .tree-item-self,
+.outline-view-container .tree-item-self,
+.outline-item-self {
+  position: relative;
+  transition: background var(--anim-fast), color var(--anim-fast);
+}
+.workspace-leaf-content[data-type="outline"] .tree-item-self::before,
+.outline-view-container .tree-item-self::before,
+.outline-item-self::before,
+.nav-file-title::before,
+.nav-folder-title::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 22%;
+  height: 56%;
+  width: 2px;
+  background-color: var(--callout-color-clay);
+  border-radius: 2px;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.workspace-leaf-content[data-type="outline"] .tree-item-self:hover::before,
+.outline-view-container .tree-item-self:hover::before,
+.outline-item-self:hover::before,
+.nav-file-title:hover::before,
+.nav-folder-title:hover::before {
+  transform: scaleY(1);
+}
+.workspace-leaf-content[data-type="outline"] .tree-item-self.is-active::before,
+.outline-view-container .tree-item-self.is-active::before,
+.outline-item-self.is-active::before,
+.nav-file-title.is-active::before,
+.nav-folder-title.is-active::before {
+  transform: scaleY(1);
+  width: 2.5px;
+  background-color: var(--callout-color-clay);
+}
+
+.workspace-leaf-resize-handle {
+  border-color: var(--background-modifier-border);
+}
+
+.markdown-preview-view,
+.markdown-source-view {
+  overscroll-behavior-y: contain;
+  /* ── 纸张微质感（高硬度平铺底噪，对 GPU 滚动 100% 零损耗） ── */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E") !important;
+}
+
+.nav-files-container {
+  overscroll-behavior-y: contain;
+}
+
+.nav-file-title,
+.nav-folder-title {
+  position: relative;
+  border-radius: 6px;
+  font-family: var(--font-interface-theme);
+  font-size: 0.9em;
+  transition: background var(--anim-fast), color var(--anim-fast);
+}
+.nav-file-title:hover,
+.nav-folder-title:hover {
+  background: var(--nav-item-background-hover);
+  color: var(--nav-item-color-hover);
+}
+.nav-file-title.is-active,
+.nav-folder-title.is-active {
+  background: var(--nav-item-background-active);
+  color: var(--nav-item-color-active);
+  font-weight: 500;
+}
+
+/* 文件树顶级 chapter（不在任何 .nav-folder-children 内）用 weight 700 立起来
+   用 :not() 检测，不依赖是否有 .tree-item wrapper。
+   之前的 > 直接子选择器漏了 .tree-item 中间层，所以一直没生效。
+   500/600 跟 400 在 CJK 字体上区分太小，多 fall back 到 400。 */
+.nav-folder-title:not(.nav-folder-children .nav-folder-title),
+.nav-file-title:not(.nav-folder-children .nav-file-title) {
+  font-weight: 600;
+}
+
+/* ── 状态栏 ── */
+
+.status-bar {
+  /* 右下角悬浮 chip：亮白卡面 + 发丝边 + 柔影，告别灰黄色板 */
+  background: var(--folio-floating-surface);
+  border-top: 1px solid var(--background-modifier-border);
+  border-left: 1px solid var(--background-modifier-border);
+  box-shadow: -3px -3px 12px rgba(20, 20, 19, 0.05);
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller, 12px);   /* Obsidian 官方变量，fallback 12px */
+  font-family: var(--font-interface-theme);
+}
+
+/* ── 滚动条 ── */
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+/* 滑槽透明：隐藏凹槽，只保留滑块（仿浏览器悬浮滚动条观感） */
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+/* 自定义滚动条会失去 macOS 原生的自动隐藏，用 CSS 近似还原：
+   滑块默认透明，仅当光标悬停在该滚动容器上时显现
+   （滚动条伪元素不支持 transition，显隐为瞬时切换） */
+::-webkit-scrollbar-thumb { background: transparent; border-radius: var(--radius-s); }
+:hover::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-bg); }
+:hover::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-active-thumb-bg); }
+
+/* ── 按钮（4种核心按钮类型） ── */
+
+/* Primary 按钮：Slate Dark 背景 */
+button.mod-cta,
+.markdown-rendered button:not(.mod-cta):not(.clickable-icon).button-primary {
+  background: var(--text-normal);  /* Slate Dark */
+  color: var(--background-primary);
+  border-color: var(--text-normal);
+  transition: background var(--anim-medium);
+}
+button.mod-cta:hover,
+.markdown-rendered button.button-primary:hover {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+}
+
+/* CTA 按钮：Clay 背景（Obsidian 默认 .mod-cta） */
+.markdown-rendered button.button-cta {
+  background: var(--interactive-accent);  /* Clay */
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+  transition: background var(--anim-medium);
+}
+.markdown-rendered button.button-cta:hover {
+  background: var(--interactive-accent-hover);
+  border-color: var(--interactive-accent-hover);
+}
+
+/* Secondary 按钮：透明背景 + Slate Dark 边框 */
+.markdown-rendered button.button-secondary {
+  background: transparent;
+  color: var(--text-normal);
+  border: 1px solid var(--text-normal);
+  transition: background var(--anim-medium), border-color var(--anim-medium);
+}
+.markdown-rendered button.button-secondary:hover {
+  background: var(--bg-text-tint);
+  border-color: var(--text-muted);
+}
+
+/* Tertiary 按钮：透明背景 + 细边框 */
+.markdown-rendered button.button-tertiary {
+  background: transparent;
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  transition: background var(--anim-medium), border-color var(--anim-medium);
+}
+.markdown-rendered button.button-tertiary:hover {
+  background: var(--background-primary-alt);
+  border-color: var(--text-muted);
+}
+
+.modal button:not(.mod-cta):not(.clickable-icon) {
+  background: transparent;
+  color: var(--text-accent);
+  border-color: var(--interactive-accent);
+  transition: background var(--anim-medium), color var(--anim-medium);
+}
+.modal button:not(.mod-cta):not(.clickable-icon):hover {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* ── 输入框（使用 Obsidian 变量，组件级别可覆盖） ── */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+  border: var(--input-border-width, 1px) solid var(--background-modifier-border);
+  border-radius: var(--input-radius, var(--radius-m));
+  background: var(--background-modifier-form-field);
+  padding: var(--input-padding, 7px 14px);
+  color: var(--text-normal);
+  font-family: var(--font-interface-theme);
+  font-size: var(--font-ui-medium, 14px);
+  transition: border-color var(--anim-fast), box-shadow var(--anim-fast);
+}
+
+/* 搜索框：不覆盖 padding，让 Obsidian 原生图标间距生效 */
+input[type="search"] {
+  border: var(--input-border-width, 1px) solid var(--background-modifier-border);
+  border-radius: var(--input-radius, var(--radius-m));
+  background: var(--background-modifier-form-field);
+  color: var(--text-normal);
+  font-family: var(--font-interface-theme);
+  font-size: var(--font-ui-medium, 14px);
+  transition: border-color var(--anim-fast), box-shadow var(--anim-fast);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+/* ── 模态框 ── */
+
+.modal {
+  background: var(--background-primary);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-modal);
+  border: 1px solid var(--background-modifier-border);
+}
+
+/* obsidian-git 共享 modal：容器 overflow:hidden 且输入框紧贴容器底边，
+   会把输入框底部边框/圆角/焦点环一起削平。容器内容不溢出(scrollH==clientH)，
+   overflow:hidden 无必要，放开即可，零副作用。 */
+.modal-content.sync-vault-share-container {
+  overflow: visible;
+}
+
+.modal-title {
+  font-family: var(--font-interface-theme);
+  font-weight: 600;
+  color: var(--h2-color);
+}
+
+/* ── 提示框（颜色走语义化 token，自动适配暗色） ── */
+
+.tooltip {
+  background: var(--tooltip-bg);
+  color: var(--tooltip-color);
+  border-radius: var(--radius-m);
+  font-size: var(--font-ui-smaller, 12px);
+  padding: 6px 12px;
+  font-family: var(--font-interface-theme);
+}
+
+/* ── 下拉菜单 / 右键菜单 ── */
+
+/* 浮层统一观感：亮白卡片 + 发丝边 + 柔影抬升（取代灰黄填充） */
+.dropdown-menu,
+.context-menu,
+.suggestion-container {
+  background: var(--folio-floating-surface);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-large);
+  font-family: var(--font-interface-theme);
+  padding: 6px;
+}
+/* 搜索浮层 .mod-search-suggestion 自带 0,2,0 特异性的 --background-secondary 底色，
+   必须同特异性覆盖；内部 .suggestion 同样要清掉灰底，交给 hover/选中态着色 */
+.suggestion-container.mod-search-suggestion {
+  background-color: var(--folio-floating-surface);
+  border-color: var(--background-modifier-border);
+}
+.suggestion-container.mod-search-suggestion .suggestion {
+  background-color: transparent;
+}
+
+.menu-item {
+  border-radius: var(--radius-m);
+  padding: 8px 12px;
+  font-size: var(--font-ui-medium, 14px);
+  transition: background var(--anim-fast), color var(--anim-fast);
+  color: var(--text-normal);
+}
+.menu-item:hover   { background: var(--nav-item-background-hover); color: var(--nav-item-color-hover); }
+.menu-item.selected{ background: var(--nav-item-background-active); color: var(--nav-item-color-active); }
+.menu-separator {
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin: 4px 8px;
+}
+
+/* ── Toggle 开关（只设颜色，几何由 Obsidian 原生控制） ── */
+
+.checkbox-container.is-enabled {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+}
+
+/* ── Slider 滑块（尺寸/颜色由 body 中的官方变量控制，此处仅设交互效果） ── */
+
+input[type='range']::-webkit-slider-thumb {
+  transition: transform var(--anim-fast), box-shadow var(--anim-fast);
+}
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(var(--interactive-accent-rgb), 0.3);
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   CONTENT RENDERING
+   ════════════════════════════════════════════════════════════ */
+
+/* ── 嵌入/卡片 ── */
+
+/* 笔记嵌入用卡片观感；图片/音视频嵌入排除（否则透明图衬出白底+边框） */
+.internal-embed:not(.image-embed):not(.media-embed),
+.markdown-embed {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-l);
+  background: var(--background-modifier-form-field);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* ── 图谱 ── */
+
+.graph-view.color-fill { color: var(--interactive-accent); }
+.graph-view.color-line { color: var(--background-modifier-border); }
+
+/* ── Callout ── */
+
+/* 单 border-left + tinted bg 构成容器；去掉 1px 灰边以避免 3px 彩边
+   与 1px 灰边在 16px 圆角处出现"蘑菇头"接缝（CSS 内外角差 2–13px）。
+   rgba() 替代 color-mix()（消除 paint-time 动态计算） */
+.callout {
+  border-left: 3px solid var(--callout-accent, var(--callout-color, var(--interactive-accent)));
+  border-radius: var(--radius-l);
+  background: var(--background-primary-alt);
+  padding: 10px 16px 12px 20px;
+  /* 不用 display:flex —— flex 容器会破坏 Live Preview 下 CodeMirror 的 widget
+     高度映射，导致 callout 内代码块/表格/段落被撑出数倍空白（实测 <p> 122px、
+     <pre> 488px）。回归原生 block，title/content 靠文档流纵向堆叠。 */
+}
+.callout-title {
+  font-family: var(--font-interface-theme);
+  font-weight: 600;
+  font-size: 0.9em;
+  line-height: 1.55;
+  color: var(--text-normal);
+  display: flex;
+  align-items: center;   /* 图标与标题文字垂直居中，单行不换行 → 图标不下沉 */
+  gap: 8px;
+  margin: 0 0 0.3em 0;   /* title→content 间距用 margin 实现，不依赖容器 gap */
+  padding: 0;
+}
+.callout-title-inner {
+  min-width: 0;   /* 允许收缩让出折叠箭头空间；不再 max-width 限宽 → 标题有整行空间，不换行 */
+}
+.callout-content {
+  font-size: 0.875em;
+  line-height: 1.55;
+  margin: 0;
+}
+.callout-content p {
+  margin: 0;
+}
+.callout-content > * + * {
+  margin-top: 0.5em;
+}
+.callout-icon {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+}
+.callout mark {
+  background: var(--callout-mark-bg);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.callout[data-callout='info']     { --callout-accent: var(--callout-color-info);    background: rgba(106, 155, 204, 0.06); --callout-mark-bg: rgba(106, 155, 204, 0.30); }
+.callout[data-callout='warning']  { --callout-accent: var(--callout-color-warning); background: rgba(212, 162, 127, 0.06); --callout-mark-bg: rgba(212, 162, 127, 0.32); }
+.callout[data-callout='error'],
+.callout[data-callout='danger']   { --callout-accent: var(--callout-color-error);   background: rgba(196, 102, 134, 0.06); --callout-mark-bg: rgba(196, 102, 134, 0.30); }
+.callout[data-callout='success'],
+.callout[data-callout='tip']      { --callout-accent: var(--callout-color-success); background: rgba(120, 140, 93, 0.06);  --callout-mark-bg: rgba(120, 140, 93, 0.30); }
+.callout[data-callout='question'] { --callout-accent: var(--callout-color-clay);    background: rgba(217, 119, 87, 0.06);  --callout-mark-bg: rgba(217, 119, 87, 0.28); }
+.callout[data-callout='quote']    { --callout-accent: var(--callout-color-slate);   background: rgba(94, 93, 89, 0.04);    --callout-mark-bg: rgba(94, 93, 89, 0.18); }
+.callout[data-callout='abstract'],
+.callout[data-callout='summary']  { --callout-accent: var(--callout-color-heather); background: rgba(130, 125, 189, 0.06); --callout-mark-bg: rgba(130, 125, 189, 0.30); }
+.callout[data-callout='example']  { --callout-accent: var(--callout-color-clay);    --callout-mark-bg: rgba(217, 119, 87, 0.28); }
+
+/* 染色正文仅限亮色模式（暗色下深色文字不可读，回退 --text-normal） */
+body.theme-light .callout[data-callout='info']    { color: #1a365d; }
+body.theme-light .callout[data-callout='warning'] { color: #7a4a23; }
+body.theme-light .callout[data-callout='error'],
+body.theme-light .callout[data-callout='danger']  { color: #7a1a3a; }
+body.theme-light .callout[data-callout='success'],
+body.theme-light .callout[data-callout='tip']     { color: #3d5a1a; }
+
+/* ── 表格 ──────────────────────────────────────────────────────
+   社论增强版风格（精细排版）：
+   · 增加外边框 + 8px 圆角，定义表格边界
+   · 表头统一浅灰背景（无斑马交替），通过字重 + 边框区分
+   · 完整边框系统（行底线 + 列竖线）
+   · 间距优化：表头 14px/16px，内容 12px/16px
+   · 悬停效果：Obsidian 官方变量 --table-row-background-hover
+   ─────────────────────────────────────────────────────────── */
+
+.markdown-rendered table,
+.cm-embed-block table {
+  width: fit-content;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-interface-theme);
+  font-variant-numeric: tabular-nums;
+  margin: 18px 0 22px 0;
+
+  /* 三线表：无卡片、无底色、无竖线、无行线；只留顶线 */
+  background: transparent;
+  border: none;
+  border-top: 1.5px solid var(--table-rule);
+  border-radius: 0;
+}
+
+.markdown-rendered th,
+.cm-embed-block th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: calc(var(--font-text-size) * 0.82) !important;
+  letter-spacing: 0.02em;
+  text-align: left;
+  padding: var(--table-header-padding-y) var(--table-header-padding-x);
+
+  background: transparent !important;               /* 无色带 */
+  border-bottom: 1px solid var(--table-rule);       /* 表头下线（第二根） */
+  /* 去除竖向分割线 */
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* 表头无底色（禁用官方交替背景） */
+.markdown-rendered thead th:nth-child(odd),
+.markdown-rendered thead th:nth-child(even),
+.cm-embed-block thead th:nth-child(odd),
+.cm-embed-block thead th:nth-child(even) {
+  background: transparent !important;
+}
+
+.markdown-rendered thead tr,
+.cm-embed-block thead tr {
+  background: transparent !important;
+}
+
+/* 第一列允许换行（长内容按词断行，短内容自然不换行） */
+.markdown-rendered td:first-child,
+.markdown-rendered th:first-child,
+.cm-embed-block td:first-child,
+.cm-embed-block th:first-child {
+  white-space: normal;
+}
+
+/* 首列作为行标签，稍加字重 */
+.markdown-rendered tbody td:first-child,
+.cm-embed-block tbody td:first-child {
+  font-weight: 500;
+  color: var(--text-normal);
+}
+
+.markdown-rendered td,
+.cm-embed-block td {
+  padding: var(--table-padding-y) var(--table-padding-x);
+  color: var(--text-normal);
+  font-size: calc(var(--font-text-size) * 0.85) !important;
+  line-height: var(--table-line-height);
+  /* 不用 word-break: break-word（≈ anywhere）：它会把列的 min-content 压到单字符，
+     短列（版本号/日期）会被长列挤成竖排。break-word 长词照断，但保住 min-content */
+  overflow-wrap: break-word;
+  
+  /* 三线表：正文行之间不画线 */
+  border-bottom: none;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* 表格内链接允许在分隔符处断行 */
+.markdown-rendered td a,
+.cm-embed-block td a {
+  overflow-wrap: anywhere;
+}
+
+/* 末行底线（第三根） */
+.markdown-rendered tbody tr:last-child td,
+.cm-embed-block tbody tr:last-child td {
+  border-bottom: 1.5px solid var(--table-rule);
+}
+
+/* 悬停效果回归官方原生变量 */
+.markdown-rendered tbody tr {
+  transition: background-color var(--anim-fast);
+}
+.markdown-rendered tbody tr:hover {
+  background-color: var(--table-row-background-hover);
+}
+
+/* 编辑模式 (Live Preview)：容器只管布局，不画线。
+   内层真表格 table.table-editor 已随外层 .markdown-rendered 类
+   套用阅读模式三线规则（顶线/表头下线/末行底线），容器再画顶线会重复。 */
+.markdown-source-view.mod-cm6 .cm-table-widget {
+  line-height: var(--table-line-height);
+  width: fit-content;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+  /* 取消官方的负边距，让表格整体右移，对齐段落文字 */
+  margin-inline-start: 0 !important;
+  margin-left: 0 !important;
+  /* 无卡片无底色无边框（线全部交给内层真表格） */
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.markdown-source-view.mod-cm6 .cm-table-widget td .table-cell-wrapper {
+  padding: var(--table-padding-y) var(--table-padding-x);
+}
+.markdown-source-view.mod-cm6 .cm-table-widget th .table-cell-wrapper {
+  padding: var(--table-header-padding-y) var(--table-header-padding-x);
+}
+/* 编辑模式：去竖线 + 去行线（三线表）+ 字号/断行与阅读模式统一 */
+.markdown-source-view.mod-cm6 .cm-table-widget-row .cm-table-widget-cell {
+  border-right: none !important;
+  border-left: none !important;
+  border-bottom: none !important;
+  font-size: calc(var(--font-text-size) * 0.85) !important;
+  overflow-wrap: break-word;  /* 同阅读模式：保住短列 min-content，见 td 注释 */
+}
+/* 表头行：无底色 + 表头下线（第二根） */
+.markdown-source-view.mod-cm6 .cm-table-widget-row:first-child .cm-table-widget-cell {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+  font-size: calc(var(--font-text-size) * 0.82) !important;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--table-rule) !important;
+}
+/* 末行底线（第三根） */
+.markdown-source-view.mod-cm6 .cm-table-widget-row:last-child .cm-table-widget-cell {
+  border-bottom: 1.5px solid var(--table-rule) !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-table-widget-cell a {
+  overflow-wrap: anywhere;
+}
+
+/* 表格内 code：去掉背景/边框；长 token（路径/命令）允许任意断行，
+   与 td a 同理——防止不可断长词把列 min-content 撑爆、挤压其他列 */
+.markdown-rendered td code,
+.markdown-rendered th code,
+.cm-embed-block td code,
+.cm-embed-block th code {
+  background: transparent;
+  border: none;
+  padding: 0 2px;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+/* Dataview 专属紧凑化配置 */
+.dataview.table-view-table,
+.block-language-dataview table {
+  --table-padding-y: 4px;          /* 纵向内边距缩减 */
+  --table-padding-x: 8px;
+  --table-header-padding-y: 6px;   /* 表头纵向内边距缩减 */
+  --table-header-padding-x: 8px;
+  --table-line-height: 1.3;        /* 稍微收紧行高 */
+  font-size: 0.85em;               /* 适当降低字号提高信息密度 */
+}
+
+/* ── Callout 内容修正（间距 / 圆点色 / 内嵌表格）─────────────────
+   规则置于表格主规则之后，靠特异性(0,2,x)+顺序双重保证覆盖生效
+   ─────────────────────────────────────────────────────────── */
+
+/* B. 段落/列表项间距收紧（callout 内整体偏挤，去掉多余留白） */
+.callout .callout-content > * + * {
+  margin-top: 0.2em;
+}
+.callout .callout-content li {
+  margin-bottom: 0.15em;
+}
+
+/* C. 列表圆点/序号跟随 callout 底色，不再用全局陶土色 */
+.callout .callout-content ul li::marker,
+.callout .callout-content ol li::marker {
+  color: var(--callout-accent);
+}
+
+/* D. Callout 内 blockquote 允许换行（防止长文本撑爆 flex 容器） */
+.callout .callout-content blockquote {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.callout .callout-content blockquote p {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* D. 内嵌表格融入 callout：去掉自带底色/外框/圆角，消除“盒中盒” */
+.callout .callout-content table,
+.callout .callout-content .cm-table-widget {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ── 阅读模式（限宽设在 sizer 层，滚动条保持在容器右边缘） ── */
+
+.markdown-preview-view.is-readable-line-width .markdown-preview-sizer {
+  max-width: 950px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.markdown-rendered img {
+  border-radius: var(--radius-l);
+  display: block;
+}
+
+.markdown-rendered img + em,
+.markdown-rendered .image-caption {
+  display: block;
+  text-align: center;
+  font-size: 0.82em;
+  color: var(--text-faint);
+  margin-top: 8px;
+  font-style: normal;
+  font-family: var(--font-interface-theme);
+}
+
+/* ── 选区 ── */
+
+::selection {
+  background: rgba(var(--interactive-accent-rgb), 0.15);
+}
+/* 暗色下 15% 太淡，与高亮色一致提到 25% */
+body.theme-dark ::selection {
+  background: rgba(var(--interactive-accent-rgb), 0.25);
+}
+
+/* ── Frontmatter / 属性 ──────────────────────────────────────
+   社论元数据条风格：
+   · 底部 Clay 色细分隔线，与正文优雅分离
+   · 精致小字号 + 行间细线，杂志版面感
+   · Tags 胶囊改为描边风格（仅在属性区内）
+   ─────────────────────────────────────────────────────────── */
+
+.metadata-container {
+  /* 容器：透明底 + 底部 Clay 分隔线 */
+  --metadata-background: transparent;
+  --metadata-border-width: 0;
+  --metadata-padding: var(--size-4-2) 0;
+
+  /* 行间细分隔线（杂志版面感） */
+  --metadata-divider-width: 1px;
+  --metadata-divider-color: var(--background-modifier-border);
+  --metadata-divider-color-hover: var(--background-modifier-border);
+  --metadata-divider-color-focus: var(--background-modifier-border);
+  --metadata-gap: 0;
+
+  /* 输入框白底消除 */
+  --background-modifier-form-field: transparent;
+
+  /* 属性行 hover/focus 颜色 */
+  --metadata-property-background-hover: rgba(var(--interactive-accent-rgb), 0.04);
+  --metadata-property-background-active: rgba(var(--interactive-accent-rgb), 0.06);
+  --metadata-property-box-shadow-focus: inset 0 0 0 1px rgba(var(--interactive-accent-rgb), 0.35);
+  --metadata-property-radius: 4px;
+  --metadata-property-radius-hover: 4px;
+  --metadata-property-radius-focus: 4px;
+
+  /* 值输入框透明 */
+  --metadata-input-background: transparent;
+  --metadata-input-background-hover: transparent;
+  --metadata-input-background-active: rgba(var(--interactive-accent-rgb), 0.03);
+
+  font-family: var(--font-interface-theme);
+  font-size: 0.8em;
+
+  /* 统一属性区所有文字的字体（覆盖官方 --font-interface 回退） */
+  --metadata-label-font: var(--font-interface-theme);
+  --metadata-input-font: var(--font-interface-theme);
+
+  /* 底部分隔线 — Clay accent，与脚注区呼应 */
+  border-bottom: 1px solid var(--interactive-accent);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+/* 标题「笔记属性」：去 uppercase，更精致 */
+.metadata-properties-heading {
+  color: var(--text-faint);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-size: 0.72em;
+  opacity: 0.7;
+}
+
+/* 属性类型图标：缩小 + 降透明度，退居视觉背景 + 与文字拉开间距 */
+.metadata-property-icon {
+  --icon-size: var(--icon-xs);
+  --icon-stroke: var(--icon-xs-stroke-width);
+  opacity: 0.35;
+  transition: opacity var(--anim-fast);
+  margin-right: 2px;
+}
+
+.metadata-property:hover .metadata-property-icon,
+.metadata-property:focus-within .metadata-property-icon {
+  opacity: 0.6;
+}
+
+/* 属性键文字 */
+.metadata-property-key-input {
+  color: var(--text-faint);
+  font-family: var(--font-interface-theme);
+  font-weight: 500;
+}
+
+/* 属性值文字 */
+.metadata-property-value {
+  color: var(--text-normal);
+}
+
+/* Tags 胶囊：仅在属性区改为描边风格 */
+.metadata-property-value[data-property-type="tags"] .multi-select-pill {
+  --pill-background: transparent;
+  --pill-background-hover: rgba(var(--interactive-accent-rgb), 0.08);
+  --pill-border-width: 1px;
+  --pill-border-color: var(--interactive-accent);
+  --pill-border-color-hover: var(--interactive-accent);
+  --pill-color: var(--interactive-accent);
+  --pill-color-hover: var(--interactive-accent);
+  --pill-color-remove: var(--interactive-accent);
+  --pill-color-remove-hover: var(--text-error);
+  --pill-padding-x: var(--tag-padding-x);
+  --pill-padding-y: var(--tag-padding-y);
+  --pill-radius: var(--radius-pill);
+  font-weight: 500;
+  font-size: 0.92em;
+}
+
+/* 「+ 添加属性」按钮 */
+.metadata-add-button {
+  color: var(--text-faint);
+  font-family: var(--font-interface-theme);
+  font-size: 0.78em;
+  opacity: 0.5;
+  transition: opacity var(--anim-fast), color var(--anim-fast);
+}
+
+.metadata-add-button:hover {
+  opacity: 1;
+  color: var(--text-accent);
+  background: transparent;
+}
+
+/* 属性区所有 input：覆盖全局白底样式（变量级联在此上下文中不可靠） */
+input.metadata-property-key-input,
+.metadata-container input[type="text"]:not([class*="search"]),
+.metadata-container textarea {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
+input.metadata-property-key-input:focus,
+.metadata-container input[type="text"]:focus,
+.metadata-container textarea:focus {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 覆盖全局 *:focus-visible 的 2px outline，防止在属性区泄漏 */
+input.metadata-property-key-input:focus-visible,
+.metadata-container input[type="text"]:focus-visible,
+.metadata-container textarea:focus-visible,
+.metadata-container select:focus-visible {
+  outline: none !important;
+}
+
+/* 属性行 focus：inset box-shadow 替代 outline */
+.metadata-property.has-focus,
+.metadata-property:focus-within {
+  outline: none;
+}
+
+.metadata-property:focus-visible {
+  outline: none !important;
+}
+
+/* ── 搜索结果 ── */
+
+.search-result-file-title {
+  color: var(--text-accent);
+  font-weight: 600;
+  font-family: var(--font-interface-theme);
+}
+.search-result-file-match { color: var(--text-muted); }
+.search-result-file-match:hover { background: var(--nav-item-background-hover); }
+
+/* ── 脚注（Editorial 书末注风格） ── */
+
+/* 阅读模式脚注区域 */
+.markdown-rendered .footnotes {
+  font-family: var(--font-interface-theme);
+  font-size: 0.82em;
+  color: var(--text-muted);
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--interactive-accent);
+}
+
+/* 脚注区分隔线用 Clay accent 替代默认灰线 */
+.markdown-rendered .footnotes-sep,
+.markdown-rendered .footnotes > hr {
+  display: none;  /* 隐藏默认 hr，由 .footnotes 的 border-top 替代 */
+}
+
+/* 正文中的脚注引用序号 */
+.footnote-ref,
+.footnote-link,
+.cm-footref {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+/* 脚注返回按钮 */
+.footnote-backref {
+  color: var(--text-accent) !important;
+  opacity: 0.6;
+  transition: opacity var(--anim-fast);
+}
+.footnote-backref:hover {
+  opacity: 1;
+}
+
+/* 官方脚注变量覆盖 */
+body {
+  --footnote-size: 0.85em;
+}
+
+/* ── Canvas 白板 ── */
+
+.canvas-node-container {
+  border-radius: var(--radius-l);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  box-shadow: var(--shadow-subtle);
+}
+.canvas-node-content { background: transparent; }
+.canvas-edges polyline,
+.canvas-edges path   { stroke: var(--background-modifier-border); }
+.canvas-node-label   { color: var(--text-muted); font-family: var(--font-interface-theme); }
+
+/* ── 命令面板 / 建议列表 ── */
+
+.suggestion-item { font-family: var(--font-interface-theme); }
+.suggestion-item:hover     { background: var(--nav-item-background-hover); }
+.suggestion-item.is-selected{ background: var(--nav-item-background-active); }
+
+/* ── 视图切换按钮 ── */
+
+.view-header-nav-buttons .clickable-icon,
+.workspace-leaf-content .view-header .clickable-icon {
+  background: transparent; border: none; box-shadow: none;
+  color: var(--text-faint); opacity: 0.6;
+  border-radius: 6px; padding: 4px 6px;
+  transition: opacity var(--anim-fast), color var(--anim-fast), background var(--anim-fast);
+}
+.view-header-nav-buttons .clickable-icon:hover,
+.workspace-leaf-content .view-header .clickable-icon:hover {
+  opacity: 1; color: var(--text-muted); background: var(--background-primary-alt);
+}
+.view-header-nav-buttons .clickable-icon:active,
+.workspace-leaf-content .view-header .clickable-icon:active {
+  color: var(--interactive-accent);
+  background: rgba(var(--interactive-accent-rgb), 0.08);
+}
+.view-header-nav-buttons .clickable-icon.is-active,
+.workspace-leaf-content .view-header .clickable-icon.is-active {
+  color: var(--interactive-accent); opacity: 1;
+  background: transparent; border: none; box-shadow: none;
+}
+
+/* ── 编辑器行号 ── */
+
+.cm-gutters {
+  font-family: var(--font-monospace-theme);
+  font-size: 0.8em;
+  color: var(--text-faint);
+}
+
+/* ── 大纲 ── */
+
+.outline .collapse-icon { color: var(--text-faint); }
+
+/* ── 面包屑 ── */
+
+.tree-item-self.is-clickable:hover {
+  background: var(--nav-item-background-hover);
+  color: var(--nav-item-color-hover);
+}
+
+/* ── 进度条 ── */
+
+.progress-bar {
+  background: var(--background-primary-alt);
+  border-radius: var(--radius-pill);
+  height: 4px;
+}
+.progress-bar-message {
+  color: var(--text-muted);
+  font-family: var(--font-interface-theme);
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   SETTINGS PAGE（只改颜色，不碰布局）
+   ════════════════════════════════════════════════════════════ */
+
+/* 恢复系统字体，避免 Inter metrics 破坏 Obsidian 内置设置布局 */
+.vertical-tab-content,
+.vertical-tab-content .setting-item-name,
+.vertical-tab-content .setting-item-description {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── 设置页所有按钮样式统一（消除管理按钮不一致） ── */
+.vertical-tab-content button {
+  min-height: 32px !important;
+  padding: 5px 14px !important;
+  font-size: 13px !important;
+  border-radius: var(--radius-m) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: background var(--anim-fast), border-color var(--anim-fast), color var(--anim-fast) !important;
+}
+
+/* 1. 普通设置按钮 (功能区管理、字体管理等) */
+.vertical-tab-content button:not(.mod-cta) {
+  background: var(--background-modifier-form-field) !important;
+  color: var(--text-normal) !important;
+  border: 1px solid var(--background-modifier-border) !important;
+}
+.vertical-tab-content button:not(.mod-cta):hover {
+  background: var(--background-primary-alt) !important;
+  border-color: var(--text-muted) !important;
+  color: var(--text-normal) !important;
+}
+
+/* 2. 核心/CTA设置按钮 (主题管理、检查更新等) */
+.vertical-tab-content button.mod-cta {
+  background: transparent !important;
+  color: var(--interactive-accent) !important;
+  border: 1px solid var(--interactive-accent) !important;
+}
+.vertical-tab-content button.mod-cta:hover {
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  border-color: var(--interactive-accent) !important;
+}
+
+/* 设置页下拉框：更紧凑的比例 */
+.vertical-tab-content .dropdown {
+  border-radius: var(--radius-m);
+  height: auto;
+  min-height: 34px;
+}
+
+.vertical-tab-content .dropdown select {
+  min-height: 34px;
+  padding: 6px 28px 6px 12px;
+}
+
+.setting-item-description a,
+.setting-item-info a           { color: var(--text-accent); }
+.setting-item-description a:hover,
+.setting-item-info a:hover     { color: var(--text-accent-hover); }
+
+/* 移除设置条目/关于页面中链接的刺眼焦点外框，替换为极简下划线 */
+.setting-item-description a:focus,
+.setting-item-description a:focus-visible,
+.setting-item-info a:focus,
+.setting-item-info a:focus-visible,
+.about-changelog-link:focus,
+.about-changelog-link:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  text-decoration: underline !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   FOCUS & INTERACTION
+   ════════════════════════════════════════════════════════════ */
+
+/* 焦点轮廓：限定可交互元素（避免全 DOM 匹配） */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* 输入框焦点环全部内置，规避插件容器 overflow:clip/hidden 裁掉底部：
+   · 官方会画一圈灰色 box-shadow(0 0 0 2px)伸到框外 → 去掉
+   · 官方 input[type=text]:focus-visible(0,2,1)把 border 压回灰色 → 用 !important 转 accent
+   · outline 内移(-1px)贴合边框，与边框连成一圈实心橙环，不外溢、不会被裁 */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  border-color: var(--interactive-accent) !important;
+  box-shadow: none !important;
+  outline-offset: -1px;
+}
+
+/* Prompt 弹窗（快速切换/命令面板/移动文件等）输入框：回归原生无边框极简样式。
+   全局 input 盒式样式 + 双层橙色焦点环在这里会与 prompt 自带的容器边框/分隔线
+   叠成脏边框（同类坑：全局规则漏进特殊容器，参考 callout 豁免） */
+input.prompt-input,
+input.prompt-input:focus,
+input.prompt-input:focus-visible {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+/* 设置条目不需要 focus 轮廓 */
+.setting-item:focus,
+.setting-item:focus-visible { outline: none; }
+
+/* 统一过渡（nav-title / menu-item 已在各自区段声明同值，此处只补页签） */
+.workspace-tab-header {
+  transition: background var(--anim-fast), color var(--anim-fast);
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   ACCESSIBILITY（可访问性增强）
+   ════════════════════════════════════════════════════════════ */
+
+/* ── 高对比度模式支持 ───────────────────────────────────── */
+
+@media (prefers-contrast: high) {
+  body.theme-light {
+    /* 亮色模式：提升文字与背景对比度 */
+    --text-normal:          #000000;  /* 纯黑文字 */
+    --text-muted:           #333333;  /* 深灰次要文字 */
+    --text-faint:           #666666;  /* 中灰淡文字 */
+    --background-primary:   #FFFFFF;  /* 纯白背景 */
+    --background-secondary: #F0F0F0;  /* 浅灰次级背景 */
+    --text-accent:          #D97757;  /* Clay 色保持高可见度 */
+    --interactive-accent:   #D97757;
+  }
+
+  body.theme-dark {
+    /* 暗色模式：提升文字与背景对比度 */
+    --text-normal:          #FFFFFF;  /* 纯白文字 */
+    --text-muted:           #CCCCCC;  /* 浅灰次要文字 */
+    --text-faint:           #999999;  /* 中灰淡文字 */
+    --background-primary:   #000000;  /* 纯黑背景 */
+    --background-secondary: #1A1A1A;  /* 深灰次级背景 */
+    --text-accent:          #D97757;  /* Clay 色保持高可见度 */
+    --interactive-accent:   #D97757;
+  }
+
+  /* 边框加粗：仅限可交互元素（避免全 DOM 遍历） */
+  button, input, select, textarea,
+  .menu-item, .nav-file-title, .nav-folder-title,
+  .callout, .modal, .dropdown-menu, .context-menu {
+    border-color: var(--text-normal) !important;
+  }
+
+  /* 链接下划线，提升可识别性 */
+  .markdown-rendered a,
+  .internal-link,
+  .external-link {
+    text-decoration: underline;
+  }
+}
+
+/* ── 减少动画偏好支持 ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  /* 禁用过渡：仅限有 transition 的交互元素（避免全 DOM 匹配） */
+  .nav-file-title, .nav-folder-title, .workspace-tab-header, .menu-item,
+  button, input, textarea, select, a,
+  .task-list-item-checkbox, .titlebar-button-container,
+  .metadata-add-button, .view-header-nav-buttons .clickable-icon,
+  .tree-item-self, .outline-item-self,
+  .tree-item-self::before, .outline-item-self::before,
+  .nav-file-title::before, .nav-folder-title::before {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+  }
+
+  button:hover,
+  .clickable-icon:hover,
+  .nav-file-title:hover {
+    transition: none;
+  }
+}
+
+/* ── 键盘导航：增强可见性 */
+button:focus-visible .clickable-icon,
+.nav-file-title:focus-visible,
+.nav-folder-title:focus-visible {
+  background: var(--nav-item-background-hover);
+  color: var(--nav-item-color-hover);
+  outline: 1px dashed var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+/* ── 键盘导航增强 ─────────────────────────────────────────── */
+
+/* 搜索结果焦点状态 */
+.search-result-file-title:focus,
+.search-result-file-match:focus {
+  background: var(--nav-item-background-hover);
+  outline: 1px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+/* 命令面板焦点状态 */
+.suggestion-item:focus-visible {
+  background: var(--nav-item-background-active);
+  outline: 1px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+/* ── 链接与交互元素可访问性 ──────────────────────────────── */
+
+/* 链接触摸区域：保持 inline 布局（resize 时无 reflow 开销），用 padding 扩大可点击区域。
+   !important 是必须的——链接主规则的 padding: 0 !important 否则会把这条压死 */
+.markdown-rendered a,
+.internal-link,
+.external-link {
+  padding: 2px 0 !important;
+}
+
+/* 按钮、输入框统一比例：水平 padding 大于垂直，避免方形 */
+/* 注意：排除 .clickable-icon；按钮限定 .modal/.prompt/.markdown-rendered，
+   避免裸 button 选择器泄漏到设置页与插件 UI（泄漏后需 !important 补救） */
+.modal button:not(.clickable-icon),
+.prompt button:not(.clickable-icon),
+.markdown-rendered button:not(.clickable-icon),
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: var(--radius-m);
+}
+
+/* 按钮额外水平 padding */
+.modal button:not(.clickable-icon),
+.prompt button:not(.clickable-icon),
+.markdown-rendered button:not(.clickable-icon) {
+  padding: 7px 20px;
+}
+
+
+
+/* ── 模态框与对话框可访问性 ──────────────────────────────────── */
+
+/* 模态框层级交给 Obsidian 自身的 --layer-* 体系，不再硬写 z-index */
+
+.modal:focus-within {
+  /* 当模态框内有焦点时，轻微加强阴影提示（半透明细环，压低存在感） */
+  box-shadow: var(--shadow-modal), 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.4);
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR NOTION OVERHAUL (侧边栏极致极简改造)
+   ════════════════════════════════════════════════════════════ */
+
+/* 1. 极致动效：Velocity 风格的侧边栏顶部工具栏 (左右侧边栏通用)
+   光标移入时极其平滑展开，移除突兀背景，让图标浮空。
+*/
+.workspace-split.mod-left-split .workspace-leaf-content,
+.workspace-split.mod-right-split .workspace-leaf-content {
+  position: relative !important;
+}
+
+/* A. 导航栏 (nav-header)：负责指示线和折叠展开功能 */
+.workspace-split.mod-left-split .nav-header,
+.workspace-split.mod-right-split .nav-header {
+  height: auto !important;
+  min-height: 12px !important;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  border: none !important;
+  background-color: transparent !important;
+  flex-shrink: 0 !important; /* CRITICAL: Prevent shrinking/clipping when the file tree is completely full */
+}
+
+.workspace-split.mod-left-split .nav-header::before,
+.workspace-split.mod-right-split .nav-header::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background-color: var(--background-modifier-border);
+  margin: 6px auto 0 auto;
+  transition: opacity var(--anim-medium);
+  flex-shrink: 0;
+}
+
+.workspace-split.mod-left-split .nav-header:hover::before,
+.workspace-split.mod-right-split .nav-header:hover::before,
+.workspace-split.mod-left-split .nav-header:focus-within::before,
+.workspace-split.mod-right-split .nav-header:focus-within::before {
+  opacity: 0;
+}
+
+.workspace-split.mod-left-split .nav-header-title,
+.workspace-split.mod-right-split .nav-header-title {
+  display: none !important;
+}
+
+/* 工具栏容器：左右侧边栏统一动画 */
+.workspace-split.mod-left-split .nav-buttons-container,
+.workspace-split.mod-right-split .nav-buttons-container {
+  display: flex !important;
+  justify-content: center;
+  /* 允许换行：插件注入大量按钮时（如 git 的 8 图标 + 提交输入框）不被裁掉；
+     单行视图（文件树/大纲）flex-wrap 是 no-op，观感不变 */
+  flex-wrap: wrap;
+  gap: 8px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  margin: 0 !important;
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.2s ease, margin 0.3s ease !important;
+  pointer-events: none;
+  background-color: transparent !important; /* Fix the weird shadow patch on the right side */
+  box-shadow: none !important;
+  padding: 0 12px;
+}
+
+.workspace-split.mod-left-split .nav-header:hover .nav-buttons-container,
+.workspace-split.mod-right-split .nav-header:hover .nav-buttons-container,
+.workspace-split.mod-left-split .nav-header:focus-within .nav-buttons-container,
+.workspace-split.mod-right-split .nav-header:focus-within .nav-buttons-container {
+  /* 天花板而非定高：单行工具条仍 ~32px 展开，只有换行的多按钮面板用到余量 */
+  max-height: 88px;
+  opacity: 1;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  pointer-events: auto;
+}
+
+/* B. 视图头 (view-header)：修复双横栏 Bug，剥离成悬浮在右上角的独立动作区 */
+.workspace-split.mod-left-split .view-header,
+.workspace-split.mod-right-split .view-header {
+  position: absolute !important;
+  top: 6px;
+  right: 6px;
+  height: auto !important;
+  min-height: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  z-index: 10;
+  pointer-events: none;
+  padding: 0 !important;
+  display: flex !important;
+}
+
+/* 隐藏原生多余的标题，以及导致空隙和箭头的导航按钮 (返回/前进) */
+.workspace-split.mod-left-split .view-header-title-container,
+.workspace-split.mod-right-split .view-header-title-container,
+.workspace-split.mod-left-split .view-header-nav-buttons,
+.workspace-split.mod-right-split .view-header-nav-buttons {
+  display: none !important;
+}
+
+/* 只有光标移入当前面板时，才平滑显示 "..." 分屏选项等按钮 */
+.workspace-split.mod-left-split .view-actions,
+.workspace-split.mod-right-split .view-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.workspace-split.mod-left-split .workspace-leaf-content:hover .view-actions,
+.workspace-split.mod-right-split .workspace-leaf-content:hover .view-actions,
+.workspace-split.mod-left-split .view-actions:focus-within,
+.workspace-split.mod-right-split .view-actions:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* C. 所有侧边栏图标的美化微调 */
+.workspace-split.mod-left-split .nav-buttons-container .clickable-icon,
+.workspace-split.mod-right-split .nav-buttons-container .clickable-icon,
+.workspace-split.mod-left-split .view-actions .clickable-icon,
+.workspace-split.mod-right-split .view-actions .clickable-icon {
+  padding: 6px !important;
+  opacity: 0.6;
+  color: var(--text-muted);
+  transition: opacity var(--anim-medium), color var(--anim-medium),
+              background-color var(--anim-medium), border-radius var(--anim-medium);
+}
+
+.workspace-split.mod-left-split .nav-buttons-container .clickable-icon:hover,
+.workspace-split.mod-right-split .nav-buttons-container .clickable-icon:hover,
+.workspace-split.mod-left-split .view-actions .clickable-icon:hover,
+.workspace-split.mod-right-split .view-actions .clickable-icon:hover {
+  opacity: 1;
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--interactive-accent);
+  border-radius: var(--radius-s);
+}
+
+.workspace-split.mod-left-split .nav-buttons-container .clickable-icon svg,
+.workspace-split.mod-right-split .nav-buttons-container .clickable-icon svg,
+.workspace-split.mod-left-split .view-actions .clickable-icon svg,
+.workspace-split.mod-right-split .view-actions .clickable-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 1.5px !important;
+}
+
+/* D. 强制拉平左右侧边栏内容区域顶部对齐 (Force pixel-perfect alignment) */
+.workspace-split.mod-left-split .view-content,
+.workspace-split.mod-right-split .view-content {
+  padding-top: 10px !important; 
+}
+
+.workspace-split.mod-left-split .view-content > :first-child,
+.workspace-split.mod-right-split .view-content > :first-child {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* 小横条对齐：核心视图的 .nav-header 在 .view-content 之外，10px 内边距只垫内容；
+   但部分插件（如 obsidian-git）把 .nav-header 嵌进 .view-content 里，
+   会连横条一起被垫低 10px。结构性豁免：凡内嵌 nav-header 的视图去掉顶部内边距，
+   让横条回到面板顶端自身的 6px margin 上，与文件树/大纲的横条同一水平线 */
+.workspace-split.mod-left-split .view-content:has(.nav-header),
+.workspace-split.mod-right-split .view-content:has(.nav-header) {
+  padding-top: 0 !important;
+}
+
+/* ==========================================================
+   2. 彻底移除问号帮助图标 (Nuclear Hide Help Icon)
+   ========================================================== */
+/* 收窄到帮助图标实际出没的区域（ribbon/底栏/抽屉），
+   不再全局 svg[class*="help"]——那会误杀插件里 class 含 "help(er)" 的图标 */
+.workspace-ribbon svg[class*="help" i],
+.workspace-sidedock-vault-profile svg[class*="help" i],
+.workspace-drawer-settings svg[class*="help" i] { display: none !important; }
+
+.workspace [aria-label*="Help" i],
+.workspace [aria-label*="帮助" i],
+.workspace [aria-label*="Support" i] {
+  display: none !important;
+}
+
+.workspace-drawer-settings > *:nth-last-child(2) { display: none !important; }
+
+/* 仅隐藏帮助按钮容器。切勿把选择器写成整个工作区级的 has 匹配——
+   help 图标一出现就会让主内容区 display none 全白屏(canvas 等视图会触发)。
+   用 [class*="help"] 子串匹配：lucide 已把 help-circle 改名 circle-help，
+   写死旧类名会漏掉容器，留下"图标隐形但按钮可点"的幽灵热区 */
+.workspace-split.mod-left-split .clickable-icon:has(svg[class*="help" i]),
+.workspace-split.mod-left-split .side-dock-ribbon-action:has(svg[class*="help" i]) { display: none !important; }
+
+/* 例外：底栏 vault profile 里的帮助按钮改为占位隐藏——
+   不可见也不可点，但保留原有宽度，设置图标不会因补位而贴到窗口边缘 */
+.workspace-split.mod-left-split .workspace-sidedock-vault-profile .clickable-icon:has(svg[class*="help" i]) {
+  display: flex !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ==========================================================
+   3. 替换设置齿轮为 Obsidian 官方 logo 几何线稿
+   ========================================================== */
+/* 仅在底栏 vault profile / 左侧 ribbon 内隐藏原生齿轮——
+   搜索面板里的"搜索设置"齿轮保留原生图标，不再被宝石征用 */
+.workspace-sidedock-vault-profile svg.lucide-settings,
+.workspace-ribbon .side-dock-ribbon-action svg.lucide-settings,
+.workspace-drawer-settings > *:last-child svg { display: none !important; }
+
+/* 按钮本体 → macOS App 图标式陶土圆角方块底座（宝石内嵌其中）。
+   仅限底栏 vault profile / 左侧 ribbon 的真·设置按钮，
+   绝不波及搜索面板的"搜索设置"齿轮 */
+.workspace-sidedock-vault-profile [aria-label*="Settings" i],
+.workspace-sidedock-vault-profile [aria-label*="设置" i],
+.workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-settings),
+.workspace-ribbon .side-dock-ribbon-action:has(svg.lucide-settings),
+.workspace-drawer-settings > *:last-child {
+  background-color: #E08A6E !important;   /* 比 Clay(#D97757) 略浅一档，更柔和 */
+  border-radius: var(--radius-m) !important;
+  width: 26px !important; height: 26px !important;
+  min-width: 26px !important; min-height: 26px !important;
+  padding: 0 !important;
+  display: flex !important; align-items: center; justify-content: center;
+  transition: background-color var(--anim-medium) !important;
+}
+
+/* 注入官方几何线稿（mask 造型统一走 --obsidian-gem-icon 变量），象牙白嵌在陶土方块内 */
+.workspace-sidedock-vault-profile [aria-label*="Settings" i]::before,
+.workspace-sidedock-vault-profile [aria-label*="设置" i]::before,
+.workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-settings)::before,
+.workspace-ribbon .side-dock-ribbon-action:has(svg.lucide-settings)::before,
+.workspace-drawer-settings > *:last-child::before {
+  content: ""; display: block; width: 14px; height: 14px;
+  background-color: var(--text-on-accent); background-position: center;
+  -webkit-mask-image: var(--obsidian-gem-icon); mask-image: var(--obsidian-gem-icon);
+  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+}
+
+/* 悬停加深底座（陶土 → 深陶土），宝石保持象牙白 */
+.workspace-sidedock-vault-profile [aria-label*="Settings" i]:hover,
+.workspace-sidedock-vault-profile [aria-label*="设置" i]:hover,
+.workspace-sidedock-vault-profile .clickable-icon:has(svg.lucide-settings):hover,
+.workspace-ribbon .side-dock-ribbon-action:has(svg.lucide-settings):hover,
+.workspace-drawer-settings > *:last-child:hover {
+  background-color: var(--interactive-accent) !important;   /* 悬停回到标准 Clay，轻微加深 */
+}
+
+/* ==========================================================
+   3b. 搜索面板"搜索设置"齿轮 —— 轻量化，不复用底栏宝石
+   宝石是底栏设置按钮的点睛之笔，仅此一处；搜索这里用克制的
+   原生齿轮：默认淡墨色，悬停才浮现陶土，无填充方块。
+   同时给 search-row 留出间距，聚焦边框不再与齿轮重叠。
+   ========================================================== */
+.workspace-leaf-content[data-type="search"] .search-row {
+  gap: 8px;   /* 输入框聚焦边框与右侧齿轮之间的呼吸距离 */
+}
+.workspace-leaf-content[data-type="search"] .search-input-container {
+  margin-right: 2px;   /* 框略微收窄，进一步避免边框贴住图标 */
+}
+.workspace-leaf-content[data-type="search"] .search-row > .clickable-icon {
+  color: var(--text-faint);
+  background-color: transparent !important;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+.workspace-leaf-content[data-type="search"] .search-row > .clickable-icon:hover {
+  color: var(--text-accent);
+  background-color: var(--background-modifier-hover) !important;
+}
+
+/* ==========================================================
+   4. 库切换器极简排版 (Minimalist Vault Switcher)
+   真实类名（已对照 Obsidian app.css 核实）：
+   · .workspace-sidedock-vault-profile = 底栏，原生带 border-top 分隔线 + align-items:center
+   · .workspace-drawer-vault-switcher  = 左侧 vault 名胶囊（flex-grow:1）
+   · .workspace-drawer-vault-actions   = 右侧动作区（设置宝石图标所在）
+   ========================================================== */
+/* 底栏布局：去掉原生顶部分隔线；图标挪到左下角、vault 名居其右（左对齐）；
+   左侧留内边距让图标不贴窗口边框（避免图标圆角与窗口圆角半径差被放大） */
+.workspace-split.mod-left-split .workspace-sidedock-vault-profile {
+  border-top: none !important;
+  align-items: center;            /* 图标与 vault 名同一垂直中线 */
+  justify-content: flex-start !important;
+  gap: 10px !important;           /* 图标与 vault 名之间的呼吸间距 */
+  padding-left: 14px !important;  /* 图标离窗口左边框的内缩 */
+  padding-top: 16px !important;   /* 增加上方与文档树的呼吸感空间 */
+  padding-bottom: 16px !important; /* 同步增加底部留白，保持视觉平衡 */
+}
+
+/* 设置图标动作区移到最左 */
+.workspace-split.mod-left-split .workspace-drawer-vault-actions {
+  order: -1;
+}
+
+/* vault 名胶囊：紧贴文字（不再撑满整行），左对齐，精致内边距 + 圆角。
+   不强加 cursor:pointer，与其他导航项一致用默认光标 */
+.workspace-split.mod-left-split .workspace-drawer-vault-switcher {
+  flex-grow: 0 !important;
+  padding: 6px 12px !important;
+  border-radius: var(--radius-m) !important;
+  transition: background-color 0.15s ease !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+}
+
+.workspace-split.mod-left-split .workspace-drawer-vault-switcher:hover {
+  background-color: var(--background-modifier-hover) !important;
+}
+
+/* 隐藏 vault 名旁的上下箭头，保持极简 */
+.workspace-split.mod-left-split svg.lucide-chevrons-up-down,
+.workspace-split.mod-left-split .workspace-drawer-vault-switcher-icon {
+  display: none !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PRINT / PDF 导出
+   ════════════════════════════════════════════════════════════ */
+
+@media print {
+  body { background: white; color: #141413; }
+
+  /* 纸张噪点纹理不进 PDF（否则底子发灰且增大文件体积） */
+  .markdown-preview-view,
+  .markdown-source-view {
+    background-image: none !important;
+  }
+
+  /* 暗色主题下导出：内容元素引用的变量仍是暗色值（浅字），会印成白纸浅字。
+     强制回退亮色 token（值与 body.theme-light 保持一致） */
+  body.theme-dark {
+    --background-primary:         #FFFFFF;
+    --background-primary-alt:     #F0EEE6;
+    --background-secondary-alt:   #E8E6DC;
+    --background-modifier-border: rgba(20, 20, 19, 0.08);
+    --text-normal:  #3D3D3A;
+    --text-muted:   #5E5D59;
+    --text-faint:   var(--slate-light);
+    --text-accent:  #D97757;
+    --interactive-accent: #D97757;
+    --h1-color: #141413;
+    --h2-color: #141413;
+    --h3-color: #141413;
+    --h4-color: #1A1A18;
+    --h5-color: #3D3D3A;
+    --h6-color: #5E5D59;
+    --table-rule: rgba(20, 20, 19, 0.68);
+    --tag-background: rgba(217, 119, 87, 0.10);
+    --tag-color:      #A47665;
+    --code-keyword:   #C6613F;
+    --code-string:    #5A7A3A;
+    --code-number:    #A63D2F;
+    --code-comment:   #8A8985;
+    --code-function:  #4A7AA8;
+    --code-type:      #6E6AA8;
+    --code-variable:  #141413;
+    --code-property:  #3D3D3A;
+    --code-operator:  #5E5D59;
+  }
+
+  .markdown-rendered {
+    max-width: none;
+  }
+
+  .markdown-rendered p,
+  .markdown-rendered li {
+    line-height: 1.65;
+  }
+
+  /* 表格分页策略：整表 avoid 会把接近整页高的大表推到下一页、
+     留下半页空白，故允许表格跨页——但行内不拆、表头在每页自动重复 */
+  table { break-inside: auto; }
+  thead { display: table-header-group; }
+  tr    { break-inside: avoid; }
+
+  /* 块级元素防跨页劈裂（callout 断裂 = 左边框/底色悬空，最难看） */
+  .callout,
+  blockquote,
+  pre,
+  img,
+  .internal-embed,
+  .markdown-embed {
+    break-inside: avoid;
+  }
+
+  /* 标题不与后续内容分离（防止标题孤悬页底） */
+  h1, h2, h3, h4, h5, h6 {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+
+  /* 图片说明跟住图片 */
+  .markdown-rendered img + em,
+  .markdown-rendered .image-caption {
+    break-before: avoid;
+  }
+
+  /* 段落孤行/寡行控制 */
+  p { orphans: 2; widows: 2; }
+
+  /* 隐藏不需要打印的 UI */
+  .metadata-container,
+  .frontmatter-container { display: none; }
+}
