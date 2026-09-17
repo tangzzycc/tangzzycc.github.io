@@ -1,4 +1,4 @@
-# vLLM学习笔记
+# AI Infra学习笔记
 
 ### 猛猿：图解Vllm V1系列
 
