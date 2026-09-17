@@ -10,4 +10,4 @@
 - [图解Vllm V1系列6：KVCacheManager与PrefixCaching](https://zhuanlan.zhihu.com/p/1916181593229334390)
 - [图解Vllm V1系列7：使用AsyncLLM做异步推理](https://zhuanlan.zhihu.com/p/1916187125931554299)
 
-#### [[vLLM学习笔记/vLLM Multi-LoRA推理]]
+#### [vLLM Multi-LoRA 推理](../vllm/杂记/vLLM Multi-LoRA推理.md)

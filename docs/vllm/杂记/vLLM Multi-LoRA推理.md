@@ -46,7 +46,7 @@ Punica 采用了类似 **LRU（Least Recently Used）** 的冷热分层机制�
 
   - **Expand ($y = PB$)**：将秩 $r$ 的中间结果重新投影回维度 $k$。再乘 B 恢复维度。这种策略将计算复杂度从 $O(d \cdot k)$ 降低到了 $O(r(d + k))$。
 
-    ![image.png|690](/assets/image-20260906-095014.png)
+    ![image.png|690](/assets/image-20260906-095014.png){ width="60%" }
 
 ### 数据预处理
 

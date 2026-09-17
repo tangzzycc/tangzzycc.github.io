@@ -1,0 +1,150 @@
+/* 本地正文字体，避免依赖网络字体服务。 */
+@font-face {
+  font-family: "LXGW WenKai GB Screen";
+  src: url("../assets/fonts/LXGWWenKaiGBScreen.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --md-text-font: "LXGW WenKai GB Screen", "霞鹜文楷 GB 屏幕阅读版", sans-serif;
+  --md-code-font: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+/* 与参考仓库一致，保持 Material 默认视觉，仅补充阅读体验修正。 */
+.md-typeset div.arithmatex {
+  overflow-y: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  min-width: 0;
+}
+
+.md-typeset table:not([class]) {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  font-size: 0.9em;
+  overflow-x: auto;
+}
+
+/* Material 会在运行时给表格添加这两层容器，必须居中实际外层。 */
+.md-typeset__scrollwrap > .md-typeset__table {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* 未显式指定对齐方式时，表头与单元格内容默认居中。 */
+.md-typeset table:not([class]) th:not([align]),
+.md-typeset table:not([class]) td:not([align]) {
+  text-align: center !important;
+}
+
+/* 让引导句与紧随其后的分点列表在视觉上属于同一组。 */
+.md-typeset p:has(+ ul),
+.md-typeset p:has(+ ol) {
+  margin-bottom: 0.2em;
+}
+
+.md-typeset p + ul,
+.md-typeset p + ol {
+  margin-top: 0;
+}
+
+/* Markdown 的宽松列表会生成 li > p，移除这层额外段落留白。 */
+.md-typeset ul:not(.task-list) > li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.md-typeset ul:not(.task-list) > li {
+  margin-bottom: 0.3em;
+}
+
+/* 顶层分点比正文略向内缩进，强调其从属于前面的引导句。 */
+[dir="ltr"] .md-content__inner.md-typeset > p + ul:not(.task-list) {
+  margin-left: 1em;
+}
+
+/* 正文图片默认居中并保持比例。 */
+.md-typeset img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* 仅未单独指定尺寸的图片使用 80% 默认宽度。 */
+.md-typeset img:not([width]):not(.img-original) {
+  width: 80%;
+}
+
+.md-typeset img.img-original {
+  width: auto;
+}
+
+.md-typeset img.img-left {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.md-typeset img.img-right {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* 长代码块默认显示前 14 行。 */
+.md-typeset .highlight.code-fold pre > code {
+  max-height: var(--code-preview-height, 21.15em);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.md-typeset .highlight.code-fold.code-fold--expanded pre > code {
+  max-height: none;
+  overflow-y: auto;
+}
+
+.code-fold__toggle {
+  display: block;
+  width: 100%;
+  margin: -0.5em 0 1em;
+  padding: 0.45rem 0.8rem;
+  color: var(--md-default-fg-color--light);
+  font: inherit;
+  font-size: 0.68rem;
+  text-align: center;
+  background: var(--md-code-bg-color);
+  border-top: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 0 0 0.1rem 0.1rem;
+  cursor: pointer;
+}
+
+.code-fold__toggle:hover,
+.code-fold__toggle:focus-visible {
+  color: var(--md-accent-fg-color);
+  background: var(--md-accent-fg-color--transparent);
+}
+
+/* 桌面端按视口比例布局：页面占 94% 宽度，正文自动获得剩余空间。
+ * 字号在 18.5px～20px 之间随窗口平滑变化，避免固定档位忽大忽小。 */
+@media screen and (min-width: 76.25em) {
+  html {
+    font-size: clamp(18.5px, calc(14px + 0.28vw), 20px);
+  }
+
+  .md-grid {
+    width: min(94vw, 1920px);
+    max-width: none;
+  }
+
+  .md-typeset {
+    font-size: 0.86rem;
+  }
+}

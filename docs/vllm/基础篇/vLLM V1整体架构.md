@@ -1,6 +1,5 @@
-## vLLM V1整体架构
 
-![image.png](/assets/image-20260917-222700.png)
+![image.png](/assets/image-20260917-222700.png){ width="90%" }
 
 一个请求会跨越四层边界:**模块是代码职责边界,线程是并发边界,进 程是内存隔离边界,GPU 是设备边界**
 
@@ -24,7 +23,7 @@
 >
 > 模块之间不一定跨线程,线程之间不一定跨进程
 
-### 1. Client 请求进入 API Server
+## 1. Client 请求进入 API Server
 
 客户端通过 OpenAI Compatible API 发起请求：`POST /v1/chat/completions`
 
@@ -54,7 +53,7 @@ API Handler 最终调用 [AsyncLLM.generate()](https://github.com/vllm-project/v
 >
 > 它们是多个 asyncio Task,并不是每个请求创建一个操作系统线程
 
-### 2. InputProcessor 创建 EngineCoreRequest
+## 2. InputProcessor 创建 EngineCoreRequest
 
 在 AsyncLLM.add_request() 中，请求会经过[InputProcessor.process_inputs()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L349)
 
@@ -83,7 +82,7 @@ Prompt / messages + SamplingParams + LoRA / multimodal metadata
 
 这里仍然没有发生进程通信,只是 API Server 进程内部的普通函数调用。
 
-### 3. API Server 同时建立输出状态
+## 3. API Server 同时建立输出状态
 
 创建EngineCoreRequest后，执行[AsyncLLM.\_add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L400-L412)：
 
@@ -115,7 +114,7 @@ OutputProcessor.request_states[request_id]
 
 - 请求完成后的清理
 
-### 4. EngineCoreClient 跨进程发送请求
+## 4. EngineCoreClient 跨进程发送请求
 
 `EngineCoreClient` 是 API Server 内部组件,不是单独进程。
 
@@ -134,14 +133,14 @@ RequestType.ADD
 ```python
 API Server Process                    EngineCore Process
 EngineCore Client                     input_thread
-ZMQ ROUTER ──────────────——————————─→ ZMQ DEALER
+ZMQ ROUTER —————————————————————————> ZMQ DEALER
 ```
 
 这是第一个真正的**进程边界**。
 
 这里传递的是序列化数据。EngineCore 收到的对象不是 API Server 中原来的 Python 对象。
 
-### 5. EngineCore input_thread 接收请求
+## 5. EngineCore input_thread 接收请求
 
 EngineCore 的输入线程运行 [process_input_sockets()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/core.py#L1484)
 
@@ -167,4 +166,4 @@ EngineCore main thread
 
 `input_thread` 只负责 I/O、反序列化和轻量预处理，不负责执行调度算法。
 
-### 6. EngineCore 主线程接管请求
+## 6. EngineCore 主线程接管请求

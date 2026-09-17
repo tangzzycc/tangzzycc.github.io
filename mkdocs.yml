@@ -1,0 +1,103 @@
+site_name: Tang's Notebook
+site_description: AI Infra、vLLM 与工程实践笔记
+
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+validation:
+  links:
+    # 笔记中的 /assets/... 表示 docs 根目录下的资源。
+    absolute_links: relative_to_docs
+
+nav:
+  - 🏡 主页: index.md
+  - AI Infra:
+      - 学习索引: ai-infra/index.md
+  - vLLM 笔记:
+      - vllm/index.md
+      - 基础篇:
+          - vLLM V1 整体架构: vllm/基础篇/vLLM V1整体架构.md
+      - 杂记:
+          - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
+  - 开源PR记录:
+      - PR 记录: open-source/index.md
+      - "Comfy-Kitchen #127": open-source/Comfy-Kitchen-127.md
+  - 秋招记录: career/index.md
+  - 关于本站: about.md
+
+theme:
+  name: material
+  language: zh
+  # 字体由 stylesheets/extra.css 从本地资源加载。
+  font: false
+  logo: assets/logo.jpg
+  favicon: assets/logo.jpg
+  features:
+    - navigation.tabs
+    - navigation.footer
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - scheme: slate
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+      separator: '[\\s\\u200b\\-]'
+
+extra_css:
+  - stylesheets/extra.css?v=8
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - javascripts/code-fold.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+copyright: 本地知识库 · 持续整理中
