@@ -19,5 +19,5 @@ NO_MKDOCS_2_WARNING=1 .venv/bin/mkdocs serve
 - `docs/vllm/`：vLLM 专题笔记
 - `docs/open-source/`：开源 PR 记录
 - `docs/career/`：秋招进度
-- `docs/assets/`：站点 Logo、笔记图片和本地字体
+- `assets/`：站点 Logo、笔记图片和本地字体
 - `mkdocs.yml`：导航与站点配置

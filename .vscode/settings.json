@@ -1,0 +1,14 @@
+{
+  // Office Viewer：图片统一保存到仓库根目录 assets/，Markdown 插入相对路径。
+  "vscode-office.pasteImageToWorkspacePath": false,
+  "vscode-office.workspacePathAsImageBasePath": false,
+  "vscode-office.pasterImgPath": "${workspaceDir}/assets/image-${date}-${now}.${ext}",
+
+  // VS Code 原生 Markdown 编辑器的粘贴图片规则，与 Office Viewer 保持一致。
+  "markdown.copyFiles.destination": {
+    "/docs/*.md": "../assets/",
+    "/docs/*/*.md": "../../assets/",
+    "/docs/*/*/*.md": "../../../assets/",
+    "/docs/*/*/*/*.md": "../../../../assets/"
+  }
+}

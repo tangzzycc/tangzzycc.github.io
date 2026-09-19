@@ -4,11 +4,14 @@ site_description: AI Infra、vLLM 与工程实践笔记
 docs_dir: docs
 site_dir: site
 use_directory_urls: true
+watch:
+  - assets
 
 validation:
   links:
-    # 笔记中的 /assets/... 表示 docs 根目录下的资源。
+    # 图片位于仓库根目录，构建钩子会将其复制到站点根路径。
     absolute_links: relative_to_docs
+    not_found: ignore
 
 nav:
   - 🏡 主页: index.md
@@ -18,11 +21,22 @@ nav:
       - vllm/index.md
       - 基础篇:
           - vLLM V1 整体架构: vllm/基础篇/vLLM V1整体架构.md
+          - Attention的计算机理与vLLM实现: vllm/基础篇/Attention的计算机理与vLLM实现.md
+      - 进阶篇:
+          - FlashAttention：分块计算与 Online Softmax: vllm/进阶篇/FlashAttention：分块计算与Online Softmax.md
+          - FlashAttention-2：线程块与 Warp 的工作划分: vllm/进阶篇/FlashAttention-2：线程块与Warp的工作划分.md
       - 杂记:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - 开源PR记录:
-      - PR 记录: open-source/index.md
-      - "Comfy-Kitchen #127": open-source/Comfy-Kitchen-127.md
+      - 总览: open-source/index.md
+      - Comfy-Kitchen:
+          - "PR #127 · Rowwise INT8 向量化 Kernel": open-source/Comfy-Kitchen-127.md
+          - "PR #129 · SVDQuant INT4 Quantizer": open-source/Comfy-Kitchen-129-SVDQuant-INT4-Quantizer.md
+          - "PR #134 · AWQ W4A16 WMMA": open-source/Comfy-Kitchen-134-AWQ-W4A16-WMMA.md
+          - "PR #157 · Triton Stochastic FP8 Rounding": open-source/Comfy-Kitchen-157-Triton-Stochastic-FP8-Rounding.md
+      - FlyDSL:
+          - "PR #1057 · RDNA3 GEMM Tile Policy": open-source/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
+          - "PR #1113 · Fused RoPE Head-Dim 96": open-source/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
   - 秋招记录: career/index.md
   - 关于本站: about.md
 
@@ -93,11 +107,12 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=8
+  - stylesheets/extra.css?v=10
 
 extra_javascript:
   - javascripts/mathjax.js
   - javascripts/code-fold.js
+  - javascripts/code-mark.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 copyright: 本地知识库 · 持续整理中

@@ -45,6 +45,12 @@
   text-align: center !important;
 }
 
+/* Material 默认将提示框缩小到 .64rem；改为与所在正文等大。 */
+.md-typeset .admonition,
+.md-typeset details {
+  font-size: inherit;
+}
+
 /* 让引导句与紧随其后的分点列表在视觉上属于同一组。 */
 .md-typeset p:has(+ ul),
 .md-typeset p:has(+ ol) {
@@ -130,6 +136,15 @@
 .code-fold__toggle:focus-visible {
   color: var(--md-accent-fg-color);
   background: var(--md-accent-fg-color--transparent);
+}
+
+.md-typeset code .code-mark {
+  margin: 0 -0.02em;
+  padding: 0 0.08em;
+  color: inherit;
+  background: rgba(255, 193, 7, 0.42);
+  border-radius: 0.12rem;
+  box-shadow: 0 0 0 0.05rem rgba(255, 152, 0, 0.18);
 }
 
 /* 桌面端按视口比例布局：页面占 94% 宽度，正文自动获得剩余空间。
