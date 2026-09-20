@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" role="img" aria-labelledby="title desc">
+  <title id="title">Rowwise INT8 quantization widens typed loads without changing the two-pass algorithm</title>
+  <desc id="desc">A row is split into aligned sixteen-byte chunks. Pass one finds the row maximum through local maxima and an LDS reduction. Pass two reloads the same chunks, quantizes them, and stores INT8. A guarded scalar path handles misaligned or ragged rows.</desc>
+  <defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#2964a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:20px}.small{font-size:18px;fill:#607187}.mono{font-family:"DejaVu Sans Mono",monospace;font-size:18px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.flow{fill:none;stroke:#2964a4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+  <rect width="1600" height="940" fill="#fbfcfe"/>
+  <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
+  <text x="70" y="66" class="title">Rowwise INT8: wider loads, same algorithm</text>
+  <text x="48" y="101" class="subtitle">One row per block · two passes · 256 threads · guarded 16-byte fast path</text>
+  <text x="1552" y="62" text-anchor="end" class="small">COMFY-KITCHEN / PR 127</text>
+
+  <text x="60" y="157" class="eyebrow">01  MEMORY VIEW</text>
+  <rect x="60" y="180" width="1480" height="156" rx="16" fill="#f7f9fc" stroke="#ced7e2" stroke-width="2"/>
+  <text x="84" y="215" class="section">A BF16 row becomes aligned 16-byte chunks</text>
+  <text x="1516" y="215" text-anchor="end" class="small">8 values per typed load</text>
+  <g transform="translate(84 238)">
+    <rect width="164" height="64" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><rect x="174" width="164" height="64" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/>
+    <rect x="348" width="164" height="64" rx="8" fill="#e8f5f1" stroke="#bed9d1"/><rect x="522" width="164" height="64" rx="8" fill="#e8f5f1" stroke="#bed9d1"/>
+    <rect x="696" width="164" height="64" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><rect x="870" width="164" height="64" rx="8" fill="#fff1e5" stroke="#e4c7ad"/>
+    <rect x="1044" width="164" height="64" rx="8" fill="#f0edfa" stroke="#d7c9e5"/><rect x="1218" width="214" height="64" rx="8" fill="#fff" stroke="#ced7e2" stroke-dasharray="6 5"/>
+    <text x="82" y="39" text-anchor="middle" class="mono">chunk 0</text><text x="256" y="39" text-anchor="middle" class="mono">chunk 1</text>
+    <text x="430" y="39" text-anchor="middle" class="mono">chunk 2</text><text x="604" y="39" text-anchor="middle" class="mono">chunk 3</text>
+    <text x="778" y="39" text-anchor="middle" class="mono">chunk 4</text><text x="952" y="39" text-anchor="middle" class="mono">chunk 5</text>
+    <text x="1126" y="39" text-anchor="middle" class="mono">…</text><text x="1325" y="39" text-anchor="middle" class="small">last full chunk</text>
+  </g>
+
+  <text x="60" y="386" class="eyebrow">02  TWO PASSES OVER THE SAME ROW</text>
+  <rect x="60" y="410" width="710" height="315" rx="16" class="card"/>
+  <text x="84" y="447" class="section">Pass 1 · establish one row scale</text>
+  <text x="84" y="477" class="small">Typed loads change; reduction semantics do not.</text>
+  <rect x="92" y="520" width="166" height="76" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
+  <text x="175" y="551" text-anchor="middle" class="label">uint4 load</text><text x="175" y="578" text-anchor="middle" class="small">16 bytes</text>
+  <path d="M258 558 H306" class="flow"/>
+  <rect x="318" y="520" width="176" height="76" rx="10" fill="#e8f5f1" stroke="#bed9d1"/>
+  <text x="406" y="551" text-anchor="middle" class="label">unpack</text><text x="406" y="578" text-anchor="middle" class="small">local absmax</text>
+  <path d="M494 558 H542" class="flow"/>
+  <rect x="554" y="510" width="184" height="96" rx="10" fill="#f0edfa" stroke="#d7c9e5"/>
+  <text x="646" y="544" text-anchor="middle" class="label">LDS reduction</text><text x="646" y="572" text-anchor="middle" class="small">256 → … → 1 = a</text><text x="646" y="595" text-anchor="middle" class="mono" style="font-size:14px">s=max(a/127,1e-30)</text>
+  <text x="84" y="681" class="body">Every thread contributes a local maximum; one block produces one scale.</text>
+
+  <rect x="830" y="410" width="710" height="315" rx="16" class="card"/>
+  <text x="854" y="447" class="section">Pass 2 · reload, quantize, store</text>
+  <text x="854" y="477" class="small">The row is read again after the shared scale is known.</text>
+  <rect x="862" y="520" width="166" height="76" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
+  <text x="945" y="551" text-anchor="middle" class="label">uint4 load</text><text x="945" y="578" text-anchor="middle" class="small">same chunk</text>
+  <path d="M1028 558 H1076" class="flow"/>
+  <rect x="1088" y="520" width="190" height="76" rx="10" fill="#e8f5f1" stroke="#bed9d1"/>
+  <text x="1183" y="551" text-anchor="middle" class="mono">rint(x / s)</text><text x="1183" y="578" text-anchor="middle" class="small">clamp INT8</text>
+  <path d="M1278 558 H1326" class="flow"/>
+  <rect x="1338" y="520" width="170" height="76" rx="10" fill="#fff1e5" stroke="#e4c7ad"/>
+  <text x="1423" y="551" text-anchor="middle" class="label">store q</text><text x="1423" y="578" text-anchor="middle" class="small">one-byte values</text>
+  <text x="854" y="681" class="body">Only the load width changes; the public quantization contract stays fixed.</text>
+
+  <text x="60" y="779" class="eyebrow">03  FAST-PATH CONTRACT</text>
+  <rect x="60" y="802" width="1480" height="82" rx="12" fill="#edf6f3" stroke="#b9d6cd"/>
+  <text x="84" y="837" class="label" fill="#187264">Vector path</text>
+  <text x="226" y="837" class="mono">base % 16 == 0  and  row_bytes % 16 == 0</text>
+  <line x1="879" y1="819" x2="879" y2="867" stroke="#c5d5d0"/>
+  <text x="908" y="837" class="label">Otherwise</text>
+  <text x="1023" y="837" class="body">keep the scalar fallback for misaligned or ragged rows</text>
+  <text x="60" y="918" class="small">The optimization widens memory transactions; it does not replace the two-pass rowwise algorithm.</text>
+</svg>

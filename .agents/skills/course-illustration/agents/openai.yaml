@@ -1,0 +1,4 @@
+interface:
+  display_name: "课程机制插图"
+  short_description: "Create clear, source-grounded teaching illustrations"
+  default_prompt: "Use $course-illustration to turn this lesson into an English teaching illustration with concrete objects, a continuous example, and verified visual relationships."

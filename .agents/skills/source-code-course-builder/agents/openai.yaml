@@ -1,0 +1,4 @@
+interface:
+  display_name: "Source Code Course Builder"
+  short_description: "Design course structure and clear source-grounded lessons"
+  default_prompt: "Use $source-code-course-builder to review this course's structure, prerequisites, lesson narratives, and repetition, then improve it with source-grounded examples."

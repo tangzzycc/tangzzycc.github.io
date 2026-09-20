@@ -12,6 +12,10 @@
 - [FlashAttention：分块计算与 Online Softmax](进阶篇/FlashAttention：分块计算与Online Softmax.md)
 - [FlashAttention-2：线程块与 Warp 的工作划分](进阶篇/FlashAttention-2：线程块与Warp的工作划分.md)
 
+## 开发实践
+
+- [CogAgent-18B 在 vLLM 中的模型接入与推理优化](开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md)
+
 ## 杂记
 
 - [vLLM Multi-LoRA 推理](杂记/vLLM Multi-LoRA推理.md)

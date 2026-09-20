@@ -1,33 +1,30 @@
 # Kernel PR 深读
 
-这里记录对 GPU kernel、量化、GEMM、Triton 和编译器 dispatch 相关 PR 的源码复盘。
-每篇笔记都固定到对应 PR 的公开 head，先说明数学与 tensor layout，再沿 launch、线程映射、
-片上存储、边界条件和测试路径展开。性能数字只保留 PR 或源码能支撑的范围，不把局部 benchmark
-直接等同于端到端吞吐。
+这一组笔记从真实 PR 出发，讨论低比特量化、GEMM dispatch、Triton elementwise kernel 与
+wave-level 数据映射。每篇都固定到一个公开 commit，用同一个问题串起数学语义、线程分工、
+数据布局、fallback 和性能证据；图中展示机制，正文解释为什么这样设计。
 
 ## Comfy-Kitchen
 
-- [PR #127：Rowwise INT8 向量化 Kernel](Comfy-Kitchen-127.md)
-  - 16-byte typed load、寄存器展开，以及为什么 reduction 本身没有改变。
-- [PR #129：SVDQuant INT4 Quantizer 与 W4A4 GEMM](Comfy-Kitchen-129-SVDQuant-INT4-Quantizer.md)
-  - 16-lane activation quantization、nibble packing、WMMA LoRA-down 与 epilogue。
-- [PR #134：AWQ W4A16 的 GEMV、WMMA 与三级 Dispatch](Comfy-Kitchen-134-AWQ-W4A16-WMMA.md)
-  - small-M GEMV、medium-M fused WMMA、large-M dequant + library GEMM 的路径选择。
-- [PR #157：Triton Stochastic FP8 Rounding](Comfy-Kitchen-157-Triton-Stochastic-FP8-Rounding.md)
-  - 单 pass 随机舍入、FP8 编码、RNG storage 复用和 Triton registry。
+| 笔记 | 核心问题 | 关键结论 |
+| --- | --- | --- |
+| [PR #127：Rowwise INT8 的 16-byte 向量化](Comfy-Kitchen-127-Rowwise-INT8-Vectorized-Load.md) | 怎样在不改量化语义和归约结构的前提下加速两遍扫描？ | 用严格 alignment/K guard 保护 typed `uint4` load，并保留 scalar fallback。 |
+| [PR #129：16-lane 协作的 SVDQuant INT4 Quantizer](Comfy-Kitchen-129-SVDQuant-INT4-Quantizer.md) | 怎样让一个 64-element group 从单线程串行变成 wave 内协作？ | 每 lane 缓存 4 个值，width-16 shuffle 求 scale，一次写出 4 个 nibble；LoRA-down 回归 `torch.mm`。 |
+| [PR #134：AWQ W4A16 的三级执行路径](Comfy-Kitchen-134-AWQ-W4A16-WMMA.md) | 为什么同一个 W4A16 运算需要三种实现？ | small-M 用 wave GEMV，medium-M 用 fused WMMA 复用 weight，large-M 用 dequant + library GEMM。 |
+| [PR #157：Triton 中的 FP8 随机舍入](Comfy-Kitchen-157-Triton-Stochastic-FP8-Rounding.md) | 怎样匹配 CUDA 舍入语义并避免 eager 中间张量？ | 单个 Triton kernel 消费外部 RNG byte，并将 FP8 结果覆盖回 RNG storage。 |
 
 ## FlyDSL
 
-- [PR #1057：RDNA3 GEMM Kernel 与 gfx1151 Tile Policy](FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md)
-  - gfx1151 的 tile heuristic、workgroup 数、LDS layout 与 architecture cache key。
-- [PR #1113：Fused RoPE + KV Cache 的 Head-Dim 96 修复](FlyDSL-1113-Fused-RoPE-Head-Dim-96.md)
-  - 合法 vector width、非 2 次幂 half-span 的 peer lane 映射和 D=96 正确性。
+| 笔记 | 核心问题 | 关键结论 |
+| --- | --- | --- |
+| [PR #1057：为 gfx1151 选择合适的 GEMM Tile](FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md) | 为什么 shape-only heuristic 还不够？ | tile policy、JIT target 与 cache identity 必须使用同一个实际 device architecture。 |
+| [PR #1113：Fused RoPE 如何支持 Head Dimension 96](FlyDSL-1113-Fused-RoPE-Head-Dim-96.md) | 为什么 D=96 会暴露 vector width 与 XOR pairing 的隐藏假设？ | 使用原生 `{1,2,4,8}` copy width，并为 12-lane half 改用显式 `+/- span` 配对。 |
 
 ## 阅读入口
 
-建议先读 PR #127，建立 rowwise quantization 与 GPU 线程/内存映射的基本概念；再按主题继续：
+第一次阅读可以先从 PR #127 建立“线程映射、向量读取与 fallback”的基本模型，再按兴趣选择路线：
 
 - 量化与低比特矩阵计算：PR #129、PR #134、PR #157
 - RDNA3/FlyDSL kernel 设计：PR #1057、PR #1113
 
-所有来源链接、commit head、核心文件和测试入口都保留在对应文档开头，便于回到原始代码核对。
+性能数字均来自对应 PR 的公开记录；本文没有把 microbenchmark 外推为端到端模型收益。

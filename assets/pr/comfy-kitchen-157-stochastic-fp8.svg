@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960" role="img" aria-labelledby="title desc">
+  <title id="title">Stochastic FP8 rounding combines independent value and random-byte inputs in one Triton kernel</title>
+  <desc id="desc">The value is first rounded through FP16 and promoted to FP32. A separate random byte produces a uniform offset. The kernel rounds the FP8 mantissa coordinate with floor of m plus u, reconstructs the value, and overwrites the consumed random-byte storage with the FP8 result.</desc>
+  <defs>
+    <marker id="blue-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#2964a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="purple-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#8051aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:20px}.small{font-size:18px;fill:#607187}.mono{font-family:"DejaVu Sans Mono",monospace;font-size:18px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.blueflow{fill:none;stroke:#2964a4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#blue-arrow)}.purpleflow{fill:none;stroke:#8051aa;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#purple-arrow)}
+  </style>
+  <rect width="1600" height="960" fill="#fbfcfe"/>
+  <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
+  <text x="70" y="66" class="title">Stochastic FP8 rounding: two inputs, one fused pass</text>
+  <text x="48" y="101" class="subtitle">FP16 rounding contract · FP32 arithmetic · external random byte · output reuses RNG storage</text>
+  <text x="1552" y="62" text-anchor="end" class="small">COMFY-KITCHEN / PR 157</text>
+
+  <text x="60" y="157" class="eyebrow">01  INDEPENDENT INPUT PATHS</text>
+  <rect x="60" y="180" width="1480" height="286" rx="16" class="card"/>
+  <rect x="94" y="228" width="300" height="82" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
+  <text x="244" y="262" text-anchor="middle" class="label">value x[i]</text><text x="244" y="289" text-anchor="middle" class="small">FP32 / FP16 / BF16 caller input</text>
+  <path d="M394 269 H472" class="blueflow"/>
+  <rect x="484" y="218" width="330" height="102" rx="10" fill="#edf6f3" stroke="#b9d6cd"/>
+  <text x="649" y="251" text-anchor="middle" class="mono">x → FP16 → FP32</text><text x="649" y="278" text-anchor="middle" class="small">enforce FP16 rounding first</text><text x="649" y="302" text-anchor="middle" class="small">then do kernel arithmetic in FP32</text>
+  <rect x="94" y="354" width="300" height="76" rx="10" fill="#f0edfa" stroke="#d7c9e5"/>
+  <text x="244" y="385" text-anchor="middle" class="label">rng[i]</text><text x="244" y="412" text-anchor="middle" class="small">one independent uint8 sample</text>
+  <path d="M394 392 H472" class="purpleflow"/>
+  <rect x="484" y="354" width="330" height="76" rx="10" fill="#f4ecfa" stroke="#d7c9e5"/>
+  <text x="649" y="385" text-anchor="middle" class="mono">u = rng[i] / 256</text><text x="649" y="412" text-anchor="middle" class="small">256 discrete levels in [0, 1)</text>
+  <path d="M814 269 C900 269 900 326 986 326" class="blueflow"/>
+  <path d="M814 392 C900 392 900 338 986 338" class="purpleflow"/>
+  <rect x="998" y="244" width="508" height="164" rx="12" fill="#f7f9fc" stroke="#ced7e2"/>
+  <text x="1024" y="279" class="section">Build the FP8 coordinate</text>
+  <text x="1024" y="316" class="body">1. split sign, exponent, and mantissa</text>
+  <text x="1024" y="350" class="body">2. express the mantissa on the FP8 grid</text>
+  <text x="1024" y="384" class="mono">rounded coordinate = floor(m + u)</text>
+
+  <text x="60" y="518" class="eyebrow">02  PROBABILISTIC GRID CHOICE</text>
+  <rect x="60" y="542" width="720" height="266" rx="16" class="card"/>
+  <text x="84" y="581" class="section">Worked element: m = 5.25</text>
+  <line x1="138" y1="674" x2="700" y2="674" stroke="#8b9bae" stroke-width="3"/>
+  <line x1="214" y1="652" x2="214" y2="696" stroke="#2865b3" stroke-width="3"/>
+  <line x1="626" y1="652" x2="626" y2="696" stroke="#bc692e" stroke-width="3"/>
+  <circle cx="317" cy="674" r="9" fill="#8051aa"/>
+  <text x="214" y="633" text-anchor="middle" class="mono">5</text><text x="626" y="633" text-anchor="middle" class="mono">6</text><text x="317" y="711" text-anchor="middle" class="small">m = 5.25</text>
+  <text x="112" y="758" class="mono">u &lt; 0.75 → 5</text><text x="430" y="758" class="mono">u ≥ 0.75 → 6</text>
+  <text x="84" y="790" class="small">The upper-point probability tracks the fractional part at 1/256 resolution.</text>
+
+  <rect x="830" y="542" width="710" height="266" rx="16" class="card"/>
+  <text x="854" y="581" class="section">Reconstruct, clamp, and overwrite</text>
+  <rect x="866" y="632" width="186" height="68" rx="9" fill="#fff1e5" stroke="#e4c7ad"/><text x="959" y="660" text-anchor="middle" class="label">reconstruct</text><text x="959" y="686" text-anchor="middle" class="small">normal / subnormal</text>
+  <path d="M1052 666 H1092" class="blueflow"/>
+  <rect x="1104" y="632" width="186" height="68" rx="9" fill="#e8f5f1" stroke="#bed9d1"/><text x="1197" y="660" text-anchor="middle" class="label">restore sign</text><text x="1197" y="686" text-anchor="middle" class="small">clamp + NaN</text>
+  <path d="M1290 666 H1330" class="blueflow"/>
+  <rect x="1342" y="622" width="166" height="88" rx="9" fill="#f0edfa" stroke="#d7c9e5"/><text x="1425" y="653" text-anchor="middle" class="label">store FP8</text><text x="1425" y="680" text-anchor="middle" class="small">into rng storage</text><text x="1425" y="701" text-anchor="middle" class="small">same one byte</text>
+  <path d="M1425 710 V728" class="purpleflow"/>
+  <rect x="1084" y="740" width="424" height="42" rx="7" fill="#f4ecfa" stroke="#d7c9e5"/>
+  <text x="1296" y="767" text-anchor="middle" class="small" fill="#8051aa">overwrite the same buffer that supplied rng[i]</text>
+
+  <line x1="60" y1="856" x2="1540" y2="856" stroke="#d4dfea"/>
+  <text x="60" y="897" class="label" fill="#187264">One fused kernel</text>
+  <text x="235" y="897" class="body">removes eager intermediates and a separate output allocation without coupling x and RNG.</text>
+  <text x="60" y="937" class="small">The value path and random path remain separate until the stochastic rounding expression floor(m + u).</text>
+</svg>

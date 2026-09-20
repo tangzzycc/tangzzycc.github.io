@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Fused RoPE with head dimension ninety-six uses four-element native vectors and explicit twelve-lane pairing</title>
+  <desc id="desc">The former three-element lane vector is incompatible with thirty-two-bit bpermute chunks. The corrected mapping uses twenty-four active lanes with four elements each. NeoX halves span twelve lanes, so paired lanes use plus or minus twelve rather than XOR.</desc>
+  <defs>
+    <marker id="blue-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#2964a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="green-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#218367" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="purple-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#8051aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="red-arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#b84d4d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:19px}.small{font-size:17px;fill:#607187}.mono{font-family:"DejaVu Sans Mono",monospace;font-size:17px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.blueflow{fill:none;stroke:#2964a4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#blue-arrow)}.greenflow{fill:none;stroke:#218367;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#green-arrow)}
+  </style>
+  <rect width="1600" height="1000" fill="#fbfcfe"/>
+  <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
+  <text x="70" y="66" class="title">Fused RoPE D=96: native vectors and correct lane pairs</text>
+  <text x="48" y="101" class="subtitle">wave32 · NeoX halves · four elements per active lane · 24 active lanes</text>
+  <text x="1552" y="62" text-anchor="end" class="small">FLYDSL / PR 1113</text>
+
+  <text x="60" y="154" class="eyebrow">01  WHY WIDTH THREE FAILS</text>
+  <rect x="60" y="178" width="710" height="254" rx="16" class="card"/>
+  <text x="84" y="217" class="section">Before · ceil(96 / 32) = 3</text>
+  <rect x="96" y="262" width="252" height="82" rx="10" fill="#fff0f0" stroke="#e1b7b7"/>
+  <text x="222" y="295" text-anchor="middle" class="mono">32 lanes × 3 elems</text><text x="222" y="324" text-anchor="middle" class="small">48-bit vector per lane</text>
+  <path d="M348 303 H416" fill="none" stroke="#b84d4d" stroke-width="3" stroke-linecap="round" marker-end="url(#red-arrow)"/>
+  <rect x="428" y="252" width="306" height="102" rx="10" fill="#fff0f0" stroke="#e1b7b7"/>
+  <text x="581" y="285" text-anchor="middle" class="mono">bpermute: 32-bit chunks</text><text x="581" y="314" text-anchor="middle" class="small">rebuilds only 2 elements</text><text x="581" y="338" text-anchor="middle" class="small">shape (2,) ≠ shape (3,)</text>
+  <text x="84" y="401" class="small" fill="#a33d3d">The lane vector is neither a native 32-bit chunk nor a whole number of chunks.</text>
+
+  <rect x="830" y="178" width="710" height="254" rx="16" class="card"/>
+  <text x="854" y="217" class="section">After · smallest native width is 4</text>
+  <rect x="866" y="262" width="252" height="82" rx="10" fill="#e8f5f1" stroke="#bed9d1"/>
+  <text x="992" y="295" text-anchor="middle" class="mono">24 lanes × 4 elems</text><text x="992" y="324" text-anchor="middle" class="small">64-bit vector per lane</text>
+  <path d="M1118 303 H1186" class="blueflow"/>
+  <rect x="1198" y="252" width="306" height="102" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
+  <text x="1351" y="285" text-anchor="middle" class="mono">2 × bpermute_b32</text><text x="1351" y="314" text-anchor="middle" class="small">all four elements rebuilt</text><text x="1351" y="338" text-anchor="middle" class="small">8 lanes remain inactive</text>
+  <text x="854" y="401" class="small" fill="#187264">D=96 is covered exactly: 24 × 4 = 96 features.</text>
+
+  <text x="60" y="484" class="eyebrow">02  NEOX PAIRING ACROSS TWO 12-LANE HALVES</text>
+  <rect x="60" y="508" width="1480" height="374" rx="16" class="card"/>
+  <text x="84" y="547" class="section">Each lane owns four adjacent features; paired lanes are twelve positions apart.</text>
+  <text x="1516" y="547" text-anchor="end" class="small">colored cells and curves show three representative pairs</text>
+  <g transform="translate(100 590)">
+    <g stroke-width="1.5">
+      <rect width="52" height="58" rx="6" fill="#e8f1fb" stroke="#8fb4d8"/><rect x="57" width="52" height="58" rx="6" fill="#e8f5f1" stroke="#8fc5b5"/><rect x="114" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="171" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="228" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="285" width="52" height="58" rx="6" fill="#f0edfa" stroke="#bea8d5"/><rect x="342" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="399" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="456" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="513" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="570" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="627" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/>
+      <rect x="713" width="52" height="58" rx="6" fill="#e8f1fb" stroke="#8fb4d8"/><rect x="770" width="52" height="58" rx="6" fill="#e8f5f1" stroke="#8fc5b5"/><rect x="827" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="884" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="941" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="998" width="52" height="58" rx="6" fill="#f0edfa" stroke="#bea8d5"/><rect x="1055" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="1112" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="1169" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="1226" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="1283" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/><rect x="1340" width="52" height="58" rx="6" fill="#f7f9fc" stroke="#ced7e2"/>
+    </g>
+    <g text-anchor="middle"><text x="26" y="36" class="mono">0</text><text x="83" y="36" class="mono">1</text><text x="140" y="36" class="mono">2</text><text x="197" y="36" class="mono">3</text><text x="254" y="36" class="mono">4</text><text x="311" y="36" class="mono">5</text><text x="368" y="36" class="mono">6</text><text x="425" y="36" class="mono">7</text><text x="482" y="36" class="mono">8</text><text x="539" y="36" class="mono">9</text><text x="596" y="36" class="mono">10</text><text x="653" y="36" class="mono">11</text><text x="739" y="36" class="mono">12</text><text x="796" y="36" class="mono">13</text><text x="853" y="36" class="mono">14</text><text x="910" y="36" class="mono">15</text><text x="967" y="36" class="mono">16</text><text x="1024" y="36" class="mono">17</text><text x="1081" y="36" class="mono">18</text><text x="1138" y="36" class="mono">19</text><text x="1195" y="36" class="mono">20</text><text x="1252" y="36" class="mono">21</text><text x="1309" y="36" class="mono">22</text><text x="1366" y="36" class="mono">23</text></g>
+    <text x="340" y="-12" text-anchor="middle" class="small">first 48 features · lanes 0..11</text><text x="1052" y="-12" text-anchor="middle" class="small">second 48 features · lanes 12..23</text>
+    <path d="M26 64 C26 142 739 142 739 64" class="blueflow"/>
+    <path d="M83 64 C83 182 796 182 796 64" class="greenflow"/>
+    <path d="M1024 64 C1024 222 311 222 311 64" fill="none" stroke="#8051aa" stroke-width="3" stroke-linecap="round" marker-end="url(#purple-arrow)"/>
+  </g>
+  <text x="100" y="846" class="mono">lower half: pair = lane + 12</text>
+  <text x="1500" y="846" text-anchor="end" class="mono">upper half: pair = lane - 12</text>
+
+  <line x1="60" y1="916" x2="1540" y2="916" stroke="#d4dfea"/>
+  <text x="60" y="956" class="label" fill="#187264">Why not XOR?</text>
+  <text x="210" y="956" class="body">XOR naturally represents power-of-two spans; a 12-lane half requires explicit +12 / −12 pairing.</text>
+  <text x="60" y="989" class="small">The RoPE math is unchanged; only the vector width and cross-lane addressing are corrected.</text>
+</svg>

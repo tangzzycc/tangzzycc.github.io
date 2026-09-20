@@ -1,0 +1,4 @@
+interface:
+  display_name: "Explain vLLM"
+  short_description: "Explain vLLM concepts through source-backed execution paths"
+  default_prompt: "Explain this vLLM concept from its purpose to the relevant source-code execution path."

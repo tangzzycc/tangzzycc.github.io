@@ -1,0 +1,35 @@
+Method: built-in image_gen editing.
+Reference: lesson18-attention-gqa-shared-kv.png
+
+Layout and legibility pass:
+Edit the attached educational diagram. Primary goal: improve legibility, especially output mapping. Preserve exact mathematics, all four numbered stages and existing visual style. ONE merged figure, not separate images. Native high-resolution rendering requested, ideally 3072x2304 or greater; do not just rescale a blurry source. Clean white background, navy headings, blue Q, orange K, green V, purple operations, magenta selected output. Redraw text sharply.
+
+Layout refinement ONLY:
+Keep stages01 PROJECT,02 ROTATE,03 MATCH+MIX substantially unchanged. Stage04 currently has the output mapping squeezed under/right of the sharedKV box. Instead place sharedKV + FOUR independent computations in the upper row of stage04, then put the ENTIRE output-mapping row across the FULL CANVAS WIDTH BELOW BOTH the sharedKV box and four computation lanes. This full-width bottom row gives the O grid, flattened output grid and o_proj room for larger fonts. Increase canvas height rather than reducing font size. Keep a compact title and avoid oversized headings wasting space.
+
+In stage01 projectedQKV panel rename heading "Q / K / V · logical head views". Keep Q[3,32,128],K/V[3,8,128]. Add brief note "Code may keep heads flattened; view exposes the head axis." This clarifies mathematical view vs actual code shape, without inserting another operation.
+
+Critical invariants in stage04:
+ONE stored K′[:,0,:] [3,128] and V[:,0,:] [3,128] source box with 3 token rows. Source fan-out arrows connect INTO exactly four computation boxes:
+Match + Mix using Q′[2,0,:] → O[2,0,:] [128]
+Match + Mix using Q′[2,1,:] → O[2,1,:] [128]
+Match + Mix using Q′[2,2,:] → O[2,2,:] [128]
+Match + Mix using Q′[2,3,:] → O[2,3,:] [128].
+No separate Q boxes and no arrows suggesting K/V generate Q. All four Query indices present, outputs independent, only head0 output magenta. One source only, no replicated KV matrices. Keep text "same K/V" on branched connector.
+
+Full-width bottom subrow:
+O [3,32,128] has exactly3rows token0/1/2 and headcolumns0/1/2/…/31. Each cell128values. ONLY token2/head0 cell magenta labelled O[2,0,:].
+Arrow reshape/view (no new calculation) to attn_output[3,4096], exactly3rows with headfeature segments. ONLY token2 first128features magenta labelled attn_output[2,0:128]. Keep simple head0/head1/…/head31 column labels; remove excessive tiny numeric ranges if needed except firstsegment0:128. Then o_proj (mix head features within each token) → neutral output[3,4096]. Final output heading "Attention block output" (not entire model output).
+A neat magenta connector from actual O[2,0,:] lane result to the magenta Ogrid cell, never from o_proj. Readable bottom formula attn_output[t,h*128+d] = O[t,h,d].
+Add ONE legible note under stage04: "Independent head results; the backend executes the batch in parallel tiles." Not a serial Python loop. Do not add a large new diagram.
+
+Stage03 preserve q[1,128] and k[3,128] into q×kT → scale1/sqrt128+causal mask+softmax → illustrative weights[0.10,0.20,0.70][1,3] → weights×v, with separate V[3,128] input → result[1,128],token2,Qhead0. Single weights vector only, explicit arrows from softmax to weights and from weights to mix. p tokenposition vs i featurepairindex in RoPE remain unchanged. Preserve W[6144,4096] stored,X×WT. Header notesTP1,32Q8KV,D128,H4096,3token causal prefill no priorcache,v0.25.1 preserved. Avoid tiny footnote tables, crossing arrows, or altered indices. Main improvement is genuinely larger clearer output-map typography using full width.
+
+Correctness pass:
+Precise scientific corrections to attached image. Keep composition, large full-width output row and ALL other content unchanged. Correct these FOUR items:
+1. RoPE exponent MUST include coordinate-pair index i: theta = p * base^(-2*i/128). Current exponent omits i. Print EXACT "θ = p × base^(−2i/128)" clearly with i visible. Keep rotation formulas unchanged.
+2. Section03 Query slice must be EXACT "q = Q′[2:3, 0, :] [1,128]". There is a COLON between 2 and 3, not a comma. This selects one token row and retains its axis. Do not show 4indices.
+3. The magenta connector from four-lane computation results into Ogrid MUST originate from row0 output O[2,0,:], NOT row3 output O[2,3,:]. Remove the existing magenta line entirely then route a new thin magenta connector from RIGHT EDGE of MAGENTA O[2,0,:] result box, DOWN along outer right whitespace of lane area, LEFT through gap above output mapping, then DOWN to Ogrid selected token2/head0 cell. It must have arrowhead at destination cell. Do not connect to any other result or o_proj.
+4. In flattened attn_output grid, magenta highlight must cover ONLY token2 first head segment (head0), NOT head1. Match highlighted width to exactly ONE column of other tokenrows. Use "0:128" INSIDE this single magenta cell and put full text "attn_output[2,0:128]" BELOW grid, outside cells. Blue head1 and all other cells unhighlighted. Likewise Ogrid selectedcell onlytoken2/head0 unchanged. All indices0based,128rightendpoint exclusive.
+
+Ensure correct before returning: theta includes i; qslice includes2:3; selected resultsourcehead0 nothead3; flattened highlightedcell onehead only. Highest native resolution practical. Do not alter stages01/02 other math, weights, or four Query computation rows. Return entire diagram.
