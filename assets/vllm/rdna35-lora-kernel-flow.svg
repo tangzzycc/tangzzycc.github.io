@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-labelledby="title desc">
+  <title id="title">vLLM LoRA execution on gfx1151 with separate decode and prefill kernels</title>
+  <desc id="desc">A LoRA-enabled linear layer sends the same shrink and expand tensor contract through PunicaWrapperGPU. Decode uses direct token mapping, full K reduction, and flattened valid output tiles. Prefill groups token rows by LoRA, uses matrix tiles, controlled split K for shrink, and flattened output tiles for expand. Platform, tensor, and dynamic shape guards select the RDNA kernels or fall back to native Punica.</desc>
+  <defs>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#2865a8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#218367" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#8051aa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-gray" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#68788a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}
+    .title{font-size:40px;font-weight:700}.subtitle{font-size:21px;fill:#52677d}
+    .eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}
+    .section{font-size:22px;font-weight:700}.label{font-size:17px;font-weight:700}
+    .body{font-size:16px}.small{font-size:14px;fill:#607187}.tiny{font-size:12px;fill:#607187}
+    .mono{font-family:"DejaVu Sans Mono",monospace;font-size:14px}
+    .card{fill:#fff;stroke:#ced7e2;stroke-width:2}
+    .blue{fill:#e8f1fb;stroke:#a9c4df;stroke-width:1.5}
+    .green{fill:#e8f5f1;stroke:#a9d1c5;stroke-width:1.5}
+    .purple{fill:#f0edfa;stroke:#cfbee1;stroke-width:1.5}
+    .orange{fill:#fff1e5;stroke:#e4c7ad;stroke-width:1.5}
+    .gray{fill:#f5f7fa;stroke:#ced7e2;stroke-width:1.5}
+    .flow-blue{fill:none;stroke:#2865a8;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-blue)}
+    .flow-green{fill:none;stroke:#218367;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-green)}
+    .flow-purple{fill:none;stroke:#8051aa;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-purple)}
+    .flow-gray{fill:none;stroke:#68788a;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-gray)}
+  </style>
+
+  <rect width="1600" height="1180" fill="#fbfcfe"/>
+  <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
+  <text x="70" y="66" class="title">vLLM LoRA on gfx1151: one contract, four RDNA kernels</text>
+  <text x="48" y="101" class="subtitle">Decode removes small-batch structural waste; prefill keeps grouped matrix computation.</text>
+  <text x="1552" y="62" text-anchor="end" class="small">RDNA 3.5 · TRITON FAST PATH</text>
+
+  <text x="48" y="151" class="eyebrow">01  LINEAR LORA CONTRACT</text>
+  <rect x="48" y="174" width="1504" height="190" rx="16" class="card"/>
+  <rect x="76" y="207" width="246" height="118" rx="11" class="blue"/>
+  <text x="96" y="240" class="section">LoRA-enabled Linear</text>
+  <text x="96" y="273" class="mono">X [M,K]</text>
+  <text x="96" y="300" class="small">Base GEMM remains unchanged</text>
+  <path d="M322 266 H374" class="flow-blue"/>
+
+  <rect x="386" y="207" width="260" height="118" rx="11" class="gray"/>
+  <text x="406" y="240" class="section">PunicaWrapperGPU</text>
+  <text x="406" y="273" class="small">Select native or RDNA ops</text>
+  <text x="406" y="300" class="mono">add_lora_linear()</text>
+  <path d="M646 266 H698" class="flow-blue"/>
+
+  <rect x="710" y="207" width="244" height="118" rx="11" class="green"/>
+  <text x="730" y="240" class="section">Shrink</text>
+  <text x="730" y="273" class="mono">T = scale · X Aᵀ</text>
+  <text x="730" y="300" class="mono">T [S,M,r] · FP32</text>
+  <path d="M954 266 H1006" class="flow-green"/>
+
+  <rect x="1018" y="207" width="244" height="118" rx="11" class="purple"/>
+  <text x="1038" y="240" class="section">Expand</text>
+  <text x="1038" y="273" class="mono">ΔY = T Bᵀ</text>
+  <text x="1038" y="300" class="small">one or multiple slices</text>
+  <path d="M1262 266 H1314" class="flow-purple"/>
+
+  <rect x="1326" y="207" width="198" height="118" rx="11" class="orange"/>
+  <text x="1346" y="240" class="section">Linear output</text>
+  <text x="1346" y="273" class="mono">Y ← Y + ΔY</text>
+  <text x="1346" y="300" class="small">same LoRA semantics</text>
+
+  <text x="48" y="420" class="eyebrow">02  DIFFERENT PROGRAM DECOMPOSITIONS</text>
+  <rect x="48" y="446" width="724" height="480" rx="16" class="card"/>
+  <rect x="76" y="474" width="668" height="52" rx="9" class="blue"/>
+  <text x="98" y="507" class="section">Decode · M ≤ 16</text>
+  <text x="720" y="507" text-anchor="end" class="small">direct token mapping · vector reductions</text>
+
+  <text x="76" y="570" class="label">Shrink: token × rank tile × slice</text>
+  <rect x="76" y="592" width="136" height="66" rx="8" fill="#edf4fb" stroke="#a9c4df"/>
+  <text x="144" y="619" text-anchor="middle" class="mono">X[token,:]</text>
+  <text x="144" y="643" text-anchor="middle" class="small">full K row</text>
+  <path d="M212 625 H254" class="flow-green"/>
+  <rect x="266" y="578" width="192" height="94" rx="8" fill="#edf6f3" stroke="#a9d1c5"/>
+  <text x="362" y="607" text-anchor="middle" class="mono">A[slot,r,K]</text>
+  <g transform="translate(290 621)">
+    <rect x="0" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="22" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="44" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="66" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="88" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="110" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+    <rect x="132" y="0" width="22" height="30" fill="#cfe9df" stroke="#8fc2b1"/>
+  </g>
+  <path d="M458 625 H500" class="flow-green"/>
+  <rect x="512" y="592" width="206" height="66" rx="8" fill="#e8f5f1" stroke="#8fc2b1"/>
+  <text x="615" y="619" text-anchor="middle" class="mono">T[s,token,r]</text>
+  <text x="615" y="643" text-anchor="middle" class="small">no split-K · no atomic</text>
+
+  <text x="76" y="720" class="label">Expand: token × flattened valid output tile</text>
+  <rect x="76" y="744" width="132" height="68" rx="8" fill="#f0edfa" stroke="#cfbee1"/>
+  <text x="142" y="773" text-anchor="middle" class="mono">T[token,r]</text>
+  <text x="142" y="798" text-anchor="middle" class="small">rank vector</text>
+  <path d="M208 778 H250" class="flow-purple"/>
+  <g transform="translate(262 746)">
+    <rect x="0" y="0" width="218" height="24" rx="4" fill="#dceafb" stroke="#9fb7d2"/>
+    <rect x="0" y="30" width="62" height="24" rx="4" fill="#ded3ec" stroke="#b59ecb"/>
+    <rect x="68" y="30" width="62" height="24" rx="4" fill="#ded3ec" stroke="#b59ecb"/>
+    <text x="109" y="18" text-anchor="middle" class="tiny">slice 0 · valid N tiles</text>
+    <text x="31" y="48" text-anchor="middle" class="tiny">slice 1</text>
+    <text x="99" y="48" text-anchor="middle" class="tiny">slice 2</text>
+  </g>
+  <path d="M480 778 H522" class="flow-purple"/>
+  <rect x="534" y="744" width="184" height="68" rx="8" fill="#f0edfa" stroke="#b59ecb"/>
+  <text x="626" y="773" text-anchor="middle" class="mono">ΔY[token,:]</text>
+  <text x="626" y="798" text-anchor="middle" class="small">no MAX_N empty tiles</text>
+  <rect x="76" y="850" width="642" height="48" rx="8" fill="#f7f9fc" stroke="#d7e0ea"/>
+  <text x="397" y="880" text-anchor="middle" class="body">Small M favors exact work: each program owns a real token or output tile.</text>
+
+  <rect x="800" y="446" width="752" height="480" rx="16" class="card"/>
+  <rect x="828" y="474" width="696" height="52" rx="9" class="green"/>
+  <text x="850" y="507" class="section">Prefill · grouped token rows</text>
+  <text x="1500" y="507" text-anchor="end" class="small">matrix tiles · weight reuse across rows</text>
+
+  <text x="828" y="570" class="label">Metadata turns scattered tokens into LoRA groups</text>
+  <g transform="translate(828 592)">
+    <rect x="0" y="0" width="42" height="32" rx="4" fill="#dceafb" stroke="#9fb7d2"/><text x="21" y="22" text-anchor="middle" class="tiny">A</text>
+    <rect x="48" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="69" y="22" text-anchor="middle" class="tiny">B</text>
+    <rect x="96" y="0" width="42" height="32" rx="4" fill="#dceafb" stroke="#9fb7d2"/><text x="117" y="22" text-anchor="middle" class="tiny">A</text>
+    <rect x="144" y="0" width="42" height="32" rx="4" fill="#f0f2f5" stroke="#c7d0da"/><text x="165" y="22" text-anchor="middle" class="tiny">base</text>
+    <rect x="192" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="213" y="22" text-anchor="middle" class="tiny">B</text>
+  </g>
+  <path d="M1070 608 H1112" class="flow-gray"/>
+  <g transform="translate(1124 592)">
+    <rect x="0" y="0" width="42" height="32" rx="4" fill="#f0f2f5" stroke="#c7d0da"/><text x="21" y="22" text-anchor="middle" class="tiny">base</text>
+    <rect x="48" y="0" width="42" height="32" rx="4" fill="#dceafb" stroke="#9fb7d2"/><text x="69" y="22" text-anchor="middle" class="tiny">A</text>
+    <rect x="96" y="0" width="42" height="32" rx="4" fill="#dceafb" stroke="#9fb7d2"/><text x="117" y="22" text-anchor="middle" class="tiny">A</text>
+    <rect x="144" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="165" y="22" text-anchor="middle" class="tiny">B</text>
+    <rect x="192" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="213" y="22" text-anchor="middle" class="tiny">B</text>
+  </g>
+  <text x="1488" y="649" text-anchor="end" class="small">stable row indices grouped by adapter slot</text>
+
+  <text x="828" y="686" class="label">Shrink: grouped M tile × rank tile × controlled split-K</text>
+  <rect x="828" y="708" width="194" height="112" rx="9" fill="#edf6f3" stroke="#a9d1c5"/>
+  <text x="925" y="737" text-anchor="middle" class="mono">X[rows,K]</text>
+  <g transform="translate(854 751)">
+    <rect x="0" y="0" width="142" height="16" fill="#d7eee6" stroke="#8fc2b1"/>
+    <rect x="0" y="18" width="142" height="16" fill="#d7eee6" stroke="#8fc2b1"/>
+    <rect x="0" y="36" width="142" height="16" fill="#d7eee6" stroke="#8fc2b1"/>
+  </g>
+  <path d="M1022 764 H1064" class="flow-green"/>
+  <rect x="1076" y="708" width="206" height="112" rx="9" fill="#e8f5f1" stroke="#8fc2b1"/>
+  <text x="1179" y="737" text-anchor="middle" class="mono">tl.dot · FP32 acc</text>
+  <text x="1179" y="768" text-anchor="middle" class="small">split K only when useful</text>
+  <text x="1179" y="796" text-anchor="middle" class="small">atomic only if SPLIT_K &gt; 1</text>
+  <path d="M1282 764 H1324" class="flow-green"/>
+  <rect x="1336" y="708" width="162" height="112" rx="9" fill="#e8f5f1" stroke="#8fc2b1"/>
+  <text x="1417" y="746" text-anchor="middle" class="mono">T[S,M,r]</text>
+  <text x="1417" y="776" text-anchor="middle" class="small">original row order</text>
+  <text x="1417" y="800" text-anchor="middle" class="small">restored on write</text>
+
+  <rect x="828" y="850" width="670" height="48" rx="8" fill="#f3eff9" stroke="#d7c9e5"/>
+  <text x="1163" y="880" text-anchor="middle" class="body">Expand keeps grouped M tiles and flattens only the valid output tiles of every slice.</text>
+
+  <text x="48" y="982" class="eyebrow">03  GUARDED DISPATCH AND SAFE FALLBACK</text>
+  <rect x="48" y="1006" width="1504" height="126" rx="16" class="card"/>
+  <rect x="76" y="1033" width="276" height="72" rx="10" class="blue"/>
+  <text x="214" y="1061" text-anchor="middle" class="label">1 · Load gate</text>
+  <text x="214" y="1086" text-anchor="middle" class="small">opt-in + ROCm + gfx1151</text>
+  <path d="M352 1069 H404" class="flow-blue"/>
+  <rect x="416" y="1033" width="276" height="72" rx="10" class="green"/>
+  <text x="554" y="1061" text-anchor="middle" class="label">2 · Tensor contract</text>
+  <text x="554" y="1086" text-anchor="middle" class="small">dtype · rank · slices · layout</text>
+  <path d="M692 1069 H744" class="flow-green"/>
+  <rect x="756" y="1033" width="276" height="72" rx="10" class="purple"/>
+  <text x="894" y="1061" text-anchor="middle" class="label">3 · Dynamic shape</text>
+  <text x="894" y="1086" text-anchor="middle" class="small">decode / prefill / unsupported</text>
+  <path d="M1032 1069 H1062" class="flow-purple"/>
+  <circle cx="1062" cy="1069" r="4" fill="#8051aa"/>
+  <path d="M1062 1069 C1072 1050 1080 1050 1090 1050" class="flow-purple"/>
+  <rect x="1096" y="1023" width="196" height="92" rx="10" class="orange"/>
+  <text x="1194" y="1056" text-anchor="middle" class="label">RDNA custom op</text>
+  <text x="1194" y="1082" text-anchor="middle" class="small">shape-aware config</text>
+  <rect x="1320" y="1033" width="204" height="72" rx="10" class="gray"/>
+  <text x="1422" y="1061" text-anchor="middle" class="label">Native Punica</text>
+  <text x="1422" y="1086" text-anchor="middle" class="small">unsupported input</text>
+  <path d="M1062 1073 C1125 1127 1240 1127 1314 1084" class="flow-gray"/>
+
+  <text x="48" y="1160" class="small">The optimization changes execution mapping, not LoRA mathematics, model structure, scheduling, embedding LoRA, logits LoRA, or fused-MoE LoRA.</text>
+</svg>

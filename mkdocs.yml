@@ -27,6 +27,7 @@ nav:
           - FlashAttention-2：线程块与 Warp 的工作划分: vllm/进阶篇/FlashAttention-2：线程块与Warp的工作划分.md
       - 开发实践:
           - CogAgent-18B 模型接入与推理优化: vllm/开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md
+          - RDNA 3.5 上的 vLLM LoRA Kernel 优化: vllm/开发实践/RDNA3.5上的vLLM-LoRA-Kernel优化.md
       - 杂记:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - 开源PR记录:

@@ -15,6 +15,7 @@
 ## 开发实践
 
 - [CogAgent-18B 在 vLLM 中的模型接入与推理优化](开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md)
+- [RDNA 3.5 上的 vLLM LoRA Kernel 优化](开发实践/RDNA3.5上的vLLM-LoRA-Kernel优化.md)
 
 ## 杂记
 
