@@ -109,12 +109,13 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=10
+  - stylesheets/extra.css?v=14
 
 extra_javascript:
   - javascripts/mathjax.js
   - javascripts/code-fold.js
   - javascripts/code-mark.js
+  - javascripts/sidebar-toggle.js?v=4
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 copyright: 本地知识库 · 持续整理中
