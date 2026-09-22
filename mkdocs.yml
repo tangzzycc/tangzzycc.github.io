@@ -30,6 +30,10 @@ nav:
           - RDNA 3.5 上的 vLLM LoRA Kernel 优化: vllm/开发实践/RDNA3.5上的vLLM-LoRA-Kernel优化.md
       - 杂记:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
+  - GPU Kernel:
+      - 学习索引: gpu-kernel/index.md
+      - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
+      - GEMM Kernel 源码: gpu-kernel/gemm-kernels/README.md
   - 开源PR记录:
       - 总览: open-source/index.md
       - Comfy-Kitchen:
@@ -110,7 +114,7 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=14
+  - stylesheets/extra.css?v=15
 
 extra_javascript:
   - javascripts/mathjax.js

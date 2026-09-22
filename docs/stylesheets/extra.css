@@ -271,3 +271,10 @@
     display: none;
   }
 }
+
+.md-typeset img[src*="/gpu-kernel/gemm-worklog/"] {
+  box-sizing: border-box;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
