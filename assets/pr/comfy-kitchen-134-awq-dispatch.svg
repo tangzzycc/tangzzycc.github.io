@@ -1,60 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1020" viewBox="0 0 1600 1020" role="img" aria-labelledby="title desc">
-  <title id="title">AWQ W4A16 dispatch selects three kernels according to activation row count</title>
-  <desc id="desc">The same activation and packed weight operands enter one of three independent routes: wave GEMV for small row counts, fused WMMA for medium row counts, or full weight dequantization followed by library GEMM for large row counts.</desc>
-  <defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#2964a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <title id="title">AWQ W4A16：根据激活行数分派三种 Kernel</title>
+  <desc id="desc">相同的激活与打包权重进入三条独立路径：小 M 使用 wave GEMV，中等 M 使用融合 WMMA，大 M 则先完整反量化权重，再调用库 GEMM。</desc>
+  <defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#2964a4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
   <style>
-    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:19px}.small{font-size:17px;fill:#607187}.mono{font-family:"DejaVu Sans Mono",monospace;font-size:17px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.flow{fill:none;stroke:#2964a4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.route{fill:none;stroke:#7b8da3;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    @font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf") format("truetype")}text{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:0;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:19px}.small{font-size:17px;fill:#607187}.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:17px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.flow{fill:none;stroke:#2964a4;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.route{fill:none;stroke:#7b8da3;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono","LXGW WenKai GB Screen",monospace}
+    .mixed{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC",sans-serif}
   </style>
   <rect width="1600" height="1020" fill="#fbfcfe"/>
   <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
-  <text x="70" y="66" class="title">AWQ W4A16: one operation, three resource models</text>
-  <text x="48" y="101" class="subtitle">Dispatch by activation rows M: minimum overhead → weight reuse → library GEMM throughput</text>
+  <text x="70" y="66" class="title">AWQ W4A16：同一算子，三种资源模型</text>
+  <text x="48" y="101" class="subtitle">按激活行数 M 分派：最低启动开销 → 权重复用 → 库 GEMM 吞吐</text>
   <text x="1552" y="62" text-anchor="end" class="small">COMFY-KITCHEN / PR 134</text>
 
-  <text x="60" y="154" class="eyebrow">01  SHARED OPERANDS AND ROUTING DECISION</text>
+  <text x="60" y="154" class="eyebrow">01  共享操作数与分派决策</text>
   <rect x="60" y="178" width="1480" height="154" rx="16" fill="#f7f9fc" stroke="#ced7e2" stroke-width="2"/>
   <rect x="88" y="220" width="365" height="76" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
-  <text x="112" y="251" class="label">Activation X</text><text x="112" y="278" class="mono">[M, K] · BF16 or FP16</text>
+  <text x="112" y="251" class="label">激活 X</text><text x="112" y="278" class="mixed">[M, K] · BF16 或 FP16</text>
   <rect x="1147" y="210" width="365" height="96" rx="10" fill="#fff1e5" stroke="#e4c7ad"/>
-  <text x="1171" y="241" class="label">Packed weight bundle</text><text x="1171" y="268" class="mono">qweight [N,K/2]</text><text x="1171" y="291" class="small">scales + zeros by K/G group</text>
+  <text x="1171" y="241" class="label">打包权重</text><text x="1171" y="268" class="mono">qweight [N,K/2]</text><text x="1171" y="291" class="small">每个 K/G 分组保存 scales + zeros</text>
   <rect x="610" y="210" width="380" height="96" rx="10" fill="#edf6f3" stroke="#b9d6cd"/>
-  <text x="800" y="247" text-anchor="middle" class="label" fill="#187264">Dispatch on M and guards</text><text x="800" y="278" text-anchor="middle" class="mono">small / medium / large</text>
+  <text x="800" y="247" text-anchor="middle" class="label" fill="#187264">根据 M 与守卫条件分派</text><text x="800" y="278" text-anchor="middle" class="mixed">小 / 中 / 大</text>
   <path d="M453 258 H598" class="flow"/><path d="M1147 258 H1002" class="flow"/>
   <path d="M800 306 C800 350 480 350 480 397" class="route"/><path d="M800 306 V397" class="route"/><path d="M800 306 C800 350 1315 350 1315 397" class="route"/>
 
-  <text x="60" y="378" class="eyebrow">02  THREE EXECUTION PATHS</text>
+  <text x="60" y="378" class="eyebrow">02  三条执行路径</text>
   <rect x="60" y="410" width="460" height="450" rx="16" class="card"/>
-  <text x="84" y="449" class="section">Small M · wave GEMV</text>
-  <text x="84" y="479" class="small">M ≤ 8, or when fused-path guards fail</text>
-  <rect x="92" y="520" width="150" height="60" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><text x="167" y="557" text-anchor="middle" class="mono">X row</text>
-  <rect x="338" y="520" width="150" height="60" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="413" y="547" text-anchor="middle" class="mono">packed W</text><text x="413" y="569" text-anchor="middle" class="small">unpack inline</text>
+  <text x="84" y="449" class="section">小 M · wave GEMV</text>
+  <text x="84" y="479" class="small">M ≤ 8，或融合路径守卫条件不满足</text>
+  <rect x="92" y="520" width="150" height="60" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><text x="167" y="557" text-anchor="middle" class="mixed">X 的一行</text>
+  <rect x="338" y="520" width="150" height="60" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="413" y="547" text-anchor="middle" class="mixed">打包 W</text><text x="413" y="569" text-anchor="middle" class="small">就地解包</text>
   <path d="M167 580 C167 625 250 625 271 651" class="flow"/><path d="M413 580 C413 625 330 625 309 651" class="flow"/>
-  <rect x="180" y="660" width="220" height="64" rx="9" fill="#f0edfa" stroke="#d7c9e5"/><text x="290" y="699" text-anchor="middle" class="label">one-wave dot product</text>
+  <rect x="180" y="660" width="220" height="64" rx="9" fill="#f0edfa" stroke="#d7c9e5"/><text x="290" y="699" text-anchor="middle" class="label">单 wave 点积</text>
   <path d="M290 724 V756" class="flow"/><rect x="180" y="768" width="220" height="46" rx="8" fill="#e8f5f1" stroke="#bed9d1"/><text x="290" y="797" text-anchor="middle" class="mono">Y[m, n]</text>
-  <text x="84" y="842" class="small">No LDS tile; the fixed launch cost stays low.</text>
+  <text x="84" y="842" class="small">不构造 LDS tile，保持较低的固定启动开销。</text>
 
   <rect x="570" y="410" width="460" height="450" rx="16" class="card"/>
-  <text x="594" y="449" class="section">Medium M · fused WMMA</text>
-  <text x="594" y="479" class="small">16 × 128 × 64 output/K tile</text>
+  <text x="594" y="449" class="section">中等 M · 融合 WMMA</text>
+  <text x="594" y="479" class="small">输出/K tile：16 × 128 × 64</text>
   <rect x="602" y="520" width="150" height="76" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><text x="677" y="550" text-anchor="middle" class="mono">X tile</text><text x="677" y="577" text-anchor="middle" class="small">16 × 64 · LDS</text>
-  <rect x="848" y="520" width="150" height="76" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="923" y="550" text-anchor="middle" class="mono">W tile</text><text x="923" y="577" text-anchor="middle" class="small">dequant once</text>
+  <rect x="848" y="520" width="150" height="76" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="923" y="550" text-anchor="middle" class="mono">W tile</text><text x="923" y="577" text-anchor="middle" class="small">只反量化一次</text>
   <path d="M677 596 C677 633 758 633 780 655" class="flow"/><path d="M923 596 C923 633 842 633 820 655" class="flow"/>
   <rect x="710" y="664" width="180" height="64" rx="9" fill="#f0edfa" stroke="#d7c9e5"/><text x="800" y="703" text-anchor="middle" class="label">WMMA</text>
   <path d="M800 728 V760" class="flow"/><rect x="680" y="772" width="240" height="46" rx="8" fill="#e8f5f1" stroke="#bed9d1"/><text x="800" y="801" text-anchor="middle" class="mono">Y tile 16 × 128</text>
-  <text x="594" y="842" class="small">X and W remain independent WMMA operands.</text>
+  <text x="594" y="842" class="small">X 与 W 始终是独立的 WMMA 操作数。</text>
 
   <rect x="1080" y="410" width="460" height="450" rx="16" class="card"/>
-  <text x="1104" y="449" class="section">Large M · dequant + GEMM</text>
+  <text x="1104" y="449" class="section">大 M · 反量化 + GEMM</text>
   <text x="1104" y="479" class="small">BF16: M &gt; 1280 · FP16: M &gt; 2048</text>
-  <rect x="1112" y="520" width="150" height="76" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><text x="1187" y="550" text-anchor="middle" class="mono">X [M,K]</text><text x="1187" y="577" text-anchor="middle" class="small">unchanged</text>
-  <rect x="1358" y="510" width="150" height="96" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="1433" y="542" text-anchor="middle" class="mono">packed W</text><text x="1433" y="568" text-anchor="middle" class="small">full dequant</text><text x="1433" y="591" text-anchor="middle" class="mono">→ W[N,K]</text>
+  <rect x="1112" y="520" width="150" height="76" rx="8" fill="#e8f1fb" stroke="#c3d5e7"/><text x="1187" y="550" text-anchor="middle" class="mono">X [M,K]</text><text x="1187" y="577" text-anchor="middle" class="small">保持不变</text>
+  <rect x="1358" y="510" width="150" height="96" rx="8" fill="#fff1e5" stroke="#e4c7ad"/><text x="1433" y="542" text-anchor="middle" class="mixed">打包 W</text><text x="1433" y="568" text-anchor="middle" class="small">完整反量化</text><text x="1433" y="591" text-anchor="middle" class="mono">→ W[N,K]</text>
   <path d="M1187 596 C1187 635 1268 635 1290 657" class="flow"/><path d="M1433 606 C1433 635 1352 635 1330 657" class="flow"/>
   <rect x="1210" y="666" width="200" height="64" rx="9" fill="#e8f5f1" stroke="#bed9d1"/><text x="1310" y="705" text-anchor="middle" class="label">torch.matmul</text>
   <path d="M1310 730 V762" class="flow"/><rect x="1200" y="774" width="220" height="46" rx="8" fill="#f0edfa" stroke="#d7c9e5"/><text x="1310" y="803" text-anchor="middle" class="mono">Y [M,N]</text>
-  <text x="1104" y="842" class="small">The large GEMM amortizes the extra W buffer.</text>
+  <text x="1104" y="842" class="small">大规模 GEMM 可以摊薄额外 W 缓冲区的成本。</text>
 
   <line x1="60" y1="914" x2="1540" y2="914" stroke="#d4dfea"/>
-  <text x="60" y="954" class="label" fill="#187264">Dispatch is the optimization.</text>
-  <text x="348" y="954" class="body">The winning kernel changes as fixed cost, weight reuse, and GEMM throughput trade places.</text>
-  <text x="60" y="996" class="small">Both X and W enter WMMA/GEMM as separate operands; neither data-flow arrow points one operand into the other.</text>
+  <text x="60" y="954" class="label" fill="#187264">分派策略本身就是优化。</text>
+  <text x="348" y="954" class="body">随着固定开销、权重复用和 GEMM 吞吐的主次变化，最优 Kernel 也随之改变。</text>
+  <text x="60" y="996" class="small">X 与 W 分别作为 WMMA/GEMM 的操作数输入，数据流箭头不会把一个操作数误画成另一个操作数的来源。</text>
 </svg>

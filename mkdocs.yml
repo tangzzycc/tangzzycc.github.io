@@ -33,7 +33,6 @@ nav:
   - GPU Kernel:
       - 学习索引: gpu-kernel/index.md
       - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
-      - GEMM Kernel 源码: gpu-kernel/gemm-kernels/README.md
   - 开源PR记录:
       - 总览: open-source/index.md
       - Comfy-Kitchen:

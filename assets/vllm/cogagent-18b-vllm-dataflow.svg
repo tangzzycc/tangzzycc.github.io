@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-labelledby="title desc">
-  <title id="title">CogAgent input processing, dual vision encoders, and three sequence lengths in vLLM</title>
-  <desc id="desc">One image becomes a 224 square tensor and a 1120 square tensor. The small EVA tower returns 258 decoder embeddings of width 4096. CrossVision returns 6400 source states of width 1024. They are packed into one 6658 by 4096 multimodal encoder cache entry, while three length fields independently describe decoder replacement, encoder compute and cache, and cross-attention KV allocation.</desc>
+  <title id="title">vLLM 中 CogAgent 的输入处理、双视觉编码器与三种序列长度</title>
+  <desc id="desc">一张图片被转换为 224² 与 1120² 两个张量。小型 EVA 塔返回 258 个宽度为 4096 的 decoder embedding，CrossVision 返回 6400 个宽度为 1024 的 source state；两者打包成 [1,6658,4096] 的多模态 encoder cache，而三种长度分别描述 decoder 替换、encoder 计算与缓存，以及 cross-attention KV 分配。</desc>
   <defs>
-    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#2865a8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#2865a8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
-    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#218367" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrow-green" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#218367" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
-    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M0 0.8 L8 4.5 L0 8.2" fill="none" stroke="#8051aa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <marker id="arrow-purple" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#8051aa" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
     <pattern id="zero-pad" width="10" height="10" patternUnits="userSpaceOnUse">
       <rect width="10" height="10" fill="#f4f6f9"/>
@@ -17,134 +17,137 @@
     </pattern>
   </defs>
   <style>
-    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}
+    @font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf") format("truetype")}
+    text{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172e46}
     .title{font-size:40px;font-weight:700}.subtitle{font-size:21px;fill:#52677d}
-    .eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}
+    .eyebrow{font-size:18px;font-weight:700;letter-spacing:0;fill:#2865b3}
     .section{font-size:22px;font-weight:700}.label{font-size:18px;font-weight:700}
     .body{font-size:17px}.small{font-size:15px;fill:#607187}.tiny{font-size:13px;fill:#607187}
-    .mono{font-family:"DejaVu Sans Mono",monospace;font-size:15px}
+    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:15px}
     .card{fill:#fff;stroke:#ced7e2;stroke-width:2}
-    .flow-blue{fill:none;stroke:#2865a8;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-blue)}
-    .flow-green{fill:none;stroke:#218367;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-green)}
-    .flow-purple{fill:none;stroke:#8051aa;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-purple)}
+    .flow-blue{fill:none;stroke:#2865a8;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-blue)}
+    .flow-green{fill:none;stroke:#218367;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-green)}
+    .flow-purple{fill:none;stroke:#8051aa;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow-purple)}
+    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono","LXGW WenKai GB Screen",monospace}
+    .mixed{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC",sans-serif}
   </style>
 
   <rect width="1600" height="1180" fill="#fbfcfe"/>
   <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
-  <text x="70" y="66" class="title">CogAgent in vLLM: one image, two encoder paths</text>
-  <text x="48" y="101" class="subtitle">The processor creates decoder placeholders, two image tensors, and independent length metadata.</text>
-  <text x="1552" y="62" text-anchor="end" class="small">MODEL INPUT AND ENCODER CACHE</text>
+  <text x="70" y="66" class="title">vLLM 中的 CogAgent：一张图片，两条编码路径</text>
+  <text x="48" y="101" class="subtitle">Processor 生成 decoder 占位符、两种图像张量与彼此独立的长度元数据。</text>
+  <text x="1552" y="62" text-anchor="end" class="small">模型输入与 Encoder Cache</text>
 
-  <text x="48" y="151" class="eyebrow">01  PROCESSOR CONTRACT</text>
+  <text x="48" y="151" class="eyebrow">01  Processor 输入输出契约</text>
   <rect x="48" y="174" width="222" height="188" rx="15" class="card"/>
-  <text x="72" y="211" class="section">One request</text>
+  <text x="72" y="211" class="section">一个请求</text>
   <rect x="74" y="236" width="170" height="74" rx="9" fill="#e8f1fb" stroke="#c3d5e7"/>
   <text x="159" y="266" text-anchor="middle" class="label">messages</text>
-  <text x="159" y="293" text-anchor="middle" class="label">+ one image</text>
-  <text x="72" y="337" class="small">Exactly one image item.</text>
+  <text x="159" y="293" text-anchor="middle" class="label">+ 一张图片</text>
+  <text x="72" y="337" class="small">仅支持一个 image item</text>
   <path d="M270 268 H326" class="flow-blue"/>
 
   <rect x="338" y="174" width="326" height="188" rx="15" class="card"/>
-  <text x="362" y="211" class="section">CogAgent processor</text>
+  <text x="362" y="211" class="section">CogAgent Processor</text>
   <rect x="350" y="233" width="302" height="43" rx="7" fill="#edf6f3" stroke="#b9d6cd"/>
   <text x="364" y="260" class="mono">pixel_values</text>
   <text x="638" y="260" text-anchor="end" class="mono">[1,3,224,224]</text>
   <rect x="350" y="282" width="302" height="56" rx="7" fill="#f0edfa" stroke="#d7c9e5"/>
   <text x="501" y="305" text-anchor="middle" class="mono">cross_pixel_values</text>
   <text x="501" y="328" text-anchor="middle" class="mono">[1,3,1120,1120]</text>
-  <text x="362" y="356" class="small">Same image, two deterministic transforms.</text>
+  <text x="362" y="356" class="small">同一图片执行两种确定性变换</text>
   <path d="M664 268 H712" class="flow-blue"/>
 
   <rect x="724" y="154" width="828" height="228" rx="15" class="card"/>
-  <text x="748" y="190" class="section">Prompt-side outputs and scheduling metadata</text>
+  <text x="748" y="190" class="section">Prompt 侧输出与调度元数据</text>
   <rect x="748" y="211" width="780" height="48" rx="7" fill="#e8f1fb" stroke="#c3d5e7"/>
-  <text x="766" y="241" class="label">Decoder prompt</text>
+  <text x="766" y="241" class="label">Decoder Prompt</text>
   <rect x="928" y="220" width="55" height="29" rx="4" fill="#fff" stroke="#9fb7d2"/>
   <text x="955" y="240" text-anchor="middle" class="tiny">BOS</text>
   <rect x="989" y="220" width="292" height="29" rx="4" fill="#dceafb" stroke="#8fb2d5"/>
   <text x="1135" y="240" text-anchor="middle" class="small">258 × image_token</text>
   <rect x="1287" y="220" width="219" height="29" rx="4" fill="#fff" stroke="#cbd5df"/>
-  <text x="1396" y="240" text-anchor="middle" class="small">text tokens</text>
+  <text x="1396" y="240" text-anchor="middle" class="small">文本 tokens</text>
   <rect x="748" y="270" width="380" height="82" rx="8" fill="#f7f9fc" stroke="#d7e0ea"/>
-  <text x="768" y="297" class="label">Encoder prompt</text>
+  <text x="768" y="297" class="label">Encoder Prompt</text>
   <text x="768" y="325" class="mono">[0] × 6400</text>
-  <text x="913" y="325" class="small">length carrier, not patch IDs</text>
+  <text x="913" y="325" class="small">仅承载长度，不是 patch ID</text>
   <rect x="1146" y="270" width="382" height="82" rx="8" fill="#fff7ed" stroke="#e4c7ad"/>
-  <text x="1166" y="297" class="label">Length metadata</text>
+  <text x="1166" y="297" class="label">长度元数据</text>
   <text x="1166" y="326" class="mono">encoder_output_seq_len = 6658</text>
   <text x="1166" y="347" class="mono">cross_attention_seq_len = 6400</text>
 
-  <text x="48" y="442" class="eyebrow">02  MULTIMODAL ENCODER COMPUTE</text>
+  <text x="48" y="442" class="eyebrow">02  多模态 Encoder 计算</text>
   <rect x="48" y="470" width="1080" height="188" rx="15" class="card"/>
   <rect x="74" y="499" width="240" height="126" rx="10" fill="#edf6f3" stroke="#b9d6cd"/>
-  <text x="94" y="532" class="label">224² input tensor</text>
-  <text x="94" y="563" class="body">patch size 14</text>
-  <text x="94" y="592" class="mono">16 × 16 = 256 patches</text>
+  <text x="94" y="532" class="label">224² 输入张量</text>
+  <text x="94" y="563" class="body">patch size = 14</text>
+  <text x="94" y="592" class="mixed">16 × 16 = 256 个 patch</text>
   <path d="M314 562 H370" class="flow-green"/>
   <rect x="382" y="499" width="278" height="126" rx="10" fill="#edf6f3" stroke="#b9d6cd"/>
   <text x="402" y="532" class="label">Small EVA / EVA2CLIP</text>
-  <text x="402" y="563" class="body">patch encoder → GLU projection</text>
-  <text x="402" y="592" class="body">prepend BOI, append EOI</text>
+  <text x="402" y="563" class="body">patch encoder → GLU 投影</text>
+  <text x="402" y="592" class="body">首部添加 BOI，尾部添加 EOI</text>
   <path d="M660 562 H716" class="flow-green"/>
   <rect x="728" y="499" width="374" height="126" rx="10" fill="#e8f5f1" stroke="#a9d1c5"/>
-  <text x="748" y="532" class="label">Decoder-side image embeddings</text>
+  <text x="748" y="532" class="label">Decoder 侧图像 Embedding</text>
   <text x="748" y="566" class="mono">[1,258,4096]</text>
-  <text x="748" y="597" class="small">256 patch rows + BOI / EOI</text>
+  <text x="748" y="597" class="small">256 个 patch 行 + BOI / EOI</text>
 
   <rect x="48" y="680" width="1080" height="188" rx="15" class="card"/>
   <rect x="74" y="709" width="240" height="126" rx="10" fill="#f0edfa" stroke="#d7c9e5"/>
-  <text x="94" y="742" class="label">1120² input tensor</text>
-  <text x="94" y="773" class="body">patch size 14</text>
-  <text x="94" y="802" class="mono">80 × 80 = 6400 patches</text>
+  <text x="94" y="742" class="label">1120² 输入张量</text>
+  <text x="94" y="773" class="body">patch size = 14</text>
+  <text x="94" y="802" class="mixed">80 × 80 = 6400 个 patch</text>
   <path d="M314 772 H370" class="flow-purple"/>
   <rect x="382" y="709" width="278" height="126" rx="10" fill="#f0edfa" stroke="#d7c9e5"/>
   <text x="402" y="742" class="label">CrossVision / EVA Large</text>
-  <text x="402" y="773" class="body">24-layer vision transformer</text>
-  <text x="402" y="802" class="body">drop CLS before returning</text>
+  <text x="402" y="773" class="body">24 层 Vision Transformer</text>
+  <text x="402" y="802" class="body">返回前移除 CLS</text>
   <path d="M660 772 H716" class="flow-purple"/>
   <rect x="728" y="709" width="374" height="126" rx="10" fill="#f0edfa" stroke="#cfbee1"/>
-  <text x="748" y="742" class="label">Cross-attention source states</text>
+  <text x="748" y="742" class="label">Cross-attention Source State</text>
   <text x="748" y="776" class="mono">[1,6400,1024]</text>
-  <text x="748" y="807" class="small">Not inserted into the decoder prompt</text>
+  <text x="748" y="807" class="small">不会插入 Decoder Prompt</text>
 
   <rect x="1160" y="470" width="392" height="398" rx="15" class="card"/>
-  <text x="1184" y="507" class="section">One encoder-cache entry</text>
-  <text x="1184" y="535" class="small">Sequence axis is schematic, not proportional.</text>
+  <text x="1184" y="507" class="section">一个 Encoder Cache 条目</text>
+  <text x="1184" y="535" class="small">序列轴仅作示意，不按比例绘制</text>
   <path d="M1102 562 C1140 562 1138 600 1188 600" class="flow-green"/>
   <path d="M1102 772 C1140 772 1138 744 1188 744" class="flow-purple"/>
-  <text x="1190" y="578" class="tiny">4096 features</text>
+  <text x="1190" y="578" class="tiny">4096 个特征</text>
   <rect x="1190" y="590" width="330" height="68" rx="6" fill="#dff1eb" stroke="#8ec5b5"/>
   <text x="1355" y="620" text-anchor="middle" class="label">258 × 4096</text>
-  <text x="1355" y="643" text-anchor="middle" class="small">small-vision rows</text>
+  <text x="1355" y="643" text-anchor="middle" class="small">小视觉编码器输出行</text>
   <rect x="1190" y="680" width="330" height="144" rx="6" fill="url(#zero-pad)" stroke="#cbd5df"/>
   <rect x="1190" y="680" width="83" height="144" rx="6" fill="#e6def3" stroke="#a98ac5"/>
   <text x="1231" y="731" text-anchor="middle" class="small">1024</text>
-  <text x="1231" y="756" text-anchor="middle" class="small">active</text>
-  <text x="1396" y="731" text-anchor="middle" class="small">3072 zero-padded</text>
-  <text x="1355" y="798" text-anchor="middle" class="label">6400 rows</text>
-  <text x="1355" y="849" text-anchor="middle" class="mono">packed shape [1,6658,4096]</text>
+  <text x="1231" y="756" text-anchor="middle" class="small">有效</text>
+  <text x="1396" y="731" text-anchor="middle" class="small">3072 维补零</text>
+  <text x="1355" y="798" text-anchor="middle" class="label">6400 行</text>
+  <text x="1355" y="849" text-anchor="middle" class="mixed">打包 shape [1,6658,4096]</text>
 
-  <text x="48" y="934" class="eyebrow">03  THE THREE LENGTHS ARE NOT INTERCHANGEABLE</text>
+  <text x="48" y="934" class="eyebrow">03  三种长度不可混用</text>
   <rect x="48" y="962" width="480" height="156" rx="15" class="card"/>
   <circle cx="79" cy="996" r="13" fill="#2865b3"/>
   <text x="79" y="1002" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">1</text>
-  <text x="104" y="1003" class="section">258 decoder embeddings</text>
-  <text x="76" y="1038" class="body">Replace the image-token positions.</text>
+  <text x="104" y="1003" class="section">258 个 Decoder Embedding</text>
+  <text x="76" y="1038" class="body">替换 image_token 占位位置</text>
   <text x="76" y="1070" class="mono">mm_position.get_num_embeds()</text>
-  <text x="76" y="1097" class="small">Consumer: decoder embedding merge</text>
+  <text x="76" y="1097" class="small">消费者：Decoder Embedding 合并</text>
   <rect x="560" y="962" width="480" height="156" rx="15" class="card"/>
   <circle cx="591" cy="996" r="13" fill="#218367"/>
   <text x="591" y="1002" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
-  <text x="616" y="1003" class="section">6658 encoder outputs</text>
-  <text x="588" y="1038" class="body">Budget encoder compute and cache space.</text>
+  <text x="616" y="1003" class="section">6658 个 Encoder 输出</text>
+  <text x="588" y="1038" class="body">预算 Encoder 计算量与缓存空间</text>
   <text x="588" y="1070" class="mono">encoder_output_seq_len</text>
-  <text x="588" y="1097" class="small">Consumer: InputProcessor / Scheduler</text>
+  <text x="588" y="1097" class="small">消费者：InputProcessor / Scheduler</text>
   <rect x="1072" y="962" width="480" height="156" rx="15" class="card"/>
   <circle cx="1103" cy="996" r="13" fill="#8051aa"/>
   <text x="1103" y="1002" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">3</text>
-  <text x="1128" y="1003" class="section">6400 cross-attention tokens</text>
-  <text x="1100" y="1038" class="body">Allocate and address per-layer cross K/V.</text>
+  <text x="1128" y="1003" class="section">6400 个 Cross-attention Token</text>
+  <text x="1100" y="1038" class="body">分配并寻址逐层 Cross K/V</text>
   <text x="1100" y="1070" class="mono">cross_attention_seq_len</text>
-  <text x="1100" y="1097" class="small">Consumer: Scheduler / attention metadata</text>
-  <text x="48" y="1155" class="small">Key invariant: placeholder count, encoder-cache length, and cross-KV length describe different consumers even though they belong to the same image item.</text>
+  <text x="1100" y="1097" class="small">消费者：Scheduler / Attention Metadata</text>
+  <text x="48" y="1155" class="small">关键约束：虽然都属于同一个 image item，但占位符数量、Encoder Cache 长度与 Cross KV 长度分别服务于不同消费者。</text>
 </svg>

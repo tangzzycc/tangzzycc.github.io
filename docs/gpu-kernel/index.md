@@ -10,4 +10,4 @@
 
 笔记沿用原博客的 Kernel 优化顺序和 A6000 实验主线，并参考 Hamza Elshafie 的 [H100 GEMM 优化工作日志](https://hamzaelshafie.bearblog.dev/worklog-optimising-gemm-on-nvidia-h100-for-cublas-like-performance-wip/) 补充 CUDA Core 通用机制与示意图。Tensor Core 路径不在本文范围内。
 
-在中文翻译的基础上，正文补充 Roofline 推导、线程与内存映射、图片解读、尾块处理以及双缓冲分析。完整 CUDA 实现集中在 [GEMM Kernel 源码目录](gemm-kernels/README.md)。
+在中文翻译的基础上，正文补充 Roofline 推导、线程与内存映射、图片解读、尾块处理以及双缓冲分析。完整 CUDA 实现集中在 GitHub 的 [GEMM Kernel 源码目录](https://github.com/tangzzycc/notebook/tree/master/docs/gpu-kernel/gemm-kernels)。

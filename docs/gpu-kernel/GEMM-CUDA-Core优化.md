@@ -3,7 +3,7 @@
 !!! note "阅读说明"
     本文以 Simon Boehm 的 CUDA SGEMM 优化工作日志为主线，对原文进行中文整理与扩展。优化顺序、核心实现和 A6000 性能数据来自原博客及其配套仓库；正文补充了 Roofline 推导、线程映射、尾块处理、图片解读和双缓冲分析，并吸收了 Hamza Elshafie 的 H100 GEMM 工作日志中与 CUDA Core 通用优化有关的解释。
 
-    为保持正文连续，完整 Kernel 已移到独立的 [源码目录](gemm-kernels/README.md)。正文只保留解释机制所需的关键片段。
+    为保持正文连续，完整 Kernel 已移到 GitHub 的 [源码目录](https://github.com/tangzzycc/notebook/tree/master/docs/gpu-kernel/gemm-kernels)。正文只保留解释机制所需的关键片段。
 
     本文的核心范围是 **使用 FP32 CUDA Core 实现和优化 GEMM**。Tensor Core、WMMA、WGMMA、TMA Tensor Map 和混合精度路径不在本文讨论范围内。
 
@@ -173,7 +173,7 @@ A[(x + lane) * K + k]
 
 图中只有左上角的完整 Block 能使用全部线程，边缘 Block 的一部分线程会被边界判断屏蔽。这称为 Tile Quantization。它首先是正确性问题，同时也会影响小矩阵和不规则形状的利用率。
 
-[查看 Kernel 1 完整实现](gemm-kernels/1_naive.cuh)
+[查看 Kernel 1 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/1_naive.cuh)
 
 ## 四、Kernel 2：Global Memory 合并访存
 
@@ -204,7 +204,7 @@ const int cCol = blockIdx.y * BLOCKSIZE + threadIdx.x % BLOCKSIZE;
 
 这里还要排除一个常见误解：**合并访存不是由一维或二维 Block 形式决定的**。二维 Block 也会按 `threadIdx.x` 最快变化的顺序线性化，只要同一 Warp 最终访问连续地址，同样可以合并；一维 Block 加 `%`、`/` 重映射也不会自动变快。Kernel 2 的收益来自地址模式被修正，而不是语法上把二维 Block 改成了一维 Block。
 
-[查看 Kernel 2 完整实现](gemm-kernels/2_kernel_global_mem_coalesce.cuh)
+[查看 Kernel 2 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/2_kernel_global_mem_coalesce.cuh)
 
 ## 五、Kernel 3：Shared Memory Cache Blocking
 
@@ -295,7 +295,7 @@ else
 
 最高的 MIO Throttle 表示 MIO 指令队列拥堵，Shared Memory 指令也经过这条路径。问题不是“再多放几个 Warp 就一定会快”，而是每个输出需要执行太多 Shared Memory load。Kernel 3 最终达到 2980.3 GFLOP/s，下一步必须让每次加载服务更多结果。
 
-[查看 Kernel 3 完整实现](gemm-kernels/3_kernel_shared_mem_blocking.cuh)
+[查看 Kernel 3 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/3_kernel_shared_mem_blocking.cuh)
 
 ## 六、Kernel 4：一维 Thread Tiling
 
@@ -325,7 +325,7 @@ Kernel 3 每个结果大约需要 `2K` 次 Shared Memory load；当 `TM=8` 时�
 
 MIO Throttle 已明显降低，说明 Thread Tiling 的方向正确，但内存指令压力仍未完全消失。参数 `BM=BN=64、BK=8、TM=8` 时，性能达到 8474.7 GFLOP/s。
 
-[查看 Kernel 4 完整实现](gemm-kernels/4_kernel_1D_blocktiling.cuh)
+[查看 Kernel 4 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/4_kernel_1D_blocktiling.cuh)
 
 ## 七、Kernel 5：二维 Thread Tiling 与寄存器外积
 
@@ -378,7 +378,7 @@ $$
 
 这一步的代价是寄存器数量快速增长。`TM×TN` 太大时，寄存器压力会降低可驻留 Warp 数，甚至发生 register spilling，把数据重新溢出到 Local Memory。
 
-[查看 Kernel 5 完整实现](gemm-kernels/5_kernel_2D_blocktiling.cuh)
+[查看 Kernel 5 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/5_kernel_2D_blocktiling.cuh)
 
 ## 八、Kernel 6：向量化 Shared/Global Memory 访问
 
@@ -430,7 +430,7 @@ const float4 tmp = reinterpret_cast<const float4 *>(
 
 这一版达到 18237.3 GFLOP/s。向量化地址必须满足 16 字节对齐，tile 参数和矩阵尺寸也需要满足相应整除条件。
 
-[查看 Kernel 6 完整实现](gemm-kernels/6_kernel_vectorize.cuh)
+[查看 Kernel 6 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/6_kernel_vectorize.cuh)
 
 ## 九、Kernel 7 与 8：Bank Conflict 的负结果
 
@@ -461,8 +461,8 @@ Profiler 中的 `wavefronts per request` 可以帮助判断一次 Shared Memory 
 
 这个结果很重要：Profiler 指标是定位问题的证据，不是优化目标。减少某个计数器并不保证端到端时间下降，最终仍要比较完整 Kernel 的运行时间。
 
-- [查看 Kernel 7 完整实现](gemm-kernels/7_kernel_resolve_bank_conflicts.cuh)
-- [查看 Kernel 8 完整实现](gemm-kernels/8_kernel_bank_extra_col.cuh)
+- [查看 Kernel 7 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/7_kernel_resolve_bank_conflicts.cuh)
+- [查看 Kernel 8 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/8_kernel_bank_extra_col.cuh)
 
 ## 十、Kernel 9：Autotuning
 
@@ -488,7 +488,7 @@ Profiler 中的 `wavefronts per request` 可以帮助判断一次 Shared Memory 
 
 A6000 上，`BM=BN=128、BK=16、TM=TN=8` 将性能从 18237.3 提升到 19721.0 GFLOP/s。最佳参数依赖 GPU 型号、矩阵尺寸、数据类型和编译器版本，因此高性能库通常需要多组特化实现和运行时分派。
 
-[查看 Kernel 9 完整实现](gemm-kernels/9_kernel_autotuned.cuh)
+[查看 Kernel 9 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/9_kernel_autotuned.cuh)
 
 ## 十一、Kernel 10：Warp Tiling
 
@@ -530,57 +530,222 @@ Warp Tiling 不减少数学 FLOP，也不会直接提高 HBM 算术强度。它�
 
 还可以从寄存器局部性理解这一步：一个 Warp 长时间处理固定输出子块，内层循环会反复使用相近的一组操作数和累加器。实际寄存器文件存在分 Bank 和操作数收集过程，但公开 Profiler 很难直接证明寄存器 Bank Conflict 是否改善，因此这里应把“寄存器局部性更好”视为合理机制解释，而不是单独归因的实测结论。
 
-[查看 Kernel 10 完整实现](gemm-kernels/10_kernel_warptiling.cuh)
+[查看 Kernel 10 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/10_kernel_warptiling.cuh)
 
-## 十二、Kernel 11 与 12：双缓冲实验
+## 十二、Kernel 11 与 12：双缓冲与软件流水线
 
-### 为什么需要双缓冲
+前面的 Kernel 已经尽量减少 Global Memory 流量，并用寄存器外积提高了 Shared Memory 数据的复用率。不过 K 维主循环仍有两个不同性质的阶段：
 
-前面的主循环按顺序执行：
+1. 把下一块 $A/B$ tile 从 Global Memory 搬到 Shared Memory；
+2. 从 Shared Memory 读取当前 tile，在 CUDA Core 上执行 FMA。
 
-~~~text
-加载 tile 0 → 计算 tile 0 → 加载 tile 1 → 计算 tile 1
+单缓冲只能反复执行“搬完再算、算完再搬”。双缓冲的目标不是减少 FLOP 或字节数，而是通过**软件流水线**改变二者在时间上的排列：计算当前 tile 时，提前搬运下一 tile。
+
+### 从串行主循环到两级流水线
+
+设 K 维一共有
+
+$$
+Q=\left\lceil\frac{K}{BK}\right\rceil
+$$
+
+个 tile，搬运一个 tile 用时为 $T_{copy}$，计算一个 tile 用时为 $T_{compute}$。忽略循环控制和同步成本，单缓冲耗时近似为
+
+$$
+T_{single}\approx Q(T_{copy}+T_{compute}).
+$$
+
+双缓冲先填入第一块，中间阶段让 copy 与 compute 重叠，最后再排空剩余计算，理想耗时近似为
+
+$$
+T_{double}\approx T_{copy}+(Q-1)\max(T_{copy},T_{compute})+T_{compute}.
+$$
+
+把 `T0` 到 `T3` 看成连续的 K tile。单缓冲的每段 load 与 compute 首尾相接；双缓冲则分成三个阶段：
+
+- **Prologue**：先把 `T0` 装入 Buffer 0，此时没有可计算的数据，无法隐藏这段延迟；
+- **Steady state**：计算 `Tn` 的同时把 `Tn+1` 装入另一块缓冲区，这是流水线真正产生收益的部分；
+- **Drain**：最后一块已经没有后继 tile 可以预取，只剩下最后一次计算。
+
+公式给出的是理想上界。若 $Q$ 很小，首尾填充成本占比会很高；若 copy 与 compute 无法在硬件上并行，或者 Barrier 开销超过被隐藏的延迟，实际时间不会接近这个上界。
+
+### Ping-Pong Buffer：交换身份，而不是搬动数据
+
+两级流水线在 Shared Memory 中为 A、B 各准备两份物理空间：
+
+~~~cpp
+__shared__ float As[2 * BM * BK];
+__shared__ float Bs[2 * BK * BN];
 ~~~
 
-若使用两组 Shared Memory 缓冲区，可以在计算 front buffer 时准备 back buffer：
+Buffer 0 和 Buffer 1 是固定地址；`front` 和 `back` 是每轮变化的逻辑身份：
 
-~~~text
-预取 tile 0
-计算 tile 0 || 加载 tile 1
-计算 tile 1 || 加载 tile 2
-计算 tile 2 || 加载 tile 3
+~~~cpp
+int front = stage & 1;
+int back = front ^ 1;
 ~~~
 
-理论上，总时间可以从每轮的 `Tload + Tcompute` 接近 `max(Tload, Tcompute)`。但这要求搬运和计算能够真正并行，还要考虑额外 Shared Memory、同步、寄存器和线程分工带来的成本。
+![A、B 的 K tile 在双缓冲中的完整数据流](../../assets/gpu-kernel/gemm-worklog/double-buffer-tile-flow.svg){ width="100%" }
 
-### Kernel 11：线程分组的手工双缓冲
+图中当前迭代 $s$ 同时发生两条数据流：
 
-Kernel 11 准备两组 As/Bs，并把线程分成两半：一组负责加载，一组负责计算，之后交换角色和缓冲区。它在 A6000 上只有 17278.3 GFLOP/s，明显低于 Kernel 10。
+- 绿色路径从 Buffer 0 读取 `As[s]`、`Bs[s]`，经过线程寄存器送入 CUDA Core；
+- 蓝色路径把 Global Memory 中的 `A[s+1]`、`B[s+1]` 写入 Buffer 1；
+- 迭代结束后只交换 `front/back` 变量及其 Barrier，Shared Memory 中的数据不会被复制到另一个 Buffer。
 
-这个负结果可能来自多个方面：
+这就是 ping-pong 的含义：物理槽位保持不动，生产者和消费者对槽位的**所有权**来回切换。当前 `front` 必须只读，当前 `back` 才允许写入；两种访问若落到同一个槽位，就会形成读写竞争。
 
-- 双倍 Shared Memory 降低资源余量；
-- 256 个线程和额外同步改变了 Warp 调度；
-- 加载线程与计算线程的工作量难以完全平衡；
-- 原实现已有较高 L2 命中率，能够被隐藏的 Global Memory 延迟有限。
+### 双缓冲的正确性协议
 
-[查看 Kernel 11 完整实现](gemm-kernels/11_kernel_double_buffering.cuh)
+仅声明两倍 Shared Memory 并不构成正确的流水线。每个 stage 至少要经历下面的状态循环：
 
-### Kernel 12：`cuda::memcpy_async` 与 Barrier
+1. **Empty → Filling**：生产者确认该槽位已经无人读取，才可提交新的 Global → Shared 复制；
+2. **Filling → Full**：异步复制完成后，消费者才能读取这块 Shared Memory；
+3. **Full → Consuming**：所有参与计算的线程读取当前 tile 并更新自己的寄存器累加器；
+4. **Consuming → Empty**：所有读者结束后，旧 `front` 才能在下一轮成为可覆盖的 `back`。
 
-配套仓库还提供了使用 `cuda::memcpy_async` 的实验版本。它不再固定用一半线程加载，而是通过前后台两组 `cuda::barrier` 管理异步拷贝：
+这里有两个不同方向的同步，不能混为一谈：
 
-1. 向 back buffer 发起下一块异步复制；
-2. 等待 front barrier，确保当前块就绪；
-3. 计算 front buffer；
-4. 交换 buffer 下标与 barrier；
-5. 单独处理最后一个 tile。
+- **生产者交给消费者**：证明写入已经完成，防止读取半块新、半块旧的数据；
+- **消费者归还给生产者**：证明旧数据已经无人读取，防止下一轮过早覆盖。
 
-这版实现没有进入统一性能表，因此不能把它描述为已验证的提速。它还要求目标架构和 CUDA 工具链支持异步拷贝，并正确处理拷贝对齐、首块预取、末块排空和 Barrier 生命周期。
+在 Block 级 GEMM 中还要维持以下不变量：
 
-更一般的多阶段流水线通常会为每个 stage 维护两种状态：`empty` 表示该缓冲区可以被生产者覆盖，`full` 表示数据已经到达、消费者可以读取。生产者和消费者只有在状态交接正确时才能真正重叠；Barrier 数量或 buffer 数量增加，并不自动意味着流水线已经形成。
+- buffer 下标与负责它的 Barrier 必须一起交换；
+- 所有线程必须以一致顺序参与 Block 级 Barrier，不能有线程提前退出主循环；
+- Barrier 只能保证顺序和可见性，不能替代边界检查；
+- $K$ 不能整除 $BK$ 时，尾块需要 predicated copy 或补零；
+- 向量化异步复制还必须满足源地址、目标地址和复制宽度的对齐要求。
 
-[查看 Kernel 12 完整实现](gemm-kernels/12_kernel_double_buffering.cuh)
+### 普通复制与 `cuda::memcpy_async`
+
+传统的 Global → Shared 搬运通常由线程执行一次 Global load，再执行一次 Shared store。数据在指令层面先进入寄存器，之后才写入 Shared Memory。Ampere 及之后的受支持路径可以用 `cuda::memcpy_async` 表达 Global → Shared 异步复制，避免显式的寄存器中转。
+
+异步复制带来两种潜在收益：
+
+- 搬运值不必占用普通线程寄存器，可能降低寄存器压力；
+- 发起复制后，线程可以先执行与目标 Shared Memory 无关的计算，到真正消费该 stage 前再等待。
+
+这里的“Global → Shared”是编程模型中的数据路径，不代表绕过 L2/L1 等缓存层级，也不是主机与设备之间使用的 DMA copy engine。更重要的是，`memcpy_async` 只提供**异步发生的可能性**；若代码提交复制后立即等待，仍然只是异步 API 写成的串行程序。NVIDIA 的 [Ampere 异步复制教程](https://developer.nvidia.com/blog/controlling-data-movement-to-boost-performance-on-ampere-architecture/) 也把“使用异步 API”和“用多 stage 将复制与计算重叠”分成了两个步骤。
+
+### Kernel 11：用线程分组制造错峰
+
+Kernel 11 没有使用硬件异步复制。它把 Block 中的线程分为前后两组，并让两组线程以不同顺序执行相同的两块 K tile：
+
+~~~cpp
+bool doubleBufferIdx = threadIdx.x >= (NUM_THREADS / 2);
+~~~
+
+对每一对 tile `T0/T1`，实际调度可以概括为：
+
+| 阶段 | 前半组线程 | 后半组线程 |
+| --- | --- | --- |
+| 预热 | 加载 `T0 → B0` | 等待 |
+| 1 | 计算自己的 `T0` | 加载 `T1 → B1` |
+| 2 | 计算自己的 `T1` | 计算自己的 `T0` |
+| 3 | 加载 `T2 → B0` | 计算自己的 `T1` |
+
+![Kernel 11 两组线程的真实错峰顺序](../../assets/gpu-kernel/gemm-worklog/kernel11-staggered-pipeline.svg){ width="100%" }
+
+图中横向宽度只表示执行顺序与可重叠区间，不代表各阶段的真实周期占比。
+
+三条竖向虚线分别对应三个交接点：Barrier 1 保证 `T1` 已经写入 B1，同时线程组 0 已经停止读取 B0；Barrier 2 等待线程组 1 也读完 B0，使 B0 可以被 `T2` 覆盖；Barrier 3 则同时保证 `T2` 已写入 B0、两组线程都已完成本轮工作，然后才能进入下一对 tile。它们不是形式上的同步，而是在保护不同的 RAW/WAR 数据相关。
+
+“前半组负责计算、后半组负责加载”只是某个阶段的瞬时状态，而不是永久角色。每个线程都有自己负责的 C 元素，因此两组线程最终都必须计算 `T0` 和 `T1`；不同的只是执行顺序。这种写法试图让一部分 Warp 的 Global Memory 指令与另一部分 Warp 的 FMA 指令同时处于可调度状态，本质上是**线程组错峰**，不是 `cp.async` 式的异步复制。
+
+线程分界必须落在 Warp 边界上，否则同一 Warp 会在 `if/else` 两侧分歧，两个角色只能串行执行。当前实现还在非 Block-uniform 的分支中放置了多处 `__syncthreads()`；虽然两条路径刻意维持相同的 Barrier 次数和顺序，这种控制流仍然很脆弱，后续稍微改动一个分支就可能造成 Barrier 不匹配。更稳妥的实现应把 Block 级同步放回共同控制流，或者使用明确的命名 Barrier 管理线程组。
+
+Kernel 11 在 A6000 上测得 17278.3 GFLOP/s，低于 Kernel 10 的 21779.3 GFLOP/s。这个负结果说明错峰没有覆盖掉足够的延迟，新增成本反而占了上风：
+
+- A、B 的 Shared Memory 占用翻倍，可能减少同一 SM 上可驻留的 Thread Block 数；
+- 一半线程加载时不做 FMA，角色间工作量不平衡会降低 Warp 发射效率；
+- 每两个 K tile 有多次 Block 级同步，Barrier 等待可能抵消重叠收益；
+- 两组线程仍要分别完成全部 C tile 的计算，计算量没有减少；
+- Kernel 10 已达到较高吞吐，剩余瓶颈不一定主要来自可隐藏的 HBM 延迟。
+
+[查看 Kernel 11 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/11_kernel_double_buffering.cuh)
+
+### Kernel 12：异步复制与双 Barrier
+
+Kernel 12 让整个 Block 参与复制和计算，并为两块物理缓冲区各准备一个 `cuda::barrier<thread_scope_block>`。它的主循环可以压缩成下面四步：
+
+~~~cpp
+// Prologue：提交第一个 tile 到 front
+loadFromGmem(..., As + front * BM * BK,
+             Bs + front * BK * BN, *frontBarrier);
+
+for (...) {
+  // Steady state：先提交下一 tile 到 back
+  loadFromGmem(..., As + back * BM * BK,
+               Bs + back * BK * BN, *backBarrier);
+
+  // 当前 front 就绪后，一边计算 front，一边让 back 的复制继续推进
+  frontBarrier->arrive_and_wait();
+  processFromSmem(..., As + front * BM * BK,
+                  Bs + front * BK * BN);
+
+  // 缓冲区身份和对应的 Barrier 必须一起交换
+  front = 1 - front;
+  back = 1 - back;
+  swap(frontBarrier, backBarrier);
+  __syncthreads();
+}
+
+// Drain：等待并计算最后一个已提交的 tile
+frontBarrier->arrive_and_wait();
+processFromSmem(...);
+~~~
+
+![Kernel 12 的 prologue、steady state、drain 与缓冲区轮换](../../assets/gpu-kernel/gemm-worklog/kernel12-async-pipeline.svg){ width="100%" }
+
+图中蓝色时间块表达异步复制可能与下方计算重叠，并非 Nsight Systems 的实测时间比例；真正的重叠程度仍要由 Profiler 验证。
+
+这段代码里有三个容易忽略的细节。
+
+第一，`cuda::memcpy_async(..., barrier)` 会把复制完成事件绑定到 Barrier 当前 phase。`arrive_and_wait()` 不只是等待其他线程到达，也要等待绑定到该 phase 的异步事务完成，因此它负责 `Filling → Full` 的交接。
+
+第二，循环尾部的 `__syncthreads()` 负责另一个方向：确保所有线程都完成对旧 `front` 的 Shared Memory 读取，下一轮才可以把它作为 `back` 覆盖。它看起来像额外开销，却保护的是与 `frontBarrier` 不同的数据危险。
+
+第三，Barrier 与物理 Buffer 一一对应。交换 `As_offset/Bs_offset` 时如果忘记交换 `frontBarrierPtr/backBarrierPtr`，下一轮就可能等待错误的复制事务；反过来只交换 Barrier 而不交换 Buffer 也同样错误。
+
+这个实现完整呈现了 **prologue → steady state → drain** 的双 stage 结构，但仍是教学实验，而不是可直接处理任意输入的通用 Kernel：循环写法假设至少有一个完整的 `BK` tile，且没有为任意 $K$ 尾块做 predication；A tile 由多个 4-byte 异步复制完成，B tile 使用 16-byte 复制，实际指令数量、对齐和合并效果还需要检查生成的 SASS 与 Profiler 数据。
+
+Kernel 12 没有进入原工作日志的统一 A6000 性能表，因此本文不把它描述成已经超过 Kernel 10。它证明的是流水线结构如何表达，而非这组参数已经获得正收益。
+
+[查看 Kernel 12 完整实现](https://github.com/tangzzycc/notebook/blob/master/docs/gpu-kernel/gemm-kernels/12_kernel_double_buffering.cuh)
+
+### 为什么“有双缓冲”仍可能不快
+
+[CUTLASS 的 Efficient GEMM 文档](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/efficient_gemm.html#pipelining) 会在 Thread Block 级对 Shared Memory tile 做双缓冲，还会在 Warp 级对寄存器 fragment 做双缓冲。这说明成熟 GEMM 的流水线通常不止一层。本文 Kernel 11/12 只完成了 Shared Memory 层面的两级流水，不包含寄存器 fragment 的预取流水线。
+
+即使 Shared Memory 双缓冲写对了，也可能因以下原因没有提速：
+
+- **没有真正重叠**：复制提交后过早等待，或依赖链让 FMA 无法与复制同时推进；
+- **资源换延迟失败**：Shared Memory 翻倍、寄存器增多后 Occupancy 降低，丢失的并发度大于隐藏的延迟；
+- **流水线不平衡**：$T_{copy}\gg T_{compute}$ 时计算仍要等数据，$T_{compute}\gg T_{copy}$ 时可隐藏的搬运本来就很少；
+- **同步成本过高**：频繁的 `__syncthreads()`、Barrier phase 管理和地址计算进入关键路径；
+- **问题规模不合适**：K 很小时 prologue/drain 占比过高，小矩阵还可能受启动开销主导；
+- **原 Kernel 已能隐藏延迟**：其他驻留 Warp、L2 命中和指令级并行已经掩盖了大部分 Global Memory 等待；
+- **瓶颈已经转移**：Kernel 10 接近计算上限后，优化 HBM 搬运不一定能提高 CUDA Core 发射速率。
+
+因此，Occupancy 下降不自动说明双缓冲失败，Occupancy 上升也不自动说明流水线成功。真正相关的是：每周期有多少 eligible Warp、FMA 发射是否增加、长延迟等待是否下降，以及总执行时间是否缩短。
+
+### 如何用 Profiler 证明流水线有效
+
+应在相同矩阵、编译参数、warmup 和计时方法下并排比较 Kernel 10、11、12，并至少检查：
+
+| 问题 | Nsight Compute 中可关注的指标 |
+| --- | --- |
+| 端到端是否更快 | Kernel Duration、GFLOP/s |
+| Global Memory 等待是否下降 | Long Scoreboard Stall、DRAM/L2 Throughput |
+| 同步是否成为新瓶颈 | Barrier Stall、Warp Stall Sampling |
+| 调度器是否有工作可发射 | Eligible Warps Per Scheduler、Issued Warps Per Scheduler |
+| 计算管线是否更饱满 | FP32 pipe utilization、FMA 指令吞吐 |
+| 资源代价多大 | Registers Per Thread、Shared Memory Per Block、Achieved Occupancy |
+
+若工具版本支持 Source/SASS 关联，还应确认 `cuda::memcpy_async` 是否生成预期的异步复制指令，并检查向量宽度与地址对齐。只有当时间或指标表明确显示 copy stall 被 compute 覆盖，并且总 Duration 下降时，才能说双缓冲优化成功；代码中出现两组数组、两个 Barrier 或 `memcpy_async` 都不算性能证据。
+
+这部分机制主要参考了 NVIDIA 的 [Ampere 异步复制教程](https://developer.nvidia.com/blog/controlling-data-movement-to-boost-performance-on-ampere-architecture/)、[CUDA Programming Guide：Asynchronous Barriers](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/async-barriers.html) 与 [CUTLASS GEMM Pipelining](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/efficient_gemm.html#pipelining)。这些资料讨论的核心都是 CUDA Core 同样适用的软件流水与数据所有权；本文没有延伸到 Tensor Core 路线。
 
 ## 十三、把整个优化链串起来
 

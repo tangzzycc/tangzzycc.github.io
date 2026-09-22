@@ -1,49 +1,51 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
-  <title id="title">gfx1151 GEMM tile selection combines shape feasibility with a device-specific workgroup policy</title>
-  <desc id="desc">Problem shape and architecture identify feasible tiles. The gfx1151 policy chooses between tile sizes according to grid depth relative to forty compute units. The same architecture identity must also reach JIT targeting and cache keys.</desc>
-  <defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto"><path d="M1 1.5 L10.5 6 L1 10.5" fill="none" stroke="#2964a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <title id="title">gfx1151 GEMM：结合 shape 可行性与设备策略选择 tile</title>
+  <desc id="desc">问题 shape 与架构先确定可行 tile，gfx1151 再根据网格深度和 40 个 CU 的相对关系选择 tile 大小；同一架构标识还必须贯穿 JIT target 与 cache key。</desc>
+  <defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#2964a4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
   <style>
-    text{font-family:Arial,Helvetica,sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:19px}.small{font-size:17px;fill:#607187}.mono{font-family:"DejaVu Sans Mono",monospace;font-size:17px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.flow{fill:none;stroke:#2964a4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    @font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf") format("truetype")}text{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172e46}.title{font-size:40px;font-weight:700}.subtitle{font-size:22px;fill:#52677d}.eyebrow{font-size:18px;font-weight:700;letter-spacing:0;fill:#2865b3}.section{font-size:23px;font-weight:700}.label{font-size:21px;font-weight:700}.body{font-size:19px}.small{font-size:17px;fill:#607187}.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:17px}.card{fill:#fff;stroke:#ced7e2;stroke-width:2}.flow{fill:none;stroke:#2964a4;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono","LXGW WenKai GB Screen",monospace}
+    .mixed{font-family:"LXGW WenKai GB Screen","Noto Sans CJK SC",sans-serif}
   </style>
   <rect width="1600" height="1000" fill="#fbfcfe"/>
   <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
-  <text x="70" y="66" class="title">gfx1151 GEMM: choose for the device, not only the shape</text>
-  <text x="48" y="101" class="subtitle">Feasibility first · CU-relative policy second · one architecture identity through JIT and cache</text>
+  <text x="70" y="66" class="title">gfx1151 GEMM：tile 选择不仅取决于 shape</text>
+  <text x="48" y="101" class="subtitle">先过滤可行配置 · 再按 CU 数量决策 · 架构标识贯穿 JIT 与 cache</text>
   <text x="1552" y="62" text-anchor="end" class="small">FLYDSL / PR 1057</text>
 
-  <text x="60" y="154" class="eyebrow">01  SELECTION PIPELINE</text>
+  <text x="60" y="154" class="eyebrow">01  选择流程</text>
   <rect x="60" y="178" width="420" height="224" rx="16" class="card"/>
-  <text x="84" y="217" class="section">Problem identity</text>
+  <text x="84" y="217" class="section">问题特征</text>
   <rect x="96" y="252" width="348" height="108" rx="10" fill="#e8f1fb" stroke="#c3d5e7"/>
-  <text x="270" y="288" text-anchor="middle" class="mono">shape = (M, N, K)</text><text x="270" y="320" text-anchor="middle" class="mono">arch = gfx1151</text><text x="270" y="348" text-anchor="middle" class="small">40 compute units</text>
+  <text x="270" y="288" text-anchor="middle" class="mono">shape = (M, N, K)</text><text x="270" y="320" text-anchor="middle" class="mono">arch = gfx1151</text><text x="270" y="348" text-anchor="middle" class="small">40 个 Compute Unit</text>
   <path d="M480 290 H548" class="flow"/>
   <rect x="560" y="178" width="480" height="224" rx="16" class="card"/>
-  <text x="584" y="217" class="section">Feasible tile filter</text>
-  <text x="596" y="258" class="body">• M / N / K divisibility</text><text x="596" y="291" class="body">• at least two K tiles</text><text x="596" y="324" class="body">• complete 8-element vector copies</text><text x="596" y="357" class="body">• double-buffered LDS ≤ 64 KiB</text>
+  <text x="584" y="217" class="section">可行 tile 过滤</text>
+  <text x="596" y="258" class="body">• M / N / K 可整除</text><text x="596" y="291" class="body">• K 方向至少两个 tile</text><text x="596" y="324" class="body">• 完整的 8 元素向量拷贝</text><text x="596" y="357" class="body">• 双缓冲 LDS ≤ 64 KiB</text>
   <path d="M1040 290 H1108" class="flow"/>
   <rect x="1120" y="178" width="420" height="224" rx="16" class="card"/>
-  <text x="1144" y="217" class="section">gfx1151 policy</text>
-  <text x="1156" y="258" class="mono">256³ → 32×64×64</text><text x="1156" y="291" class="mono" style="font-size:15px">32..40 WG + near-square → 256 tile</text><text x="1156" y="324" class="mono" style="font-size:15px">square band → 128 tile / long-K 64</text><text x="1156" y="357" class="mono">otherwise → gfx1100 fallback</text>
+  <text x="1144" y="217" class="section">gfx1151 策略</text>
+  <text x="1156" y="258" class="mono">256³ → 32×64×64</text><text x="1156" y="291" class="mixed" style="font-size:15px">32..40 WG + 近方形 → 256 tile</text><text x="1156" y="324" class="mixed" style="font-size:15px">方形区间 → 128 tile / 长 K 用 64</text><text x="1156" y="357" class="mixed">其他情况 → gfx1100 fallback</text>
 
-  <text x="60" y="454" class="eyebrow">02  SAME DEVICE, DIFFERENT GRID DEPTH</text>
+  <text x="60" y="454" class="eyebrow">02  同一设备，不同网格深度</text>
   <rect x="60" y="478" width="710" height="330" rx="16" class="card"/>
-  <text x="84" y="517" class="section">1536³ → choose 256 × 256 × 32</text>
-  <text x="84" y="547" class="small">6 × 6 = 36 workgroups, inside the 32–40 band</text>
+  <text x="84" y="517" class="section">1536³ → 选择 256 × 256 × 32</text>
+  <text x="84" y="547" class="small">6 × 6 = 36 个 workgroup，落在 32–40 区间</text>
   <g transform="translate(104 585)" fill="#f0edfa" stroke="#8051aa" stroke-width="1.5">
     <rect width="420" height="168" rx="6"/><path d="M70 0V168M140 0V168M210 0V168M280 0V168M350 0V168M0 28H420M0 56H420M0 84H420M0 112H420M0 140H420" fill="none"/>
   </g>
-  <text x="556" y="642" class="label" fill="#8051aa">36 WG</text><text x="556" y="676" class="body">large tile</text><text x="556" y="707" class="small">more reuse per block</text><text x="556" y="738" class="small">enough blocks for 40 CUs</text>
+  <text x="556" y="642" class="label" fill="#8051aa">36 WG</text><text x="556" y="676" class="body">较大 tile</text><text x="556" y="707" class="small">每个 block 复用更多数据</text><text x="556" y="738" class="small">足以覆盖 40 个 CU</text>
 
   <rect x="830" y="478" width="710" height="330" rx="16" class="card"/>
-  <text x="854" y="517" class="section">6144³ → choose 128 × 128 × 32</text>
-  <text x="854" y="547" class="small">A 256 tile would already make 24 × 24 = 576 workgroups</text>
+  <text x="854" y="517" class="section">6144³ → 选择 128 × 128 × 32</text>
+  <text x="854" y="547" class="small">使用 256 tile 已会产生 24 × 24 = 576 个 workgroup</text>
   <g transform="translate(874 585)" fill="#e8f5f1" stroke="#218367" stroke-width="1.5">
     <rect width="420" height="168" rx="6"/><path d="M52.5 0V168M105 0V168M157.5 0V168M210 0V168M262.5 0V168M315 0V168M367.5 0V168M0 28H420M0 56H420M0 84H420M0 112H420M0 140H420" fill="none"/>
   </g>
-  <text x="1326" y="642" class="label" fill="#218367">deeper grid</text><text x="1326" y="676" class="body">smaller tile</text><text x="1326" y="707" class="small">more scheduling freedom</text><text x="1326" y="738" class="small">reuse already abundant</text>
+  <text x="1326" y="642" class="label" fill="#218367">更深的网格</text><text x="1326" y="676" class="body">较小 tile</text><text x="1326" y="707" class="small">调度更灵活</text><text x="1326" y="738" class="small">数据复用已经充足</text>
 
-  <text x="60" y="859" class="eyebrow">03  ARCHITECTURE IDENTITY MUST SURVIVE</text>
+  <text x="60" y="859" class="eyebrow">03  架构标识必须贯穿全链路</text>
   <rect x="60" y="882" width="1480" height="72" rx="12" fill="#edf6f3" stroke="#b9d6cd"/>
-  <text x="94" y="926" class="mono">gfx1151 policy</text><path d="M266 918 H410" class="flow"/><text x="430" y="926" class="mono">JIT target</text><path d="M555 918 H699" class="flow"/><text x="719" y="926" class="mono">compiled kernel</text><path d="M902 918 H1046" class="flow"/><text x="1066" y="926" class="mono">cache identity</text><text x="1510" y="926" text-anchor="end" class="small">same architecture, end to end</text>
-  <text x="60" y="984" class="small">A tile heuristic is correct only when the architecture used by policy, code generation, and caching is the same.</text>
+  <text x="94" y="926" class="mixed">gfx1151 策略</text><path d="M266 918 H410" class="flow"/><text x="430" y="926" class="mono">JIT target</text><path d="M555 918 H699" class="flow"/><text x="719" y="926" class="mixed">编译后 Kernel</text><path d="M902 918 H1046" class="flow"/><text x="1066" y="926" class="mixed">cache 标识</text><text x="1510" y="926" text-anchor="end" class="small">端到端使用同一架构</text>
+  <text x="60" y="984" class="small">只有策略、代码生成与缓存使用同一架构标识，tile 启发式选择才可靠。</text>
 </svg>
