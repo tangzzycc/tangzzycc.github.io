@@ -71,7 +71,7 @@
 
   <rect x="1326" y="207" width="198" height="118" rx="11" class="orange"/>
   <text x="1346" y="240" class="section">Linear 输出</text>
-  <text x="1346" y="273" class="mono">Y ← Y + ΔY</text>
+  <text x="1346" y="273" class="mono">Y += ΔY</text>
   <text x="1346" y="300" class="small">LoRA 语义不变</text>
 
   <text x="48" y="420" class="eyebrow">02  Decode 与 Prefill 的程序拆分</text>
@@ -126,7 +126,7 @@
   <text x="850" y="507" class="section">Prefill · 按 LoRA 分组 token 行</text>
   <text x="1500" y="507" text-anchor="end" class="small">矩阵 tile · 跨行复用权重</text>
 
-  <text x="828" y="570" class="label">Metadata 将离散 token 重排为 LoRA 分组</text>
+  <text x="828" y="570" class="label">Metadata 为离散 token 生成 LoRA 分组索引</text>
   <g transform="translate(828 592)">
     <rect x="0" y="0" width="42" height="32" rx="4" fill="#dceafb" stroke="#9fb7d2"/><text x="21" y="22" text-anchor="middle" class="tiny">A</text>
     <rect x="48" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="69" y="22" text-anchor="middle" class="tiny">B</text>
@@ -142,7 +142,7 @@
     <rect x="144" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="165" y="22" text-anchor="middle" class="tiny">B</text>
     <rect x="192" y="0" width="42" height="32" rx="4" fill="#ded3ec" stroke="#b59ecb"/><text x="213" y="22" text-anchor="middle" class="tiny">B</text>
   </g>
-  <text x="1488" y="649" text-anchor="end" class="small">按 adapter slot 稳定分组，保留原始行索引</text>
+  <text x="1488" y="649" text-anchor="end" class="small">不复制 X；按 adapter slot 稳定分组原始行索引</text>
 
   <text x="828" y="686" class="label">Shrink：分组 M tile × rank tile × 受控 split-K</text>
   <rect x="828" y="708" width="194" height="112" rx="9" fill="#edf6f3" stroke="#a9d1c5"/>
@@ -155,7 +155,7 @@
   <path d="M1022 764 H1064" class="flow-green"/>
   <rect x="1076" y="708" width="206" height="112" rx="9" fill="#e8f5f1" stroke="#8fc2b1"/>
   <text x="1179" y="737" text-anchor="middle" class="mixed">tl.dot · FP32 累加</text>
-  <text x="1179" y="768" text-anchor="middle" class="small">仅在有收益时启用 split-K</text>
+  <text x="1179" y="768" text-anchor="middle" class="small">按 shape/token 配置 split-K</text>
   <text x="1179" y="796" text-anchor="middle" class="small">仅 SPLIT_K &gt; 1 时使用 atomic</text>
   <path d="M1282 764 H1324" class="flow-green"/>
   <rect x="1336" y="708" width="162" height="112" rx="9" fill="#e8f5f1" stroke="#8fc2b1"/>

@@ -35,6 +35,14 @@ nav:
       - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
   - 开源PR记录:
       - 总览: open-source/index.md
+      - FlashRT:
+          - "PR #213/#215 · Pi0.5 RDNA 3.5 后端与 Temporal K/V": open-source/FlashRT-213/index.md
+          - "01 · Frontend 与 Pipeline": open-source/FlashRT-213/01-Pi05-Frontend与Pipeline.md
+          - "02 · Pi0.5 模型结构与推理流程": open-source/FlashRT-213/02-Pi05模型结构与推理流程.md
+          - "03 · RDNA 3.5 融合算子": open-source/FlashRT-213/03-RDNA3.5融合算子.md
+          - "04 · RDNA 3.5 Attention Kernel": open-source/FlashRT-213/04-RDNA3.5-Attention-Kernel.md
+          - "05 · RDNA 3.5 GEMM 实现": open-source/FlashRT-213/05-RDNA3.5-GEMM实现.md
+          - "06 · Temporal K/V 跨帧复用": open-source/FlashRT-213/06-Temporal-KV跨帧复用.md
       - Comfy-Kitchen:
           - "PR #127 · Rowwise INT8 向量化 Kernel": open-source/Comfy-Kitchen-127-Rowwise-INT8-Vectorized-Load.md
           - "PR #129 · SVDQuant INT4 Quantizer": open-source/Comfy-Kitchen-129-SVDQuant-INT4-Quantizer.md

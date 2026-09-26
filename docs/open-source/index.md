@@ -4,6 +4,12 @@
 wave-level 数据映射。每篇都固定到一个公开 commit，用同一个问题串起数学语义、线程分工、
 数据布局、fallback 和性能证据；图中展示机制，正文解释为什么这样设计。
 
+## FlashRT
+
+| 笔记 | 核心问题 | 关键结论 |
+| --- | --- | --- |
+| [PR #213/#215：Pi0.5 RDNA 3.5 后端与 Temporal K/V](FlashRT-213/index.md) | 如何把 VLA 模型落成可捕获的 RDNA 执行计划，并在连续帧间安全复用 Prefix K/V？ | shared pipeline 统一模型遍历；provider 优化算子；Temporal K/V 通过显式刷新周期与提交式 cache 状态复用视觉语言上下文。 |
+
 ## Comfy-Kitchen
 
 | 笔记 | 核心问题 | 关键结论 |
@@ -26,5 +32,6 @@ wave-level 数据映射。每篇都固定到一个公开 commit，用同一个�
 
 - 量化与低比特矩阵计算：PR #129、PR #134、PR #157
 - RDNA3/FlyDSL kernel 设计：PR #1057、PR #1113
+- VLA 模型、完整 RDNA 后端与跨帧 K/V 复用：FlashRT PR #213/#215
 
 性能数字均来自对应 PR 的公开记录；本文没有把 microbenchmark 外推为端到端模型收益。

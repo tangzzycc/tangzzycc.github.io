@@ -4,7 +4,7 @@ vLLM 的 Multi-LoRA 并不是为每个请求单独运行一套模型，而是在
 
 本文以开发分支中的 LoRA kernel 提交为基线，沿 `LoRA Linear → Punica wrapper → shrink/expand → Triton kernel` 解释这条专用路径如何接入 vLLM。内容只讨论实现机制、正确性边界和 fallback，不展开 benchmark 数字，也不讨论该分支后续的优先级抢占功能。Multi-LoRA 的权重管理与基础调度概念可先参考 [vLLM Multi-LoRA 推理](../杂记/vLLM%20Multi-LoRA推理.md)。
 
-- 开发分支：`gfx11/lora-priority-preemption`
+- 开发分支：`gfx11/lora-priority-preemption`（本文核对时的分支快照为 [`5bdd3cc58d`](https://github.com/tangzzycc/vllm/commit/5bdd3cc58d8985c2c2ebcb21377b3526335b5741)）
 - Kernel 基线：[`f393507827`](https://github.com/tangzzycc/vllm/commit/f3935078271e4931a89619c725561bf4ecabb104)
 - Shrink 实现：[`rdna_lora_shrink.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py)
 - Expand 实现：[`rdna_lora_expand.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py)
@@ -27,7 +27,7 @@ output: Y ← Y + ΔY
 
 `M` 是当前 forward 中的 token 数，`r` 是 LoRA rank。对于 QKV、gate/up 这类 fused Linear，同一个输入会对应多个 LoRA slice，因此实际的中间张量是 `T [S,M,r]`，`S` 为 slice 数。
 
-模型加载后，带 LoRA 的 Linear 会在 forward 中调用 `PunicaWrapperGPU.add_lora_linear()`；wrapper 创建 FP32 中间 buffer，依次执行 `add_shrink()` 和 `add_expand()`，相关入口见 [`BaseLinearLayerWithLoRA._apply_lora_to_output`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/layers/base_linear.py#L205-L238) 和 [`PunicaWrapperGPU.add_lora_linear`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/punica_wrapper/punica_gpu.py#L296-L357)。FP32 buffer 用于保存 shrink 的累加结果，expand 再按 B 权重和目标输出 dtype 计算增量。
+模型加载后，带 LoRA 的 Linear 会在 forward 中调用 `PunicaWrapperGPU.add_lora_linear()`；wrapper 创建 FP32 中间 buffer，依次执行 `add_shrink()` 和 `add_expand()`，相关入口见 [`BaseLinearLayerWithLoRA._apply_lora_to_output`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/layers/base_linear.py#L205-L238) 和 [`PunicaWrapperGPU.add_lora_linear`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/punica_wrapper/punica_gpu.py#L296-L357)。LoRA scale 在 shrink 的 FP32 累加结果上乘入，expand 不再重复缩放。
 
 这次优化没有替换基座 GEMM，也没有修改 LoRA 数学。它只为 Linear LoRA 的 shrink/expand 增加 gfx1151 fast path；embedding、logits 和 fused-MoE LoRA 仍走各自原有实现。例如 embedding 与 logits 路径仍直接调用通用 `lora_expand` / `lora_shrink`，见 [`add_lora_embedding` 与 `add_lora_logits`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/punica_wrapper/punica_gpu.py#L261-L413)。
 
@@ -42,17 +42,29 @@ output: Y ← Y + ΔY
 
 因此同样的 kernel 配置也能被其他具有相同 rank 和 Linear shape 的模型复用。
 
-## 2. Decode 与 Prefill 为什么必须分开
-
-通用 Punica shrink 以 `SPLIT_K × M tile × rank tile` 为第一维，再乘 slice 和 LoRA metadata group。它先清零输出，多个 K 分片再通过 atomic 累加到同一个 FP32 buffer；源码中的 grid 与 zero-fill 见 [`lora_shrink_op.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_shrink_op.py#L193-L228)。这种组织适合覆盖广泛形状，却不一定适合只有少量 token 的 Decode：当 $M=1$ 时，较大的 M tile 大部分为空，较高的 split-K 还会增加 program、zero-fill 和 atomic reduction。
-
-通用 expand 则按所有 slice 中最大的 `MAX_N` 建立 N 方向 grid，再把 slice 作为独立 grid 维。对于 `(4096,1024,1024)` 这样的不等长 QKV 输出，较短的 K/V slice 也会按 4096 对应的 tile 数启动，进入 kernel 后才提前退出，见 [`lora_expand_op.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_expand_op.py#L196-L245)。
-
-但 Prefill 不能简单照搬 Decode 的逐 token 向量归约。较大的 $M$ 能让同一 adapter 的多行 token 组成矩阵 tile，复用 A/B 权重并使用 `tl.dot`；如果仍让每个 token 独立遍历 K 或 N，反而会丢掉矩阵化带来的并行度和数据复用。因此实现保留同一组 tensor contract，却分别提供 Decode shrink、Decode expand、Prefill shrink 和 Prefill expand 四条 kernel。
-
 ![gfx1151 上 vLLM LoRA 的 tensor contract、Decode/Prefill kernel 划分与 fallback](../../../assets/vllm/rdna35-lora-kernel-flow.png){ width="95%" }
 
 图中的两条路径改变的是 Triton program 如何覆盖 token、rank、K 和输出 slice，不改变每个 token 使用哪个 LoRA，也不改变最终的 $Y + \Delta Y$ 语义。
+
+## 2. Decode 与 Prefill 为什么必须分开
+
+通用 Punica shrink 以 `SPLIT_K × M tile × rank tile` 为第一维，再乘 slice 和 LoRA metadata group。它先清零输出，多个 K 分片再通过 atomic 累加到同一个 FP32 buffer；源码中的 grid 与 zero-fill 见 [`lora_shrink_op.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_shrink_op.py#L193-L228)。这种组织适合覆盖广泛形状，却不一定适合只有少量 token 的 Decode：当 $M=1$ 时，通用 kernel 会用取模将 M tile 中的多个 lane 都指向同一行，最后只写回真实存在的行；这意味着 tile 内仍有重复计算，而较高的 split-K 还会增加 program、zero-fill 和 atomic reduction，见 [`_lora_shrink_kernel` 的行映射](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_shrink_op.py#L79-L109) 与 [`do_shrink_kernel` 的写回 mask](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/kernel_utils.py#L324-L340)。
+
+以 QKV shrink 的 `M=1, K=2560, r=64, S=3` 为例。通用 kernel 在默认 `BLOCK_M=32, BLOCK_N=16, SPLIT_K=64` 下，若 metadata grid 覆盖一个 active adapter 和预留的 base group，会启动：
+
+$$
+64\times\left\lceil\frac{1}{32}\right\rceil\times
+\left\lceil\frac{64}{16}\right\rceil\times 3\times 2
+=1536
+$$
+
+个 program。RDNA Decode shrink 的该 shape 配置使用 `BLOCK_RANK=4`，grid 只是 `(M × ceil(r/4), S)`，即 $16\times3=48$ 个 program。这不是一个通用加速比，而是两种 program decomposition 在该形状下的启动规模对照：专用路径把“真实 token 和 rank tile”直接变成 grid，不再用大 M tile 和 64 个 K 分片制造并行度。通用默认配置见 [`get_lora_op_configs`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/utils.py#L207-L244)，RDNA 配置与 grid 见 [`rdna_lora_shrink.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py#L30-L45) 和 [`_rdna_lora_shrink`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py#L573-L602)。
+
+通用 expand 则按所有 slice 中最大的 `MAX_N` 建立 N 方向 grid，再把 slice 作为独立 grid 维。对于 `(4096,1024,1024)` 这样的不等长 QKV 输出，较短的 K/V slice 也会按 4096 对应的 tile 数启动，进入 kernel 后才提前退出，见 [`lora_expand_op.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_expand_op.py#L196-L245)。继续使用 `M=1,r=64` 的 QKV 例子，通用默认 `BLOCK_M=64,BLOCK_N=64` 且 grid 包含两个 metadata group 时，会启动 $1\times64\times3\times2=384$ 个 program。RDNA Decode expand 同样选用 `BLOCK_N=64`，但它只展平真实存在的 $64+16+16=96$ 个输出 tile，因而 grid 为 $1\times96$。这里对比的仍是 launch decomposition，不是端到端性能比例；通用 expand 默认配置见 [`get_lora_op_configs`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/utils.py#L272-L290)，RDNA 配置与 grid 见 [`rdna_lora_expand.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L29-L41) 和 [`_rdna_lora_expand`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L617-L648)。
+
+![QKV Decode 中通用 Punica 与 RDNA fast path 的 program decomposition 对比](../../../assets/vllm/rdna35-lora-qkv-grid-comparison.png){ width="95%" }
+
+但 Prefill 不能简单照搬 Decode 的逐 token 向量归约。较大的 $M$ 能让同一 adapter 的多行 token 组成矩阵 tile，复用 A/B 权重并使用 `tl.dot`；如果仍让每个 token 独立遍历 K 或 N，反而会丢掉矩阵化带来的并行度和数据复用。因此实现保留同一组 tensor contract，却分别提供 Decode shrink、Decode expand、Prefill shrink 和 Prefill expand 四条 kernel。
 
 ## 3. 四条 RDNA Kernel 如何组织工作
 
@@ -60,9 +72,13 @@ output: Y ← Y + ΔY
 
 **Decode expand：只为实际存在的输出 tile 启动 program。** Host 端先分别计算每个 slice 的 `ceil(output_size / BLOCK_N)`，再把这些有效 tile 展平成一维。kernel 根据 `output_tile` 反推出 `slice_id`、slice 内 tile 和输出偏移，读取 `[slice,token,r]` 的 rank vector 与相应 B 权重，最后选择累加到原输出或写入 LoRA-only 输出。这避免了用最大 N 为每个 slice 补齐 grid，见 [`_rdna_lora_expand_decode_kernel`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L278-L378)。
 
-**Prefill shrink：按 adapter 分组 token，并保留受控 split-K。** Metadata 提供当前 LoRA group 的 token 数、起点和原始行号；kernel 先取得一组属于同一 adapter 的 row，再对 `[BLOCK_M,BLOCK_K] × [BLOCK_K,BLOCK_N]` 使用 `tl.dot`。rank 较小时，完全取消 split-K 可能不足以填满设备，因此配置可以保留较小的 `SPLIT_K`；只有 `SPLIT_K > 1` 时才执行 zero-fill 和 `atomic_add`。实现见 [`_rdna_lora_shrink_prefill_kernel`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py#L387-L485)。
+Expand 不会把 FP32 中间 buffer 当成全程 FP32 GEMM 的输入。Decode 路径先将 rank vector 转为 B 权重的 FP16/BF16 dtype，再转回 FP32 做显式乘加；Prefill 路径则把它转为 B 的 dtype 后交给 `tl.dot(..., out_dtype=tl.float32)`。两条路径都用 FP32 累加，但乘法输入遵循 B 权重精度，最后再转为目标输出 dtype；这也是测试 reference 显式执行 `inputs.to(dtype).float()` 的原因，见 [`test_rdna_lora_expand_parity`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/tests/lora/test_rdna_lora_ops.py#L481-L544)。
 
-**Prefill expand：组合 grouped M tile 与有效输出 tile。** 第一维覆盖分组后的 token rows，第二维覆盖所有 slice 的有效 N tile，第三维覆盖 LoRA group。每个 program 通过 `tl.dot` 计算一个 `[BLOCK_M,BLOCK_N]` 输出块，再用保存的原始 row index 写回正确 token 位置，见 [`_rdna_lora_expand_prefill_kernel`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L380-L501)。
+**Prefill shrink：按 adapter 分组 token，并保留受控 split-K。** Metadata 提供当前 LoRA group 的 token 数、起点和原始行号；kernel 先取得一组属于同一 adapter 的 row，再对 `[BLOCK_M,BLOCK_K] × [BLOCK_K,BLOCK_N]` 使用 `tl.dot`。Host 端不会为每个 group 另建一个紧凑的 $X$：M 方向 grid 仍按本轮总 token 数建立，各 group 在 kernel 内读取自己的 `lora_m_size`，再通过 sorted row index gather 原始输入并 mask 掉越界行。
+
+rank 较小时，完全取消 split-K 可能不足以填满设备，因此配置可以保留较小的 `SPLIT_K`。Host 进入 Prefill 路径时会先清零整个 FP32 buffer；kernel 在 `SPLIT_K=1` 时直接 `store`，只有 `SPLIT_K>1` 才使用 `atomic_add`。因此“原子累加是按配置开启的”，但不能进一步说当前实现只在 split-K 时才 zero-fill。实现见 [`_rdna_lora_shrink_prefill_kernel`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py#L387-L485) 与 [Prefill 启动路径](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_shrink.py#L529-L570)。
+
+**Prefill expand：组合 grouped M tile 与有效输出 tile。** 第一维仍按本轮总 token 数计算 `ceil(M/BLOCK_M)`，第二维覆盖所有 slice 的有效 N tile，第三维覆盖 LoRA group。每个 group 再用自己的 `lora_m_size` 屏蔽多余行；program 通过 `tl.dot` 计算一个 `[BLOCK_M,BLOCK_N]` 输出块，并按 sorted row index 写回原 token 位置。因此它是“单次 launch 中按索引分组”，而不是为每个 adapter 复制一份紧凑输入，见 [`_rdna_lora_expand_prefill_kernel`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L380-L501) 与 [Prefill 启动路径](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/rdna_lora_expand.py#L560-L597)。
 
 四条 kernel 使用不同的配置维度：
 
@@ -127,9 +143,9 @@ token count        = [1,2,2]
 start location     = [0,1,3,5]
 ```
 
-Decode token 很少，可以直接按 `token_lora_mapping[token_id]` 读取 slot；Prefill 则用 sorted indices 将同一 adapter 的 token 组成矩阵 tile。通用 metadata 路径通过 stable sort、unique/count 和 cumulative sum 构造这些张量，见 [`LoRAKernelMeta.prepare_tensors`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_kernel_metadata.py#L157-L221)。
+Decode token 很少，可以直接按 `token_lora_mapping[token_id]` 读取 slot；Prefill 则用 sorted indices 将同一 adapter 的 token 组成矩阵 tile。这里并不会先复制或重排 $X$：metadata 只保存按 LoRA ID 稳定分组后的原始行索引，kernel 按索引 gather 输入，再直接写回原 token 行。通用 metadata 路径通过 stable sort、unique/count 和 cumulative sum 构造这些张量，见 [`LoRAKernelMeta.prepare_tensors`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_kernel_metadata.py#L157-L221)。
 
-当一个 batch 的所有 token 都使用同一个 adapter 时，结构已经完全确定，不需要再执行通用 sort/unique/cumsum。Wrapper 先检测 uniform mapping，再调用一个轻量 Triton kernel 直接填写 mapping、active ID、count 和 start location，见 [`update_metadata`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/punica_wrapper/punica_gpu.py#L102-L148) 与 [`prepare_tensors_uniform`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_kernel_metadata.py#L223-L259)。Mixed-LoRA 仍走通用分组路径，这项优化没有改变调度语义。
+当一个 batch 的所有 token 都使用同一个 adapter 时，结构已经完全确定，不需要再执行通用 sort/unique/cumsum。在至少一条 RDNA 算子已加载时，Wrapper 会先检测 uniform mapping，再调用一个轻量 Triton kernel 直接填写 mapping、active ID、count 和 start location，见 [`update_metadata`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/punica_wrapper/punica_gpu.py#L102-L148) 与 [`prepare_tensors_uniform`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/lora_kernel_metadata.py#L223-L259)。Mixed-LoRA 或未加载 RDNA 算子时仍走通用分组路径，这项优化没有改变调度语义。
 
 Graph replay 还要求 metadata buffer 在不同 batch 之间保持干净。新 batch 比上一次更短时，旧 mapping 的尾部必须恢复为 `-1`；无 LoRA 时还要重置 active IDs、count 和 start location，否则固定 buffer 可能残留上一次请求的 slot。kernel grid 通过 `get_lora_kernel_grid_dim()` 为可能出现的 base group 预留位置，并受已分配的 metadata slot 数限制，见 [`utils.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/vllm/lora/ops/triton_ops/utils.py#L25-L32)。
 
@@ -141,6 +157,6 @@ Graph replay 还要求 metadata buffer 在不同 batch 之间保持干净。新 
 - FP16/BF16 Decode、BF16 Prefill、多 rank、多 slice 和 Qwen3-VL shape；
 - eager 与 HIP Graph capture/replay 的容差一致性。
 
-这些用例集中在 [`test_rdna_lora_ops.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/tests/lora/test_rdna_lora_ops.py#L49-L772)。Prefill shrink 在 `SPLIT_K > 1` 时使用原子累加，浮点加法顺序可能变化，因此正确性目标是规定容差内与 reference/Native 一致，而不是逐 bit 相同。
+这些用例集中在 [`test_rdna_lora_ops.py`](https://github.com/tangzzycc/vllm/blob/f3935078271e4931a89619c725561bf4ecabb104/tests/lora/test_rdna_lora_ops.py#L49-L772)。数值用例先与显式矩阵计算 reference 对比，HIP Graph 用例再将 replay 结果与 eager 路径对比。Prefill shrink 在 `SPLIT_K > 1` 时使用原子累加，浮点加法顺序可能变化，因此正确性目标是在规定容差内与 reference 或 eager 结果一致，而不是逐 bit 相同。
 
 这项实现的核心可以归纳为：保持 vLLM 原有 LoRA tensor contract 与 Native fallback，只针对 gfx1151 重新设计 program decomposition。Decode 直接围绕真实 token 和有效输出 tile 工作；Prefill 保留按 adapter 分组后的矩阵化计算；metadata fast path、custom-op 内动态分流与 HIP Graph 状态清理，则负责让这四条 kernel 真正安全地进入 serving 路径。
