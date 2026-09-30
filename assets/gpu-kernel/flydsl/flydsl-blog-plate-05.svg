@@ -1,0 +1,101 @@
+<svg width="1000" height="430" role="img" viewBox="0 0 1000 430" xmlns="http://www.w3.org/2000/svg"><style>
+.d-text { font-family: 'Noto Sans CJK SC', 'IBM Plex Sans', 'Noto Sans', sans-serif; font-size: 11px; fill: #ecf1f7; }
+.d-text.mono { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 10.5px; }
+.d-text.small { font-size: 9.5px; fill: #92a8bc; }
+.d-text.tiny { font-size: 8.5px; fill: #6a8298; }
+.d-text.label { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 9px; letter-spacing: 0.12em; fill: #6a8298; text-transform: uppercase; }
+.d-text.title { font-family: 'Noto Serif CJK SC', 'EB Garamond', 'Noto Serif', serif; font-style: italic; font-size: 13px; fill: #ecf1f7; }
+.d-text.rust { fill: #e8845a; } .d-text.brass { fill: #f0c764; } .d-text.jade { fill: #8ec788; }
+.d-text.coral { fill: #e07a7a; } .d-text.teal { fill: #6dc0c7; } .d-text.dim { fill: #92a8bc; }
+.zone { fill: #154362; stroke: #2a6791; stroke-width: 1; }
+.zone.deep { fill: #1b537a; } .zone.rust { stroke: #e8845a; stroke-opacity: 0.5; }
+.zone.brass { stroke: #f0c764; stroke-opacity: 0.5; } .zone.jade { stroke: #8ec788; stroke-opacity: 0.45; }
+.zone.coral { stroke: #e07a7a; stroke-opacity: 0.45; } .zone.teal { stroke: #6dc0c7; stroke-opacity: 0.45; }
+.bp-line { stroke: #6a8298; stroke-width: 1; fill: none; }
+.bp-line.dash { stroke-dasharray: 3 3; } .bp-line.rust { stroke: #e8845a; } .bp-line.brass { stroke: #f0c764; }
+.bp-line.jade { stroke: #8ec788; } .bp-line.teal { stroke: #6dc0c7; } .bp-line.thick { stroke-width: 1.6; }
+</style><rect width="100%" height="100%" fill="#0a2840"/>
+  <defs>
+    <marker id="arr5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e8845a"/>
+    </marker>
+  </defs>
+
+  <!-- Left: original B in row-major -->
+  <text x="40" y="32" class="d-text label">B · 原始布局 · (N, K) Row-major</text>
+  <g transform="translate(40, 50)">
+    <rect x="0" y="0" width="360" height="240" class="zone" rx="2"/>
+    <!-- Annotate as 16x16 grid stand-in -->
+    <g stroke="#2a6791" stroke-width="0.4">
+      <line x1="0" y1="15" x2="360" y2="15"/>
+      <line x1="0" y1="30" x2="360" y2="30"/>
+      <line x1="0" y1="45" x2="360" y2="45"/>
+      <line x1="0" y1="60" x2="360" y2="60"/>
+      <line x1="0" y1="75" x2="360" y2="75"/>
+      <line x1="0" y1="90" x2="360" y2="90"/>
+      <line x1="0" y1="105" x2="360" y2="105"/>
+      <line x1="0" y1="120" x2="360" y2="120"/>
+      <line x1="0" y1="135" x2="360" y2="135"/>
+      <line x1="0" y1="150" x2="360" y2="150"/>
+      <line x1="0" y1="165" x2="360" y2="165"/>
+      <line x1="0" y1="180" x2="360" y2="180"/>
+      <line x1="0" y1="195" x2="360" y2="195"/>
+      <line x1="0" y1="210" x2="360" y2="210"/>
+      <line x1="0" y1="225" x2="360" y2="225"/>
+    </g>
+    <!-- Highlight one row -->
+    <rect x="0" y="30" width="360" height="15" fill="#e8845a" fill-opacity="0.55" stroke="#e8845a" stroke-width="1"/>
+    <text x="370" y="40" class="d-text small mono rust">第 n 行：32 个连续 fp16</text>
+
+    <text x="180" y="270" class="d-text small mono" text-anchor="middle">Layout (N, K) : (K, 1) · Row-major</text>
+  </g>
+
+  <!-- Middle: arrow -->
+  <line x1="430" y1="170" x2="510" y2="170" class="bp-line rust thick" marker-end="url(#arr5)"/>
+  <text x="470" y="160" class="d-text small mono rust" text-anchor="middle">shuffle_weight</text>
+  <text x="470" y="184" class="d-text small mono" text-anchor="middle">（Host PyTorch）</text>
+
+  <!-- Right: preshuffled B layout -->
+  <text x="540" y="32" class="d-text label">B · Preshuffle 后 · MFMA-friendly Chunk</text>
+  <g transform="translate(540, 50)">
+    <rect x="0" y="0" width="360" height="240" class="zone deep" rx="2"/>
+
+    <!-- Show the chunked structure: (16 N-inner, 8 K-inner) chunks tiled -->
+    <g stroke="#2a6791" stroke-width="0.4">
+      <line x1="0" y1="60" x2="360" y2="60"/>
+      <line x1="0" y1="120" x2="360" y2="120"/>
+      <line x1="0" y1="180" x2="360" y2="180"/>
+      <line x1="90" y1="0" x2="90" y2="240"/>
+      <line x1="180" y1="0" x2="180" y2="240"/>
+      <line x1="270" y1="0" x2="270" y2="240"/>
+    </g>
+
+    <!-- Highlight one chunk -->
+    <rect x="0" y="0" width="90" height="60" fill="#8ec788" fill-opacity="0.42" stroke="#8ec788" stroke-width="1.4"/>
+    <text x="45" y="34" class="d-text small mono jade" text-anchor="middle">16 × 8</text>
+    <text x="45" y="48" class="d-text small mono jade" text-anchor="middle">Chunk</text>
+
+    <g font-family="JetBrains Mono, monospace" font-size="9" fill="#92a8bc">
+      <text x="135" y="34" text-anchor="middle">Chunk</text>
+      <text x="225" y="34" text-anchor="middle">Chunk</text>
+      <text x="315" y="34" text-anchor="middle">Chunk</text>
+      <text x="45" y="94" text-anchor="middle">Chunk</text>
+      <text x="135" y="94" text-anchor="middle">Chunk</text>
+      <text x="225" y="94" text-anchor="middle">Chunk</text>
+      <text x="315" y="94" text-anchor="middle">Chunk</text>
+    </g>
+
+    <!-- Arrow inside green chunk showing buffer_load_dwordx4 reads exactly this -->
+    <line x1="0" y1="56" x2="86" y2="56" class="bp-line jade thick" marker-end="url(#arr5)"/>
+    <text x="45" y="80" class="d-text small mono jade" text-anchor="middle">一次 buffer_load · 128 bit · 8 fp16</text>
+    <text x="45" y="92" class="d-text small mono jade" text-anchor="middle">— 直接匹配 MFMA Lane</text>
+
+    <text x="180" y="270" class="d-text small mono" text-anchor="middle">composed layout: ((16, N/16), (8, 4, K/32)) : ((8, 16·K), (1, 8·16, 8·16·4))</text>
+  </g>
+
+  <!-- Bottom annotation -->
+  <text x="500" y="346" class="d-text title" text-anchor="middle">Kernel 看到的仍是相同 (N, K) 逻辑 Shape，只有 Stride 改变。</text>
+  <text x="500" y="372" class="d-text small mono dim" text-anchor="middle">composed_layout 用新的 Stride 解释 Preshuffle Buffer，将每个 MFMA Lane 的逻辑坐标</text>
+  <text x="500" y="390" class="d-text small mono dim" text-anchor="middle">映射到 Host Shuffle 后数据实际所在的 Byte Offset。</text>
+  <text x="500" y="408" class="d-text small mono brass" text-anchor="middle">B 无需经过 LDS、Transpose 或 Swizzle；MFMA 直接读取 buffer_load 填入的 VGPR。</text>
+</svg>

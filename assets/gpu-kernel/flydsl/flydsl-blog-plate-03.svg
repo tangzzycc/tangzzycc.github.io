@@ -1,0 +1,138 @@
+<svg width="1000" height="380" role="img" viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg"><style>
+.d-text { font-family: 'Noto Sans CJK SC', 'IBM Plex Sans', 'Noto Sans', sans-serif; font-size: 11px; fill: #ecf1f7; }
+.d-text.mono { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 10.5px; }
+.d-text.small { font-size: 9.5px; fill: #92a8bc; }
+.d-text.tiny { font-size: 8.5px; fill: #6a8298; }
+.d-text.label { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 9px; letter-spacing: 0.12em; fill: #6a8298; text-transform: uppercase; }
+.d-text.title { font-family: 'Noto Serif CJK SC', 'EB Garamond', 'Noto Serif', serif; font-style: italic; font-size: 13px; fill: #ecf1f7; }
+.d-text.rust { fill: #e8845a; } .d-text.brass { fill: #f0c764; } .d-text.jade { fill: #8ec788; }
+.d-text.coral { fill: #e07a7a; } .d-text.teal { fill: #6dc0c7; } .d-text.dim { fill: #92a8bc; }
+.zone { fill: #154362; stroke: #2a6791; stroke-width: 1; }
+.zone.deep { fill: #1b537a; } .zone.rust { stroke: #e8845a; stroke-opacity: 0.5; }
+.zone.brass { stroke: #f0c764; stroke-opacity: 0.5; } .zone.jade { stroke: #8ec788; stroke-opacity: 0.45; }
+.zone.coral { stroke: #e07a7a; stroke-opacity: 0.45; } .zone.teal { stroke: #6dc0c7; stroke-opacity: 0.45; }
+.bp-line { stroke: #6a8298; stroke-width: 1; fill: none; }
+.bp-line.dash { stroke-dasharray: 3 3; } .bp-line.rust { stroke: #e8845a; } .bp-line.brass { stroke: #f0c764; }
+.bp-line.jade { stroke: #8ec788; } .bp-line.teal { stroke: #6dc0c7; } .bp-line.thick { stroke-width: 1.6; }
+</style><rect width="100%" height="100%" fill="#0a2840"/>
+  <defs>
+    <pattern id="t0pat" patternUnits="userSpaceOnUse" width="6" height="6">
+      <rect width="6" height="6" fill="#e8845a" fill-opacity="0.7"/>
+    </pattern>
+  </defs>
+
+  <text x="20" y="32" class="d-text label">Tile Layout · (M=8) × (N=24)</text>
+  <text x="20" y="48" class="d-text small mono">每格 = 1 个 f32；颜色表示所属 Thread；按重复坐标 (VM, VN) 分组</text>
+
+  <!-- The big tile -->
+  <g transform="translate(60, 70)">
+    <!-- Background grid (8 rows x 24 cols) — cell size 32 x 32 -->
+    <!-- M axis on left, N axis on top -->
+    <!-- Top N labels -->
+    <g font-family="JetBrains Mono, monospace" font-size="8.5" fill="#92a8bc">
+      <text x="380" y="-8" text-anchor="middle">N（24 列）</text>
+    </g>
+    <text x="-46" y="130" class="d-text small mono" text-anchor="middle" transform="rotate(-90, -46, 130)">M（8 行）</text>
+
+    <!-- VN=0 block: cols 0-7 -->
+    <!-- VN=1 block: cols 8-15 -->
+    <!-- VN=2 block: cols 16-23 -->
+    <!-- VM=0 block: rows 0-3 (t0,t1,t2,t3 each owns one row) -->
+    <!-- VM=1 block: rows 4-7 -->
+
+    <!-- For each (vm, vn) = (0..1, 0..2), draw a 4-row x 8-col block, with each row colored by thread -->
+    <!-- Cell size: 32 x 32 -->
+
+    <!-- VM=0, VN=0 (rows 0-3, cols 0-7) -->
+    <g>
+      <!-- t0 row -->
+      <rect x="0"   y="0" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"  y="32" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"  y="64" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"  y="96" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+    </g>
+    <!-- VM=0, VN=1 -->
+    <g>
+      <rect x="256"  y="0" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="32" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="64" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="96" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+    </g>
+    <!-- VM=0, VN=2 -->
+    <g>
+      <rect x="512"  y="0" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="32" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="64" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="96" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+    </g>
+
+    <!-- VM=1 (rows 4-7) -->
+    <g>
+      <rect x="0"   y="128" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"   y="160" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"   y="192" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="0"   y="224" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="128" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="160" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="192" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="256" y="224" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="128" width="256" height="32" fill="#e8845a" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="160" width="256" height="32" fill="#f0c764" fill-opacity="0.7" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="192" width="256" height="32" fill="#8ec788" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+      <rect x="512" y="224" width="256" height="32" fill="#6dc0c7" fill-opacity="0.65" stroke="#0a2840" stroke-width="0.5"/>
+    </g>
+
+    <!-- Thick boundaries between (VM, VN) blocks -->
+    <line x1="0" y1="128" x2="768" y2="128" stroke="#ecf1f7" stroke-width="1.5"/>
+    <line x1="256" y1="0" x2="256" y2="256" stroke="#ecf1f7" stroke-width="1.5"/>
+    <line x1="512" y1="0" x2="512" y2="256" stroke="#ecf1f7" stroke-width="1.5"/>
+
+    <!-- Outer frame -->
+    <rect x="0" y="0" width="768" height="256" fill="none" stroke="#ecf1f7" stroke-width="1.5"/>
+
+    <!-- Annotations: (VM, VN) labels in each block -->
+    <g font-family="JetBrains Mono, monospace" font-size="10" fill="#0a2840" font-weight="600">
+      <text x="248" y="14" text-anchor="end">(0,0)</text>
+      <text x="504" y="14" text-anchor="end">(0,1)</text>
+      <text x="760" y="14" text-anchor="end">(0,2)</text>
+      <text x="248" y="142" text-anchor="end">(1,0)</text>
+      <text x="504" y="142" text-anchor="end">(1,1)</text>
+      <text x="760" y="142" text-anchor="end">(1,2)</text>
+    </g>
+
+    <!-- Thread labels on left side -->
+    <g font-family="JetBrains Mono, monospace" font-size="9" fill="#92a8bc">
+      <text x="-30" y="20">tid 0</text>
+      <text x="-30" y="52">tid 1</text>
+      <text x="-30" y="84">tid 2</text>
+      <text x="-30" y="116">tid 3</text>
+      <text x="-30" y="148">tid 0</text>
+      <text x="-30" y="180">tid 1</text>
+      <text x="-30" y="212">tid 2</text>
+      <text x="-30" y="244">tid 3</text>
+    </g>
+
+    <!-- One row labeled as "8 f32 = 128 bit" -->
+    <g>
+      <line x1="0" y1="280" x2="256" y2="280" class="bp-line brass thick"/>
+      <text x="128" y="298" class="d-text small mono brass" text-anchor="middle">8 f32 = 128 bit（一次 BufferCopy128b 调用）</text>
+    </g>
+  </g>
+
+  <!-- Right side legend -->
+  <g transform="translate(840, 80)">
+    <text x="0" y="-12" class="d-text label">图例</text>
+    <rect x="0" y="0" width="14" height="14" fill="#e8845a" fill-opacity="0.7"/>
+    <text x="22" y="12" class="d-text small mono">tid 0</text>
+    <rect x="0" y="22" width="14" height="14" fill="#f0c764" fill-opacity="0.7"/>
+    <text x="22" y="34" class="d-text small mono">tid 1</text>
+    <rect x="0" y="44" width="14" height="14" fill="#8ec788" fill-opacity="0.65"/>
+    <text x="22" y="56" class="d-text small mono">tid 2</text>
+    <rect x="0" y="66" width="14" height="14" fill="#6dc0c7" fill-opacity="0.65"/>
+    <text x="22" y="78" class="d-text small mono">tid 3</text>
+
+    <text x="0" y="120" class="d-text label">覆盖计数</text>
+    <text x="0" y="138" class="d-text small mono">4 thr × 8 val × 6 (VM,VN)</text>
+    <text x="0" y="154" class="d-text small mono">= 192 f32 = 完整 Tile</text>
+  </g>
+</svg>

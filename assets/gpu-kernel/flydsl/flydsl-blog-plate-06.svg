@@ -1,0 +1,114 @@
+<svg width="1000" height="320" role="img" viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg"><style>
+.d-text { font-family: 'Noto Sans CJK SC', 'IBM Plex Sans', 'Noto Sans', sans-serif; font-size: 11px; fill: #ecf1f7; }
+.d-text.mono { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 10.5px; }
+.d-text.small { font-size: 9.5px; fill: #92a8bc; }
+.d-text.tiny { font-size: 8.5px; fill: #6a8298; }
+.d-text.label { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 9px; letter-spacing: 0.12em; fill: #6a8298; text-transform: uppercase; }
+.d-text.title { font-family: 'Noto Serif CJK SC', 'EB Garamond', 'Noto Serif', serif; font-style: italic; font-size: 13px; fill: #ecf1f7; }
+.d-text.rust { fill: #e8845a; } .d-text.brass { fill: #f0c764; } .d-text.jade { fill: #8ec788; }
+.d-text.coral { fill: #e07a7a; } .d-text.teal { fill: #6dc0c7; } .d-text.dim { fill: #92a8bc; }
+.zone { fill: #154362; stroke: #2a6791; stroke-width: 1; }
+.zone.deep { fill: #1b537a; } .zone.rust { stroke: #e8845a; stroke-opacity: 0.5; }
+.zone.brass { stroke: #f0c764; stroke-opacity: 0.5; } .zone.jade { stroke: #8ec788; stroke-opacity: 0.45; }
+.zone.coral { stroke: #e07a7a; stroke-opacity: 0.45; } .zone.teal { stroke: #6dc0c7; stroke-opacity: 0.45; }
+.bp-line { stroke: #6a8298; stroke-width: 1; fill: none; }
+.bp-line.dash { stroke-dasharray: 3 3; } .bp-line.rust { stroke: #e8845a; } .bp-line.brass { stroke: #f0c764; }
+.bp-line.jade { stroke: #8ec788; } .bp-line.teal { stroke: #6dc0c7; } .bp-line.thick { stroke-width: 1.6; }
+</style><rect width="100%" height="100%" fill="#0a2840"/>
+  <text x="20" y="28" class="d-text label">时间 →</text>
+  <line x1="80" y1="32" x2="980" y2="32" class="bp-line dim"/>
+  <g font-family="JetBrains Mono, monospace" font-size="9" fill="#6a8298">
+    <text x="100" y="46">迭代 0（read=0）</text>
+    <text x="320" y="46">迭代 1（read=1）</text>
+    <text x="540" y="46">迭代 2（read=0）</text>
+    <text x="760" y="46">迭代 3（read=1）</text>
+  </g>
+
+  <!-- Channels: A-load, B-load, ds_write, ds_read, MFMA -->
+  <g font-family="JetBrains Mono, monospace" font-size="9" fill="#c2d0de">
+    <text x="20" y="92">buffer_load A</text>
+    <text x="20" y="130">buffer_load B</text>
+    <text x="20" y="168">ds_write A</text>
+    <text x="20" y="206">ds_read sA</text>
+    <text x="20" y="244">MFMA</text>
+    <text x="20" y="282">Barrier</text>
+  </g>
+
+  <!-- buffer_load A : prefetches next iter -->
+  <g>
+    <rect x="100" y="78" width="160" height="20" fill="#e8845a" fill-opacity="0.5" stroke="#e8845a"/>
+    <text x="180" y="92" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=1 → Register</text>
+    <rect x="320" y="78" width="160" height="20" fill="#e8845a" fill-opacity="0.5" stroke="#e8845a"/>
+    <text x="400" y="92" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=2 → Register</text>
+    <rect x="540" y="78" width="160" height="20" fill="#e8845a" fill-opacity="0.5" stroke="#e8845a"/>
+    <text x="620" y="92" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=3 → Register</text>
+    <rect x="760" y="78" width="160" height="20" fill="#e8845a" fill-opacity="0.18" stroke="#e8845a" stroke-dasharray="3 3"/>
+    <text x="840" y="92" class="d-text small mono dim" text-anchor="middle">排空</text>
+  </g>
+
+  <!-- buffer_load B -->
+  <g>
+    <rect x="100" y="116" width="160" height="20" fill="#f0c764" fill-opacity="0.45" stroke="#f0c764"/>
+    <text x="180" y="130" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=1 → B[1]</text>
+    <rect x="320" y="116" width="160" height="20" fill="#f0c764" fill-opacity="0.45" stroke="#f0c764"/>
+    <text x="400" y="130" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=2 → B[0]</text>
+    <rect x="540" y="116" width="160" height="20" fill="#f0c764" fill-opacity="0.45" stroke="#f0c764"/>
+    <text x="620" y="130" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">加载 k=3 → B[1]</text>
+    <rect x="760" y="116" width="160" height="20" fill="#f0c764" fill-opacity="0.18" stroke="#f0c764" stroke-dasharray="3 3"/>
+    <text x="840" y="130" class="d-text small mono dim" text-anchor="middle">排空</text>
+  </g>
+
+  <!-- ds_write A -->
+  <g>
+    <rect x="220" y="154" width="40" height="20" fill="#8ec788" fill-opacity="0.5" stroke="#8ec788"/>
+    <text x="240" y="168" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">→sA[1]</text>
+    <rect x="440" y="154" width="40" height="20" fill="#8ec788" fill-opacity="0.5" stroke="#8ec788"/>
+    <text x="460" y="168" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">→sA[0]</text>
+    <rect x="660" y="154" width="40" height="20" fill="#8ec788" fill-opacity="0.5" stroke="#8ec788"/>
+    <text x="680" y="168" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">→sA[1]</text>
+  </g>
+
+  <!-- ds_read sA -->
+  <g>
+    <rect x="100" y="192" width="120" height="20" fill="#6dc0c7" fill-opacity="0.5" stroke="#6dc0c7"/>
+    <text x="160" y="206" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">读取 sA[0]</text>
+    <rect x="320" y="192" width="120" height="20" fill="#6dc0c7" fill-opacity="0.5" stroke="#6dc0c7"/>
+    <text x="380" y="206" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">读取 sA[1]</text>
+    <rect x="540" y="192" width="120" height="20" fill="#6dc0c7" fill-opacity="0.5" stroke="#6dc0c7"/>
+    <text x="600" y="206" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">读取 sA[0]</text>
+    <rect x="760" y="192" width="120" height="20" fill="#6dc0c7" fill-opacity="0.5" stroke="#6dc0c7"/>
+    <text x="820" y="206" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">读取 sA[1]</text>
+  </g>
+
+  <!-- MFMA -->
+  <g>
+    <rect x="100" y="230" width="120" height="20" fill="#e07a7a" fill-opacity="0.55" stroke="#e07a7a"/>
+    <text x="160" y="244" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">C += A·B[0]</text>
+    <rect x="320" y="230" width="120" height="20" fill="#e07a7a" fill-opacity="0.55" stroke="#e07a7a"/>
+    <text x="380" y="244" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">C += A·B[1]</text>
+    <rect x="540" y="230" width="120" height="20" fill="#e07a7a" fill-opacity="0.55" stroke="#e07a7a"/>
+    <text x="600" y="244" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">C += A·B[0]</text>
+    <rect x="760" y="230" width="120" height="20" fill="#e07a7a" fill-opacity="0.55" stroke="#e07a7a"/>
+    <text x="820" y="244" class="d-text small mono" text-anchor="middle" fill="#0a2840" font-weight="600">C += A·B[1]</text>
+  </g>
+
+  <!-- barrier ticks -->
+  <g>
+    <line x1="280" y1="268" x2="280" y2="296" class="bp-line jade thick"/>
+    <text x="280" y="310" class="d-text small mono jade" text-anchor="middle">barrier</text>
+    <line x1="500" y1="268" x2="500" y2="296" class="bp-line jade thick"/>
+    <text x="500" y="310" class="d-text small mono jade" text-anchor="middle">barrier</text>
+    <line x1="720" y1="268" x2="720" y2="296" class="bp-line jade thick"/>
+    <text x="720" y="310" class="d-text small mono jade" text-anchor="middle">barrier</text>
+    <line x1="940" y1="268" x2="940" y2="296" class="bp-line jade thick"/>
+    <text x="940" y="310" class="d-text small mono jade" text-anchor="middle">barrier</text>
+  </g>
+
+  <!-- vertical iter dividers -->
+  <g stroke="#2a6791" stroke-width="0.5" stroke-dasharray="2 4">
+    <line x1="280" y1="32" x2="280" y2="268"/>
+    <line x1="500" y1="32" x2="500" y2="268"/>
+    <line x1="720" y1="32" x2="720" y2="268"/>
+    <line x1="940" y1="32" x2="940" y2="268"/>
+  </g>
+</svg>

@@ -32,6 +32,21 @@ nav:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - GPU Kernel:
       - 学习索引: gpu-kernel/index.md
+      - FlashRT RDNA 3.5:
+          - 学习路径: gpu-kernel/flashrt-rdna35/index.md
+          - 00 · AMD GPU 硬件模型与术语: gpu-kernel/flashrt-rdna35/00-AMD-GPU硬件模型与术语.md
+          - 01 · HIP 执行模型与 Wave32 归约: gpu-kernel/flashrt-rdna35/01-HIP执行模型与Wave32归约.md
+          - 02 · Activation 与 Residual Kernel: gpu-kernel/flashrt-rdna35/02-Activation与Residual-Kernel.md
+          - 03 · Normalization Kernel: gpu-kernel/flashrt-rdna35/03-Normalization-Kernel.md
+          - 04 · QKV Split 与 RoPE Kernel: gpu-kernel/flashrt-rdna35/04-QKV-Split与RoPE-Kernel.md
+          - 05 · Encoder FlashAttention Kernel: gpu-kernel/flashrt-rdna35/05-Encoder-FlashAttention-Kernel.md
+          - 06 · Decoder GQA Kernel: gpu-kernel/flashrt-rdna35/06-Decoder-GQA-Kernel.md
+          - 07 · Small-M WMMA GEMM Kernel: gpu-kernel/flashrt-rdna35/07-SmallM-WMMA-GEMM-Kernel.md
+      - FlyDSL:
+          - 学习路径: gpu-kernel/flydsl/index.md
+          - 01 · FlyDSL 编程模型与编译流程: gpu-kernel/flydsl/01-FlyDSL编程模型与编译流程.md
+          - 02 · Layout 代数与 Tile 编程: gpu-kernel/flydsl/02-Layout代数与Tile编程.md
+          - 03 · FlyDSL — 一次源码精读: gpu-kernel/flydsl/03-四个示例读懂FlyDSL.md
       - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
   - 开源PR记录:
       - 总览: open-source/index.md

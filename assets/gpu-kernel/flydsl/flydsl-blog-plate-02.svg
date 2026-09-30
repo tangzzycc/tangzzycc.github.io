@@ -1,0 +1,142 @@
+<svg width="1000" height="280" role="img" viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg"><style>
+.d-text { font-family: 'Noto Sans CJK SC', 'IBM Plex Sans', 'Noto Sans', sans-serif; font-size: 11px; fill: #ecf1f7; }
+.d-text.mono { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 10.5px; }
+.d-text.small { font-size: 9.5px; fill: #92a8bc; }
+.d-text.tiny { font-size: 8.5px; fill: #6a8298; }
+.d-text.label { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 9px; letter-spacing: 0.12em; fill: #6a8298; text-transform: uppercase; }
+.d-text.title { font-family: 'Noto Serif CJK SC', 'EB Garamond', 'Noto Serif', serif; font-style: italic; font-size: 13px; fill: #ecf1f7; }
+.d-text.rust { fill: #e8845a; } .d-text.brass { fill: #f0c764; } .d-text.jade { fill: #8ec788; }
+.d-text.coral { fill: #e07a7a; } .d-text.teal { fill: #6dc0c7; } .d-text.dim { fill: #92a8bc; }
+.zone { fill: #154362; stroke: #2a6791; stroke-width: 1; }
+.zone.deep { fill: #1b537a; } .zone.rust { stroke: #e8845a; stroke-opacity: 0.5; }
+.zone.brass { stroke: #f0c764; stroke-opacity: 0.5; } .zone.jade { stroke: #8ec788; stroke-opacity: 0.45; }
+.zone.coral { stroke: #e07a7a; stroke-opacity: 0.45; } .zone.teal { stroke: #6dc0c7; stroke-opacity: 0.45; }
+.bp-line { stroke: #6a8298; stroke-width: 1; fill: none; }
+.bp-line.dash { stroke-dasharray: 3 3; } .bp-line.rust { stroke: #e8845a; } .bp-line.brass { stroke: #f0c764; }
+.bp-line.jade { stroke: #8ec788; } .bp-line.teal { stroke: #6dc0c7; } .bp-line.thick { stroke-width: 1.6; }
+</style><rect width="100%" height="100%" fill="#0a2840"/>
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e8845a"/>
+    </marker>
+  </defs>
+
+  <!-- Stage 0: original A -->
+  <text x="20" y="32" class="d-text label">阶段 0 · 原始 Layout</text>
+  <text x="20" y="50" class="d-text small mono">A : layout (128,):(1,)</text>
+  <g transform="translate(20, 64)">
+    <rect x="0" y="0" width="960" height="36" class="zone" rx="2"/>
+    <g font-family="JetBrains Mono, monospace" font-size="8.5" fill="#92a8bc">
+      <text x="6" y="22">0</text><text x="125" y="22">16</text><text x="245" y="22">32</text>
+      <text x="365" y="22">48</text><text x="485" y="22">64</text><text x="605" y="22">80</text>
+      <text x="725" y="22">96</text><text x="845" y="22">112</text><text x="940" y="22">127</text>
+    </g>
+  </g>
+
+  <!-- Arrow -->
+  <line x1="500" y1="110" x2="500" y2="126" class="bp-line rust thick" marker-end="url(#arr2)"/>
+  <text x="510" y="122" class="d-text small mono">logical_divide(A, layout(64, 1))</text>
+
+  <!-- Stage 1: divided into (64,)×(2,) -->
+  <text x="20" y="148" class="d-text label">阶段 1 · 完成 Divide</text>
+  <text x="20" y="166" class="d-text small mono">((64,), (2,))   — Tile=64，Grid=2</text>
+  <g transform="translate(20, 180)">
+    <rect x="0" y="0" width="470" height="32" class="zone rust" rx="2"/>
+    <text x="235" y="20" class="d-text title rust" text-anchor="middle">Tile 0（bid = 0）</text>
+    <rect x="490" y="0" width="470" height="32" class="zone" rx="2"/>
+    <text x="725" y="20" class="d-text title dim" text-anchor="middle">Tile 1（bid = 1）</text>
+  </g>
+
+  <!-- Arrow to thread tile -->
+  <line x1="235" y1="220" x2="235" y2="234" class="bp-line rust thick" marker-end="url(#arr2)"/>
+  <text x="248" y="230" class="d-text small mono">slice(.., (None, bid))，再执行 logical_divide(.., layout(1,1))</text>
+
+  <!-- Stage 2: per-thread (64 cells) -->
+  <text x="20" y="248" class="d-text label">阶段 2 · Thread 所有权（Block bid=0）</text>
+  <g transform="translate(20, 256)">
+    <rect x="0" y="0" width="470" height="20" class="zone deep" rx="1"/>
+    <g font-family="JetBrains Mono, monospace" font-size="6.5" fill="#ecf1f7">
+      <!-- 64 cells -->
+      <g>
+        <!-- draw 64 thin cells -->
+      </g>
+    </g>
+    <!-- 64 cell dividers + tid labels every 4 -->
+    <g stroke="#2a6791" stroke-width="0.5">
+      <line x1="7.34" y1="0" x2="7.34" y2="20"/>
+      <line x1="14.68" y1="0" x2="14.68" y2="20"/>
+      <line x1="22.02" y1="0" x2="22.02" y2="20"/>
+      <line x1="29.36" y1="0" x2="29.36" y2="20"/>
+      <line x1="36.7" y1="0" x2="36.7" y2="20"/>
+      <line x1="44.04" y1="0" x2="44.04" y2="20"/>
+      <line x1="51.38" y1="0" x2="51.38" y2="20"/>
+      <line x1="58.72" y1="0" x2="58.72" y2="20"/>
+      <line x1="66.06" y1="0" x2="66.06" y2="20"/>
+      <line x1="73.4" y1="0" x2="73.4" y2="20"/>
+      <line x1="80.74" y1="0" x2="80.74" y2="20"/>
+      <line x1="88.08" y1="0" x2="88.08" y2="20"/>
+      <line x1="95.42" y1="0" x2="95.42" y2="20"/>
+      <line x1="102.76" y1="0" x2="102.76" y2="20"/>
+      <line x1="110.1" y1="0" x2="110.1" y2="20"/>
+      <line x1="117.44" y1="0" x2="117.44" y2="20"/>
+      <line x1="124.78" y1="0" x2="124.78" y2="20"/>
+      <line x1="132.12" y1="0" x2="132.12" y2="20"/>
+      <line x1="139.46" y1="0" x2="139.46" y2="20"/>
+      <line x1="146.8" y1="0" x2="146.8" y2="20"/>
+      <line x1="154.14" y1="0" x2="154.14" y2="20"/>
+      <line x1="161.48" y1="0" x2="161.48" y2="20"/>
+      <line x1="168.82" y1="0" x2="168.82" y2="20"/>
+      <line x1="176.16" y1="0" x2="176.16" y2="20"/>
+      <line x1="183.5" y1="0" x2="183.5" y2="20"/>
+      <line x1="190.84" y1="0" x2="190.84" y2="20"/>
+      <line x1="198.18" y1="0" x2="198.18" y2="20"/>
+      <line x1="205.52" y1="0" x2="205.52" y2="20"/>
+      <line x1="212.86" y1="0" x2="212.86" y2="20"/>
+      <line x1="220.2" y1="0" x2="220.2" y2="20"/>
+      <line x1="227.54" y1="0" x2="227.54" y2="20"/>
+      <line x1="234.88" y1="0" x2="234.88" y2="20"/>
+      <line x1="242.22" y1="0" x2="242.22" y2="20"/>
+      <line x1="249.56" y1="0" x2="249.56" y2="20"/>
+      <line x1="256.9" y1="0" x2="256.9" y2="20"/>
+      <line x1="264.24" y1="0" x2="264.24" y2="20"/>
+      <line x1="271.58" y1="0" x2="271.58" y2="20"/>
+      <line x1="278.92" y1="0" x2="278.92" y2="20"/>
+      <line x1="286.26" y1="0" x2="286.26" y2="20"/>
+      <line x1="293.6" y1="0" x2="293.6" y2="20"/>
+      <line x1="300.94" y1="0" x2="300.94" y2="20"/>
+      <line x1="308.28" y1="0" x2="308.28" y2="20"/>
+      <line x1="315.62" y1="0" x2="315.62" y2="20"/>
+      <line x1="322.96" y1="0" x2="322.96" y2="20"/>
+      <line x1="330.3" y1="0" x2="330.3" y2="20"/>
+      <line x1="337.64" y1="0" x2="337.64" y2="20"/>
+      <line x1="344.98" y1="0" x2="344.98" y2="20"/>
+      <line x1="352.32" y1="0" x2="352.32" y2="20"/>
+      <line x1="359.66" y1="0" x2="359.66" y2="20"/>
+      <line x1="367" y1="0" x2="367" y2="20"/>
+      <line x1="374.34" y1="0" x2="374.34" y2="20"/>
+      <line x1="381.68" y1="0" x2="381.68" y2="20"/>
+      <line x1="389.02" y1="0" x2="389.02" y2="20"/>
+      <line x1="396.36" y1="0" x2="396.36" y2="20"/>
+      <line x1="403.7" y1="0" x2="403.7" y2="20"/>
+      <line x1="411.04" y1="0" x2="411.04" y2="20"/>
+      <line x1="418.38" y1="0" x2="418.38" y2="20"/>
+      <line x1="425.72" y1="0" x2="425.72" y2="20"/>
+      <line x1="433.06" y1="0" x2="433.06" y2="20"/>
+      <line x1="440.4" y1="0" x2="440.4" y2="20"/>
+      <line x1="447.74" y1="0" x2="447.74" y2="20"/>
+      <line x1="455.08" y1="0" x2="455.08" y2="20"/>
+      <line x1="462.42" y1="0" x2="462.42" y2="20"/>
+    </g>
+    <g font-family="JetBrains Mono, monospace" font-size="7" fill="#f0c764">
+      <text x="3.5" y="14">t0</text>
+      <text x="62" y="14">t8</text>
+      <text x="120.5" y="14">t16</text>
+      <text x="179" y="14">t24</text>
+      <text x="234" y="14">t32</text>
+      <text x="293" y="14">t40</text>
+      <text x="351" y="14">t48</text>
+      <text x="410" y="14">t56</text>
+      <text x="450" y="14">t63</text>
+    </g>
+  </g>
+</svg>

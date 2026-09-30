@@ -1,0 +1,96 @@
+<svg width="1000" height="380" role="img" viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg"><style>
+.d-text { font-family: 'Noto Sans CJK SC', 'IBM Plex Sans', 'Noto Sans', sans-serif; font-size: 11px; fill: #ecf1f7; }
+.d-text.mono { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 10.5px; }
+.d-text.small { font-size: 9.5px; fill: #92a8bc; }
+.d-text.tiny { font-size: 8.5px; fill: #6a8298; }
+.d-text.label { font-family: 'Noto Sans Mono CJK SC', 'JetBrains Mono', 'Noto Sans Mono', monospace; font-size: 9px; letter-spacing: 0.12em; fill: #6a8298; text-transform: uppercase; }
+.d-text.title { font-family: 'Noto Serif CJK SC', 'EB Garamond', 'Noto Serif', serif; font-style: italic; font-size: 13px; fill: #ecf1f7; }
+.d-text.rust { fill: #e8845a; } .d-text.brass { fill: #f0c764; } .d-text.jade { fill: #8ec788; }
+.d-text.coral { fill: #e07a7a; } .d-text.teal { fill: #6dc0c7; } .d-text.dim { fill: #92a8bc; }
+.zone { fill: #154362; stroke: #2a6791; stroke-width: 1; }
+.zone.deep { fill: #1b537a; } .zone.rust { stroke: #e8845a; stroke-opacity: 0.5; }
+.zone.brass { stroke: #f0c764; stroke-opacity: 0.5; } .zone.jade { stroke: #8ec788; stroke-opacity: 0.45; }
+.zone.coral { stroke: #e07a7a; stroke-opacity: 0.45; } .zone.teal { stroke: #6dc0c7; stroke-opacity: 0.45; }
+.bp-line { stroke: #6a8298; stroke-width: 1; fill: none; }
+.bp-line.dash { stroke-dasharray: 3 3; } .bp-line.rust { stroke: #e8845a; } .bp-line.brass { stroke: #f0c764; }
+.bp-line.jade { stroke: #8ec788; } .bp-line.teal { stroke: #6dc0c7; } .bp-line.thick { stroke-width: 1.6; }
+</style><rect width="100%" height="100%" fill="#0a2840"/>
+  <defs>
+    <marker id="arr-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e8845a"/>
+    </marker>
+    <marker id="arr-chalk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#92a8bc"/>
+    </marker>
+  </defs>
+
+  <!-- Vertical pipeline column on left -->
+  <text x="60" y="32" class="d-text label">前端 · FRONT END</text>
+  <rect x="60" y="44" width="240" height="56" class="zone rust" rx="2"/>
+  <text x="180" y="68" class="d-text title" text-anchor="middle">@flyc.kernel · @flyc.jit</text>
+  <text x="180" y="86" class="d-text small mono" text-anchor="middle">包含 fx.* 调用的 Python Function</text>
+
+  <line x1="180" y1="100" x2="180" y2="124" class="bp-line rust thick" marker-end="url(#arr-rust)"/>
+  <text x="190" y="116" class="d-text small mono">AST 重写 + Tracing</text>
+
+  <text x="60" y="148" class="d-text label">中端 · MLIR</text>
+  <rect x="60" y="160" width="240" height="148" class="zone brass" rx="2"/>
+  <text x="180" y="180" class="d-text title" text-anchor="middle">fly.module</text>
+  <text x="76" y="200" class="d-text small mono">!fly.layout&lt;(M,N):(1,M)&gt;</text>
+  <text x="76" y="216" class="d-text small mono">!fly.copy_atom&lt;...&gt;</text>
+  <text x="76" y="232" class="d-text small mono">!fly.mma_atom&lt;...&gt;</text>
+  <line x1="76" y1="244" x2="284" y2="244" class="bp-line dash"/>
+  <text x="76" y="262" class="d-text small dim">+ gpu, arith, scf, memref</text>
+  <text x="76" y="278" class="d-text small dim">+ vector, llvm dialects</text>
+  <text x="76" y="294" class="d-text small dim">在 Tracing 阶段完成组合</text>
+
+  <line x1="180" y1="308" x2="180" y2="332" class="bp-line rust thick" marker-end="url(#arr-rust)"/>
+  <text x="190" y="324" class="d-text small mono">MlirCompiler.compile()</text>
+
+  <text x="60" y="356" class="d-text label">后端 · BACK END</text>
+  <rect x="60" y="362" width="240" height="14" fill="none" stroke="none"/>
+
+  <!-- Pass pipeline on right -->
+  <text x="360" y="32" class="d-text label">Pass Pipeline</text>
+  <line x1="360" y1="44" x2="940" y2="44" class="bp-line dash"/>
+
+  <g font-family="JetBrains Mono, monospace" font-size="11" fill="#c2d0de">
+    <text x="370" y="68">1.</text><text x="395" y="68" fill="#ecf1f7">gpu-kernel-outlining</text>
+    <text x="600" y="68" fill="#6a8298" font-size="9.5">将 Device Code 拆入 gpu.module</text>
+
+    <text x="370" y="92">2.</text><text x="395" y="92" fill="#ecf1f7">fly-canonicalize</text>
+    <text x="600" y="92" fill="#6a8298" font-size="9.5">编译期折叠 Layout 代数</text>
+
+    <text x="370" y="116">3.</text><text x="395" y="116" fill="#ecf1f7">fly-layout-lowering</text>
+    <text x="600" y="116" fill="#8ec788" font-size="9.5">!fly.layout → Index 计算（arith）</text>
+
+    <text x="370" y="140">4.</text><text x="395" y="140" fill="#ecf1f7">convert-fly-to-rocdl</text>
+    <text x="600" y="140" fill="#8ec788" font-size="9.5">Copy/MMA Atom → ROCDL Intrinsic</text>
+
+    <text x="370" y="164">5.</text><text x="395" y="164" fill="#ecf1f7">canonicalize + cse</text>
+    <text x="600" y="164" fill="#6a8298" font-size="9.5">算术折叠与公共子表达式消除</text>
+
+    <text x="370" y="188">6.</text><text x="395" y="188" fill="#ecf1f7">gpu.module(convert-gpu-to-rocdl)</text>
+    <text x="600" y="188" fill="#6a8298" font-size="9.5">block_idx、Barrier → ROCDL</text>
+
+    <text x="370" y="212">7.</text><text x="395" y="212" fill="#ecf1f7">rocdl-attach-target</text>
+    <text x="600" y="212" fill="#f0c764" font-size="9.5">chip = gfx942 / gfx950 / gfx1250</text>
+
+    <text x="370" y="236">8.</text><text x="395" y="236" fill="#ecf1f7">gpu-to-llvm + arith-to-llvm</text>
+    <text x="600" y="236" fill="#6a8298" font-size="9.5">最终 Lowering 到 LLVM IR</text>
+
+    <text x="370" y="260">9.</text><text x="395" y="260" fill="#ecf1f7">gpu-module-to-binary</text>
+    <text x="600" y="260" fill="#e8845a" font-size="9.5">格式 = fatbin（HSA Code Object）</text>
+  </g>
+
+  <!-- Cache callout on right -->
+  <rect x="700" y="290" width="240" height="74" class="zone teal" rx="2"/>
+  <text x="820" y="312" class="d-text title" text-anchor="middle">JIT 磁盘缓存</text>
+  <text x="820" y="330" class="d-text small mono" text-anchor="middle">~/.flydsl/cache/</text>
+  <text x="820" y="348" class="d-text small dim" text-anchor="middle">Cache Key = Type Signature、</text>
+  <text x="820" y="360" class="d-text small dim" text-anchor="middle">Constexpr Value 与 Source Hash</text>
+
+  <!-- Flow arrows connecting columns -->
+  <line x1="300" y1="232" x2="360" y2="232" class="bp-line brass thick" marker-end="url(#arr-rust)"/>
+  <line x1="700" y1="260" x2="720" y2="290" class="bp-line teal" marker-end="url(#arr-chalk)"/>
+</svg>
