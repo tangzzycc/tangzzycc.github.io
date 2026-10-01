@@ -5,7 +5,7 @@
 
     模型调用以 eager 为主；特殊 Attention、并行切分及 CUDA Graph 的专用路径不在此展开。
 
-![Attention 计算流程图](../../../assets/image-20260919-151646.png){ width="90%" }
+![Attention 计算机理：投影、RoPE、Match/Mix、GQA 与输出映射](../../../assets/vllm/attention-project-rotate-match-mix.png){ width="90%" }
 
 ## 一、Attention怎样让一个token获得上下文
 
@@ -80,7 +80,7 @@ O[==2==,31,:]  → attn_output[==2==,3968:4096]  行索引2，最后128列
 
 ## 二、一个请求怎样生成和复用 KV Cache
 
-![image-20260919-170759](../../../assets/image-20260919-170759.png)
+![同一请求在 Prefill 与 Decode 中生成、写入和复用 KV Cache](../../../assets/vllm/attention-kv-cache-lifecycle.png)
 
 第二张图把同一个请求从 Prefill 跟踪到两个 Decode steps。中间是**同一层缓存在不同时刻的快照**，不是三份缓存；每格表示一个 token 的 Key 或 Value，不是一个 block。图中的 $X_i$ 是 token 到达当前层时的 hidden state，不是原始 token ID。
 
@@ -192,7 +192,7 @@ qkv   [==1==, 6144]
 
 ## 四、self.attn：从当前 Q/K/V 到缓存读写与 Attention 计算
 
-![image-20260919-1789831779923](../../../assets/image-20260919-1789831779923.png){ width="90%" }
+![Attention 层对象、ForwardContext 与 FlashAttention 缓存读写调用关系](../../../assets/vllm/attention-layer-context-execution.png){ width="90%" }
 
 > 第三节结束时， `q/k/v` 只有当前 token 3 的 Q′/K′/V。**参数里没有历史 K/V，为什么`self.attn(q, k, v)` 仍然能计算包含历史的 Attention？**
 

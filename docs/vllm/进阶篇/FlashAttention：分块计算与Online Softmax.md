@@ -1,4 +1,6 @@
-本章介绍 FlashAttention v1 如何通过分块计算、内核融合与 Online Softmax，在保持 Attention 数学结果一致的同时，减少中间矩阵的显存读写。内容涵盖标准 Attention 的计算与访存瓶颈、Online Softmax 的推导、FA1 的分块执行与数值算例，以及 vLLM 中的在线更新实现。
+# FlashAttention v1：从完整矩阵到分块精确计算
+
+本课介绍 FlashAttention v1 如何通过分块计算、内核融合与 Online Softmax，在保持 Attention 数学结果一致的同时，减少中间矩阵的显存读写。内容涵盖标准 Attention 的计算与访存瓶颈、Online Softmax 的推导、FA1 的分块执行与数值算例，以及 vLLM 中的在线更新实现。
 
 ## 一、标准 Attention：计算过程与显存瓶颈
 
@@ -50,7 +52,7 @@ O = P @ V
 
 ### Q/K/V 数值示例
 
-本章用四行、宽度为 $d=2$ 的数据贯穿推导和代码：
+本课用四行、宽度为 $d=2$ 的数据贯穿推导和代码：
 
 $$
 Q=\begin{bmatrix}
@@ -199,13 +201,13 @@ O=PV=\begin{bmatrix}
 \end{bmatrix}
 $$
 
-例如第二条 Query 的第一维是 $(1+0+2+8)/8=11/8$，第二维是 $(0+1+2+0)/8=3/8$。最终将这个 $4\times2$ 的输出 O 写回 HBM，交给后续计算。这是本章后面用分块方法需要复现的完整结果。
+例如第二条 Query 的第一维是 $(1+0+2+8)/8=11/8$，第二维是 $(0+1+2+0)/8=3/8$。最终将这个 $4\times2$ 的输出 O 写回 HBM，交给后续计算。这是本课后面用分块方法需要复现的完整结果。
 
 ### 为什么中间过程会成为瓶颈
 
 Q/K/V 是输入、O 是输出，而 S/E/P 只是衔接计算阶段的中间数据，却同样需要写入 HBM，再被后续阶段读取。
 
-当 $N_q=N_k=N$ 时，S/E/P 都是 $N\times N$，而 m、l 每行只保存一个标量。GPU 全局显存容量大，片上存储容量小但适合高频访问。本章将 SRAM 作为论文对片上快速存储的抽象；具体内核还要把数据分配到 shared memory、寄存器等资源。
+当 $N_q=N_k=N$ 时，S/E/P 都是 $N\times N$，而 m、l 每行只保存一个标量。GPU 全局显存容量大，片上存储容量小但适合高频访问。本课将 SRAM 作为论文对片上快速存储的抽象；具体内核还要把数据分配到 shared memory、寄存器等资源。
 
 **我们最终需要的是 O，但这份实现先把三个庞大的中间矩阵写入 HBM，再读回来继续计算。优化目标就是消除这三类完整中间矩阵的 HBM 存储与读写，让当前中间结果在片上生成后直接被下一步消费。**
 
@@ -230,7 +232,9 @@ Q/K/V 是输入、O 是输出，而 S/E/P 只是衔接计算阶段的中间数�
 
 ## 二、从分块计算到在线 Softmax
 
-![图1：从中间矩阵的HBM读写，到片上分块计算，再用同一行数据展示全局归一化与在线累计](../../../assets/lesson01-reasoning-illustrated.png){ width="90%" }
+![图1：从中间矩阵的HBM读写，到片上分块计算，再用同一行数据展示全局归一化与在线累计](../../../assets/vllm/flashattention-tiling-online-softmax.png){ width="100%" }
+
+图1：从中间矩阵的 HBM 读写，到片上分块计算，再用同一行数据展示全局归一化与在线累计
 
 图中的 Q/K/V 小格示意按行取块，每个向量仍保留完整维度。“New keys”指后续块中尚未处理的 Key。右下角采用分子累积形式说明在线合并；原始 FA1 则在每块更新后保存部分归一化输出。
 
@@ -495,7 +499,9 @@ $$
 2. **就地计算。** 在同一个融合内核内，生成分数块、转换为指数权重，再计算局部分母和 Value 加权贡献。分数完成转换后即可释放，指数权重完成求和与 Value 加权后即可释放；两者都不写回 HBM。
 3. **更新并写回。** 用局部贡献更新每行 m/l/O，将新状态写回 HBM。下一次访问这个 Query 块时，从这些状态继续累计。
 
-![图2：原始FA1复用KV块，在片上合并局部贡献，并将更新后的行状态写回HBM](../../../assets/lesson01-tile.png){ width="90%" }
+![图2：原始FA1复用KV块，在片上合并局部贡献，并将更新后的行状态写回HBM](../../../assets/vllm/flashattention-fa1-tile-state-update.png){ width="100%" }
+
+图2：原始 FA1 复用 KV 块，在片上合并局部贡献，并将更新后的行状态写回 HBM
 
 **每条 Query 只保留一份持续更新的历史状态，无需为所有 KV 块各存一份统计量、等最后再统一规约。**
 
@@ -551,7 +557,7 @@ Q 块的行数 $B_r$ 同样影响当前工作集。实际配置受 shared memory
 
 ## 六、vLLM 中的 Online Softmax
 
-本章固定的 vLLM v0.25.1，其 CUDA FlashAttention 接口支持的是 FA2/3/4，没有 FA1 分支。[版本判断入口](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/vllm/vllm_flash_attn/flash_attn_interface.py#L89-L108)中的实现可以直接确认这一点。下面沿 **Triton Attention 后端** 看相同的在线更新机制；它采用分子累积形式，和原始 FA1 保存部分输出的方式不同。
+本课固定的 vLLM v0.25.1，其 CUDA FlashAttention 接口支持的是 FA2/3/4，没有 FA1 分支。[版本判断入口](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/vllm/vllm_flash_attn/flash_attn_interface.py#L89-L108)中的实现可以直接确认这一点。下面沿 **Triton Attention 后端** 看相同的在线更新机制；它采用分子累积形式，和原始 FA1 保存部分输出的方式不同。
 
 ### 从 Attention 入口到计算内核
 
@@ -561,7 +567,9 @@ Q 块的行数 $B_r$ 同样影响当前工作集。实际配置受 shared memory
 
 该路径固定一个 Query 块，在内核的 [KV 循环](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/vllm/v1/attention/ops/triton_unified_attention.py#L398-L420)中持续更新行状态，循环结束后才归一化并写出结果。它复用了在线递推原理，**没有沿用原始 FA1 的 KV 外层循环及逐块写回部分输出的组织方式。**
 
-![图3：vLLM的Triton后端在KV循环中更新M、L与acc，全部块处理完成后归一化输出](../../../assets/lesson01-vllm-path.png){ width="90%" }
+![图3：vLLM的Triton后端在KV循环中更新M、L与acc，全部块处理完成后归一化输出](../../../assets/vllm/flashattention-vllm-triton-online-update.png){ width="100%" }
+
+图3：vLLM 的 Triton 后端在 KV 循环中更新 M、L 与 acc，全部块处理完成后归一化输出
 
 ### 公式与源码变量
 
@@ -598,6 +606,6 @@ O_tile = acc / L[:, None]
 
 FA1 的性能收益来自**减少中间结果的显存往返和计算阶段之间的交接** 。它没有减少 dense Attention 需要考虑的 Query–Key 配对数量：两次矩阵乘法的主要计算量仍为 $O(N^2d)$，另有块间统计与缩放开销。对长序列 Prefill，中间矩阵随序列长度平方增长，减少这部分读写尤为重要。
 
-逐 token Decode 则不同：单个请求、单个 Query head 本轮只有一条 Query，分数矩阵为 $1\times N_k$，没有本章 Prefill 示例中的 $N\times N$ 中间矩阵。此时读取历史 K/V 的成本更突出，不能直接套用前面的平方规模访存收益。在线 Softmax 仍可用于 Decode Attention，但实际加速还取决于 KV 读取方式、并行划分和请求批量。
+逐 token Decode 则不同：单个请求、单个 Query head 本轮只有一条 Query，分数矩阵为 $1\times N_k$，没有本课 Prefill 示例中的 $N\times N$ 中间矩阵。此时读取历史 K/V 的成本更突出，不能直接套用前面的平方规模访存收益。在线 Softmax 仍可用于 Decode Attention，但实际加速还取决于 KV 读取方式、并行划分和请求批量。
 
 收益大小还取决于矩阵运算、片上容量与重复访存之间的关系。整个服务的吞吐同时受其他模型算子、调度和 Decode 阶段影响，不能把 Attention 的访存下降比例直接当作服务吞吐提升比例。

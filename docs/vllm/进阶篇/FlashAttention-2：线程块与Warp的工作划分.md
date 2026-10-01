@@ -1,280 +1,198 @@
-# FlashAttention-2：线程块与 Warp 的工作划分
+# FlashAttention-2：并行划分与非矩阵运算优化
 
-本章围绕原始 FlashAttention 的三个性能问题展开：线程块并行度不足、Warp 之间的通信与合并、非矩阵运算开销。分别说明 FA2 如何沿 Query 方向增加独立任务、让 Warp 负责不同输出行，以及通过延后归一化减少输出缩放。结合数值例子和 vLLM 调用的 FA2 源码，解释每项改动的原因、执行过程与正确性。
+FlashAttention v1 省去了大中间矩阵的显存往返，GPU 却仍可能因为任务太少、Warp 之间交换结果、输出反复缩放而无法充分发挥算力。FA2 保留同一个 Attention 计算目标，重新安排线程块和 Warp 的工作，并简化在线更新。本课沿这三项改动，解释它为什么更快、结果为什么不变，以及它们在 vLLM 所调用的内核中如何实现。
 
-## 一、FA1 之后，还剩哪些开销
+## 一、减少 IO 之后，还要让计算单元忙起来
 
-第一章中的原始 FA1 已经避免把完整的分数、指数权重和概率矩阵写入 HBM，但 Attention 的两次矩阵乘法仍然要做。中间矩阵不再反复搬运，并不意味着 GPU 的计算单元就能持续高效工作。
+FA1 已经把分数计算、Softmax 和 Value 加权融合在一起，不再把完整的分数与概率矩阵写回 HBM。接下来要解决的，是剩余工作如何在 GPU 上高效执行：
 
-FA2 论文对原始 FA1 实现的分析指出了三类开销；它们是下面优化的起点，并不表示当前 vLLM 使用的 FA2 内核仍保留这些设计：
+1. 任务数量： GPU 有很多执行单元，但当前内核是否提供了足够多的独立任务？
 
-| 问题                  | 开销从哪里来                                     | FA2 的改动                                |
-| --------------------- | ------------------------------------------------ | ----------------------------------------- |
-| 线程块太少            | 只按请求和 head 并行，部分 SM 分不到任务         | 将不同 Query 数据块交给独立线程块         |
-| Warp 之间需要合并输出 | 按 K/V 分工，各 Warp 只得到同一输出的一部分贡献  | 按 Query 行分工，让各 Warp 负责不同输出行 |
-| 非矩阵运算开销        | 矩阵乘法吞吐很高，Softmax 与输出缩放仍会占用时间 | 改写在线更新，减少不必要的归一化缩放      |
+2. 任务内部分工： 多个 Warp 算出的结果能直接写回，还是必须先交换、合并？
 
-![图1：FA1的三类开销：线程块并行不足、Warp间通信与合并、矩阵乘法之外的Softmax和输出缩放](../../../assets/lesson02-three-overheads.png){ width="90%" }
+3. 额外计算： 矩阵乘法之外，哪些缩放与归约可以减少？
 
-右下角按 KV 更新轮次对比保存的状态：原始 FA1 保存部分输出 O，FA2 保存分子 u。这里的下标表示更新轮次，不是 Query 块编号。
+这些问题来自 [FA2 论文对原始 FA1 的分析](https://arxiv.org/html/2307.08691v1#S3)。FA1 本来就使用 GPU 并行计算；FA2 改进的是并行维度与分工方式。
 
-三条主线分别关注任务是否足够、任务内部怎样协作，以及计算过程中哪些额外操作可以减少。[FA2 论文 §3](https://arxiv.org/html/2307.08691v1#S3)
+图右下角比较的是每轮 KV 更新后保存的状态：FA1 保存部分归一化输出 O，FA2 保存未归一化分子 u。下标表示更新轮次。
 
-本章先固定标准多头 Attention 的一次 forward，无 dropout。分块示例使用无 mask 的完整 Attention；因果 mask 的影响在相应位置说明。
+![flashattention2-three-overheads](../../../assets/vllm/flashattention2-three-overheads.png){ width="100%" }
 
-## 二、线程块太少：让 Query 块成为独立任务
+## 二、线程块之间：把 Query 块交给独立任务
 
-### 为什么分了块，SM 仍然可能空闲
+### 分了数据块，为什么还会缺少并行任务
 
-FA2 论文描述的原始 FA1 实现按请求和 head 提供并行任务：一个请求、4 个 head，只有 4 个线程块（Thread Block，也称 CTA）。即使每个 head 中有大量 Query，这些数据也可能仍由少量线程块处理。一个线程块不能拆到多个 SM 上，所以当 GPU 有更多 SM 时，一部分 SM 就分不到这次 Attention 的工作。[FA2 论文 §3.2](https://arxiv.org/html/2307.08691v1#S3.SS2)
+先区分三个执行层级：
 
-第一章已经把 Q 按行分成数据块，以限制片上工作集。**数据块变多，不代表并行执行的线程块也变多。** 需要进一步改变的是数据块与执行线程之间的对应关系。
+| 对象 | 在本课中的作用 |
+| --- | --- |
+| SM（Streaming Multiprocessor） | GPU 中执行线程块的硬件单元 |
+| 线程块（Thread Block） | 一组协作线程，在一个 SM 上执行 |
+| Warp | 线程块内部的执行组，由 32 个线程组成 |
 
-### 从数据块到独立任务
+一个 SM 在资源允许时可以同时驻留多个线程块，但一个线程块不会拆开到多个 SM 上执行。[CUDA 编程模型](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html)
 
-图 2 对比同一个 head 的两种任务划分。Q 的 256 行始终分成四个数据块，每块 64 行；改变的是这些数据块交给多少个线程块执行。图中的 **SM 是硬件执行单元，Thread Block 是线程块，Warp 是线程块内部由 32 个线程组成的执行组** 。
+FA2 论文所对比的原始 FA1 实现，主要沿 batch 和 head 分配线程块。一个请求、4 个 head，只能提供 4 个这样的任务；即使每个 head 的序列很长，也可能只是让这几个任务运行更久，其他 SM 仍分不到工作。[论文 §3.2](https://arxiv.org/html/2307.08691v1#S3.SS2)
 
-![图2：相同的四个Query数据块，从一个线程块集中处理改为四个线程块分别负责，让更多SM参与计算](../../../assets/lesson02-query-parallel.png){ width="90%" }
+第一课已经把 Q 按行分块，但那解决的是片上空间不足。数据切成四块，与启动四个线程块，是两件事。 前者决定一次处理多少数据，后者决定 GPU 能否把这些工作分给不同 SM。
 
-左图中，一个线程块负责全部四个 Query 块；右图中，四个线程块各负责一个 Query 块，分别产生自己的输出行。图中比较的是任务分配；第一章 Algorithm 1 描述的是数据块的访问顺序。[FA2 论文 §3.2](https://arxiv.org/html/2307.08691v1#S3.SS2)
+### Query 行之间没有 Softmax 依赖
 
-图下方展开右侧 FA2 的线程块 0：其中有 4 个 Warp，共 128 个线程。这些线程共同完成该线程块负责的数据块计算，一行向量的数据也会分布在多个线程中。**一个线程块在一个 SM 上执行，一个 SM 在资源允许时可以同时驻留多个线程块。** 图中每个 SM 放一个线程块，只用于展示任务可以分散执行，不是固定的调度规则。[CUDA 编程模型](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html)
-
-第一章末尾的 vLLM Triton 示例已经采用固定 Query 块、遍历 KV 的组织方式，用来展示 Online Softmax 在实际内核中的应用。它不是原始 FA1 执行组织的复刻；这里讨论的是从原始实现到 FA2 的改进。
-
-### 为什么不同 Query 可以独立计算
-
-对一行 Query，Softmax 的最大值和分母只沿 Key 方向计算，不涉及其他 Query 行。只要一个执行者能访问这行 Query 需要的全部 K/V，就能独立得到该行的最终输出。
-
-因此，对于已经按行划分的 $Q_0,Q_1,\ldots$，可以让不同线程块分别计算对应的输出：
+每条 Query 都有自己的最大值、分母和输出。Softmax 沿 Key 方向归一化，不会把不同 Query 行放进同一个分母。因此，可以让一个线程块完整负责一组 Query 行：
 
 $$
-O_i=\mathrm{softmax}\!\left(\frac{Q_iK^\mathsf{T}}{\sqrt d}\right)V.
+O_i=\operatorname{softmax}\!\left(\frac{Q_iK^\top}{\sqrt d}\right)V.
 $$
 
-**不同 $O_i$ 对应不同的输出行，最后按原位置写回即可，不需要相加或再次做 Softmax。** K/V 被多个任务读取并不产生写入冲突。
+$Q_i$ 是第 i 个 Query 块，形状为 $B_q$ × d；K、V 均为 $N_k$ × d；$O_i$ 为 $B_q$ × d。$B_q$ 是每块 Query 行数，$N_k$ 是Key/Value 位置数，d 是 head 维度；Softmax 对分数块的每一行独立执行。
 
-这也是 Query 分块和 KV 分块的重要区别：前者拆开不同的输出，后者拆开同一输出的贡献。
+只要负责 $Q_i$ 的线程块遍历它所需的全部 K/V，就能独立完成 $O_i$。不同线程块写入不同输出行，最后不需要把它们的输出相加，也不需要再次做 Softmax 。读取相同 K/V 没有写入冲突。
 
-### 一个线程块完成一个 Query 块
+### 用同一组矩阵看任务怎样变化
 
-固定一个请求、一个 head，取 $N_q=N_k=256$、$d=128$。Q 每 64 行分成一块，K/V 每 128 行配对分成一块：
+固定一个请求、一个 head：Q、K、V 均为 256 × 128。Q 每 64 行分一块，K/V 每 128 行配对分一块。
 
-| 数据     | 完整形状                                                                  | 一次参与计算的块                              |
-| -------- | ------------------------------------------------------------------------- | --------------------------------------------- |
-| Q        | $256\times128$                                                        | $Q_i$：$64\times128$，共 4 块         |
-| K、V     | 各$256\times128$                                                      | $K_j,V_j$：各 $128\times128$，共 2 组 |
-| 当前分数 | 逻辑上为$256\times256$ | 只生成$64\times128$ 的 $S_{ij}$      |                                               |
-| 输出     | $256\times128$         | 一个线程块产生$64\times128$ 的 $O_i$ |                                               |
+| 对象 | 每块形状 | 块数或对应关系 |
+| --- | --- | --- |
+| $Q_i$ | 64 × 128 | 四块，各含 64 条 Query |
+| $K_j$、$V_j$ | 各 128 × 128 | 两组，每组对应相同的 128 个位置 |
+| 当前分数 $S_{ij}$ | 64 × 128 | 行是 Query，列是 Key |
+| 输出 $O_i$ | 64 × 128 | 对应 $Q_i$ 的 64 行输出 |
 
-这里沿 token 行分块，**没有截断每个 Q/K/V 向量的 128 个特征分量** 。计算一个分数仍要完成一次 128 维点积。分数矩阵有自己的两个轴：行对应 Query，列对应 Key。
+表中 i、j 分别是 Query 块、KV 块编号。分块沿 token 行进行，每个向量的 128 个特征都保留 ；一个分数仍来自完整的 128 维点积。
 
-图 2 右侧的四个线程块可以独立推进。沿着图下方展开的线程块 0 看：
+![flashattention2-query-block-parallelism](../../../assets/vllm/flashattention2-query-block-parallelism.png){ width="100%" }
 
-1. 固定 `Q[0:64, :]`，为这 64 行各自建立 $m,l,u$。
-2. 处理一块 K/V，将它的贡献立即合并到累计状态。
-3. 复用局部分数的存储，处理另一块 K/V，继续更新同一份状态。
-4. 全部可见 K/V 处理完毕，计算 $O=u/l$，写入 `O[0:64, :]`。
+图左比较原先按 head 集中分配工作的方式；图右每个线程块负责一个 Query 块，并各自扫描两组 K/V。它们分别写回输出的 0–63、64–127、128–191、192–255 行。图中把四个线程块放到四个 SM 上，只是展示一种可能的调度，不是固定绑定。
 
-一个线程块的 $m,l$ 各有 64 个数，$u$ 是 $64\times128$ 的矩阵。跨 KV 迭代保留的是这一份累计状态，**不是给每个 KV 块保存一份统计量，再在末尾统一合并** 。线程块 1、2、3 采用相同过程，分别写入其他输出行。
+这里也改变了累计状态的存放方式。原始 FA1 Algorithm 1 外层遍历 K/V，内层遍历 Q，每轮读写各 Query 块的状态；FA2 固定一个 Query 块，在同一线程块内遍历 K/V，让该块的累计状态留在片上直到结束。这是为了让独立输出拥有独立的执行任务，不是把 K/V 的遍历也取消了。
 
-### 多划分线程块的收益与代价
+## 三、线程块内部：让 Warp 负责不同输出行
 
-回到一个请求、4 个 head 的情况。每个 head 的 256 行 Query 分成 4 个独立任务后，线程块总数从 4 增加到：
+现在进入图 2 的一个线程块：它处理 64 行 Query，每轮处理 128 行 K/V，由 4 个 Warp 协作。线程块之间已经独立，块内仍有两种不同的分工方式。
+
+### 按 Key 分工，得到同一输出的不同贡献
+
+如果每个 Warp 处理 32 个 Key/Value，它们都要使用相同的 64 行 Query：
+
+| 每个 Warp 的工作 | 形状 |
+| --- | --- |
+| 当前分数片段 | 64 行 Query × 32 列 Key |
+| 对应的 Value 片段 | 32 × 128 |
+| 两者加权相乘后的部分贡献 | 64 × 128 |
+
+四份结果都指向同一个 64 × 128 输出块。虽然每个 Warp 处理不同 Key，它们只算完了同一求和的不同项，必须合并才能得到完整贡献 。
+
+设 $E_0\ldots E_3$ 是按 Key 列切开的指数权重片段，$V_0\ldots V_3$ 是相应的 Value 行片段；每行权重先使用共同的最大值作为指数基准，则当前 KV 块的贡献为：
 
 $$
-1\times4\times\left\lceil\frac{256}{64}\right\rceil=16.
+U=E_0V_0+E_1V_1+E_2V_2+E_3V_3.
 $$
 
-序列长度若为 4096，同样的划分就能提供 $1\times4\times64=256$ 个线程块。增加 Query 行数不再只是延长少数任务的执行时间，也能增加供 SM 调度的独立任务。[FA2 论文 §3.2](https://arxiv.org/html/2307.08691v1#S3.SS2)
+每个 $E_r$ 为 64 × 32、$V_r$ 为 32 × 128，U 为 64 × 128，r 是 Warp 编号。这里不是相加四份局部 Softmax 输出；只有指数基准一致，未归一化贡献才能直接相加。
 
-这不保证加速 4 倍或 64 倍。更多线程块分别访问所需的 K/V，Query 块过小也可能降低矩阵乘法效率。可以沿同一个示例看这种取舍：
+这种划分在论文中称为 sliced-K ：此处切的是 Key 的位置列表，不是把一个 Key 的 d 个特征截短。原始实现需要把部分结果写入共享内存、同步，再读取并相加。HBM 往返减少之后，这些片上交换和等待仍有成本。[论文 §3.3](https://arxiv.org/html/2307.08691v1#S3.SS3)
 
-沿用 128 行 KV、$d=128$，若 K/V 每个元素占 2 字节，一组 K/V 块的数据量为：
+### 按 Query 分工，结果落在不同位置
 
-$$
-2\times128\times128\times2=65{,}536\ \mathrm{bytes}=64\ \mathrm{KiB}.
-$$
+FA2 改为让四个 Warp 分别负责 16 行 Query，共同使用当前的全部 128 行 K/V。每个 Warp 的分数片段为 16 ×128，对输出的贡献也是 16 × 128。
 
-这组 K/V 服务 64 行 Query 时，两次矩阵乘法的工作量是 $4\times64\times128\times128$ FLOPs；只服务 16 行时，计算量变为四分之一，而这组 K/V 的数据量没有减少。**缩小 Query 块能增加任务数，却会降低一次 K/V 装载对应的计算复用。** 这里按逻辑装载计数，实际 HBM 流量还受缓存影响。
+![flashattention2-warp-partition](../../../assets/vllm/flashattention2-warp-partition.png){ width="100%" }
 
-反过来，增大块会扩大活跃的分数片段和输出累加器，占用更多寄存器、共享内存，可能减少同时驻留的线程块。并行任务数、数据复用与片上资源需求需要一起权衡，不能只追求更大的块或更多的任务。
+这种 sliced-Q 划分利用的，仍是 Query 行之间的独立性。四份结果对应不同输出行，各自放回自己的位置即可，省掉了合并同一输出所需的跨 Warp 交换。没有少算 Query-Key 配对，也没有减少对 Value 的加权项。
 
-加入 causal mask 后，各 Query 行依然独立，但可见 K/V 的范围不同：完全不可见的块可以跳过，边界块内部应用 mask。因此不同线程块的工作量可能不相等。
+每个 Warp 的 16 行仍由其中的 32 个线程协作，不能理解成一个线程独自计算一整行。这里也没有消除所有同步：K/V 装载仍需协作，同一行的最大值、分母仍可能需要 Warp 内归约。FA2 的 `TiledMma` 配置 正是沿矩阵行方向组织 Warp。
 
-## 三、Warp 需要合并输出：改为各自负责 Query 行
+两个层级现在可以对应起来：线程块之间分配不同 Query 块，线程块内部再把这些 Query 行分给不同 Warp。每层都在明确“谁负责哪些输出行”，K/V 则作为这些输出共同需要的输入。
 
-第一个改动让不同线程块有了独立任务。现在进入一个线程块内部：如果多个 Warp 沿 K/V 分工，它们仍然会为同一输出计算不同的贡献。
+## 四、在线更新：把输出归一化移出 KV 循环
 
-### 切分 K/V：同一输出需要合并贡献
+### 矩阵乘法快，为什么还要减少标量运算
 
-一条 Query 的输出需要汇总所有对应 Value 的贡献。把不同 Key/Value 分给不同 Warp，只是拆开了这个求和的不同项，并没有拆开输出行。**各 Warp 没有重复计算相同的项，但各自的结果都不完整，必须相加。**
+QKᵀ 和指数权重乘 V 可以使用 Tensor Core；最大值、指数、求和、缩放等操作使用其他指令和执行资源。它们的吞吐能力不同，所以 FLOPs 少不代表耗时占比一定低 。FA2 因此还要减少夹在矩阵乘法之间的非矩阵工作。[论文 §3.1](https://arxiv.org/html/2307.08691v1#S3.SS1)
 
-用第一章的第一行说明这种依赖。四个分数为 $[0,\ln2,\ln4,0]$，在共同最大值 $\ln4$ 下，指数权重为 $[1/4,1/2,1,1/4]$。用两个 Warp 示意这种分工：Warp 0 处理前两个 Key/Value，Warp 1 处理后两个，它们分别产生：
+其中一个可以省下的动作，是在处理完每个 KV 块后，都把当前分子转换为归一化输出。
+
+### 原始 FA1 保存 O，FA2 保存 u
+
+第一课推导 Online Softmax 时使用分子 u，随后才换成原始 FA1 Algorithm 1 保存的部分输出 O。两者满足 u =lO，区别在于循环中保存哪一个，而不是两种不同的 Attention 定义。
+
+固定一条 Query。已经处理的历史状态为最大值 m、指数和 l、输出向量 O；新块中第 j 个位置的分数为 $s_j$、Value为 $v_j$。O、$v_j$ 均为 1 × d，其余为标量。先更新共同基准：
 
 $$
 \begin{aligned}
-u_{\mathrm{left}}&=\tfrac14[1,0]+\tfrac12[0,1]=[\tfrac14,\tfrac12],\\
-u_{\mathrm{right}}&=1[1,1]+\tfrac14[2,0]=[\tfrac32,1].
+m'&=\max\left(m,\max_{j\in\text{新块}}s_j\right),\\
+\alpha&=e^{m-m'},\qquad e_j=e^{s_j-m'},\\
+l'&=\alpha l+\sum_{j\in\text{新块}}e_j.
 \end{aligned}
 $$
 
-两份贡献相加后，才得到这一行的 $u=[7/4,3/2]$。这里先固定共同最大值，是为了单独看清输出求和的依赖；实际计算也要处理最大值与分母的协作，不能把两个局部 Softmax 输出直接相加。
+撇号表示更新后的状态，α 把旧累计量换到新最大值对应的基准，$e_j$ 是当前块的未归一化指数权重。两种实现使用同样的最大值和分母递推。
 
-回到线程块 0 的矩阵块：当前有 64 行 Query、128 行 K/V，4 个 Warp 参与计算。
-
-如果将当前块的 128 个 Key/Value 分给 4 个 warp，每个 warp 处理 32 个 Key/Value，那么它们都要处理相同的 64 行 Query。每个 warp 得到一个 $64\times32$ 的分数片段，再与自己负责的 Value 相乘，产生对同一个 $64\times128$ 输出块的部分贡献。
-
-**这些部分贡献形状相同、输出位置相同，所以必须合并。** 合并前，权重还必须处在每行一致的 Softmax 基准下。
-
-论文描述的 FA1 warp 划分需要将部分结果写入共享内存、同步，再读取并求和。减少 HBM 读写之后，**片上的共享内存访问和同步仍然可能成为开销** 。[FA2 论文 §3.3](https://arxiv.org/html/2307.08691v1#S3.SS3)
-
-### 切分 Query：每个 Warp 完成自己的输出行
-
-**不同 Query 对应独立的输出行，因此既可以在线程块之间划分，也可以在线程块内部继续分给不同 Warp。** 两层并行利用的是同一种独立性；K/V 仍然分块读取，由负责这些 Query 行的线程块依次处理。
-
-在当前示例中，4 个 warp 分别负责 64 行中的 16 行，共同使用当前 K/V 块。每个 warp 计算的分数片段为 $16\times128$，对输出的贡献也为 $16\times128$。
-
-![图3：切Key时各Warp使用共同的行最大值，部分输出才能相加；切Query时各Warp负责互不重叠的输出行](../../../assets/lesson02-warp-partition.png){ width="90%" }
-
-左侧各 warp 的结果指向相同输出，需要求和；右侧各 warp 的结果对应不同输出行，可以直接放到各自位置。**消除的是为了合并同一输出而进行的跨 warp 交换，不是所有通信与同步。** 装载 K/V 仍需协作，一行数据分散在 warp 的线程中，行最大值、分母等也仍有 warp 内归约。
-
-这里的 16 行是每个 Warp 负责的输出行数；这些行的数据仍由 Warp 内的多个线程协作处理。FA2 的 [`TiledMma` 配置](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/kernel_traits.h#L62-L77)把 warp 沿矩阵的行方向组织；矩阵指令内部如何分配到 32 个线程，不改变不同 warp 负责不同输出行的关系。
-
-## 四、非矩阵运算开销：减少输出更新中的缩放
-
-### 为什么运算量少，也可能拖慢执行
-
-前两个改动改善了任务分配，但每个线程块内部仍要交替执行矩阵乘法、Softmax 和输出更新。QK 与加权 Value 的矩阵乘法可以使用 Tensor Core；求最大值、取指数、求和和输出缩放，则依赖其他指令及执行资源。
-
-**不同类型运算的吞吐能力不同，FLOPs 占比不等于时间占比。** 矩阵乘法执行得越快，夹在其中的非矩阵操作就越值得检查。FA2 论文因此把减少非矩阵运算作为一项优化目标。[FA2 论文 §3.1](https://arxiv.org/html/2307.08691v1#S3.SS1)
-
-先检查输出更新中的缩放：最终结果需要除以分母，但处理每个中间 KV 块时，是否也必须先得到归一化输出？
-
-### 原始 FA1 在每次输出更新时归一化
-
-第一章推导 Online Softmax 时先累计分子，之后才介绍原始 FA1 保存部分输出的形式。这里比较的正是这两种状态表示：**原始 FA1 Algorithm 1 保存部分归一化输出 O，FA2 的更新过程保留未归一化分子 u。** 如果本来就一直保存 u，便已经采用了后一种形式，不能再把延后归一化算作额外收益。[FA2 论文 §3.1.1](https://arxiv.org/html/2307.08691v1#S3.SS1.SSS1)
-
-固定一行 Query。旧状态为 $m,l,O$，当前新块分数为 $s_j$，对应的 Value 为 $v_j$。先统一指数基准：
+原始 FA1 把旧输出恢复成分子，加入新贡献，再保存归一化输出：[Algorithm 1，第 12 行](https://arxiv.org/pdf/2205.14135#page=5)。
 
 $$
-m'=\max\left(m,\max_{j\in\text{新块}}s_j\right),
-\qquad \alpha=e^{m-m'},
-\qquad e_j=e^{s_j-m'}.
-$$
-
-将原始 FA1 Algorithm 1 第 12 行的矩阵更新写成单行形式：
-
-$$
-l'=\alpha l+\sum_{j\in\text{新块}}e_j,
-\qquad
 O'=\frac{\alpha lO+\sum_{j\in\text{新块}}e_jv_j}{l'}.
 $$
 
-这里的 $lO$ 表示旧状态对应的分子，更新式整体再除以 $l'$，使保存的 $O'$ 成为已处理 Key 集合上的归一化输出。**分母的倒数作用于整行输出的各个分量，而且出现在 KV 循环内部。** [FA1 Algorithm 1，第 12 行](https://arxiv.org/pdf/2205.14135#page=5)
-
-这不是重新计算历史 Key 的完整 Softmax，而是每次更新都包含按当前分母进行的输出缩放。实际内核可以合并缩放系数，不一定先执行一次独立乘法，再执行一次独立除法；优化对象是更新式中的归一化因子。
-
-### 直接累计分子，结束后再相除
-
-后续块可以直接与未归一化的累计贡献合并，因此改为保存 $u=lO$。代入上式，循环内的分子更新变为：
+但下一个块需要的仍然是未归一化贡献。既然最终结果才必须除以 l，就直接保存 1 × d 的分子 u = lO。将 u′ = l′O′代入上式：
 
 $$
-u'=\alpha u+\sum_{j\in\text{新块}}e_jv_j.
+u'=\alpha u+\sum_{j\in\text{新块}}e_jv_j,\qquad O=\frac ul\quad\text{（全部可见 KV 完成后）}.
 $$
 
-所有可见 K/V 处理完成后，再计算：
+因此，对遍历 T 个 KV 块的一条 Query，按分母缩放整个输出向量从循环内的每轮动作变成结束时的一次动作。省掉的是中间轮次的分母归一化；最大值变化时按 α 重缩放 u 和 l，仍然必须做。 T 表示块数，不能直接当作加速倍数。
+
+### 同一算例下的 FA1 与 FA2
+
+沿用第一课第一条 Query：四个分数为 `[0, ln2, ln4, 0]` ，Value 依次是 `[1,0]` 、`[0,1]` 、`[1,1]` 、`[2,0]` 。前两个位置为 A，后两个为 B。下表列出两块各自的结果，以及合并后的结果：
+
+| 位置集合 | 最大值 m、指数和 l | 归一化输出 O = u/l | 未归一化分子 u |
+| --- | --- | --- | --- |
+| A | m = ln2，l = 3/2 | `[1/3, 2/3]` | `[1/2, 1]` |
+| B | m = ln4，l = 5/4 | `[6/5, 4/5]` | `[3/2, 1]` |
+| A 与 B | m = ln4，l = 2 | `[7/8, 3/4]` | `[7/4, 3/2]` |
+
+加入 B 时，最大值从 ln2 升到 ln4，A 的旧分子和分母都要乘 α = 1/2。FA1 从 O 恢复分子，FA2 直接使用 u，修正后的贡献相同：
 
 $$
-O=\frac{u}{l}.
+\begin{aligned}
+\mathrm{FA1}:\quad \alpha lO&=\frac12\times\frac32[1/3,2/3]=[1/4,1/2],\\
+\mathrm{FA2}:\quad \alpha u&=\frac12[1/2,1]=[1/4,1/2].
+\end{aligned}
 $$
 
-$m$ 和 $l$ 的数学递推没有改变；最大值改变时，$u$ 和 $l$ 仍须按 $\alpha$ 重缩放。**移到循环外的是按分母缩放输出，数值稳定性所需的重缩放仍在循环内。** 对一个有 $T$ 个 KV 块的 Query，算法层面从每块归一化改为结束时归一化一次。
+B 以 ln4 为基准，未归一化指数权重为：
 
-### 同一组数据，比较两种保存方式
+$$
+\left[e^{\ln4-\ln4},\ e^{0-\ln4}\right]=\left[1,\frac14\right].
+$$
 
-沿用第一章的两块数据：$A=[0,\ln2]$，$B=[\ln4,0]$，Value 依次为 $[1,0]$、$[0,1]$、$[1,1]$、$[2,0]$。
+对两个 Value 加权，得到分子贡献 `1×[1,1] + (1/4)×[2,0] = [3/2,1]` ；权重相加，得到分母贡献 `5/4` 。因此合并后：
 
-| 时刻 | 原始 FA1：保存部分输出 $O$ | FA2：保存分子 $u$ |
-| --- | --- | --- |
-| A 完成 | $m=\ln2$，$l=3/2$，$O=[1/3,2/3]$ | $m=\ln2$，$l=3/2$，$u=[1/2,1]$ |
-| 加入 B，最大值升到 $\ln4$ | 恢复并缩放：$\frac12\times\frac32[\frac13,\frac23]=[\frac14,\frac12]$ | 直接缩放：$\frac12[\frac12,1]=[\frac14,\frac12]$ |
-| 加入 B 的贡献 | 分子增加 $[3/2,1]$，新分母为 2，再保存 $O=[7/8,3/4]$ | 分子增加 $[3/2,1]$，保存 $u=[7/4,3/2]$，新分母为 2 |
-| 全部 K/V 完成 | 当前 $O$ 就是最终结果 | 最后计算 $u/l=[7/8,3/4]$ |
+$$
+\begin{aligned}
+u'&=[1/4,1/2]+[3/2,1]=[7/4,3/2],\\
+l'&=\frac12\times\frac32+\frac54=2.
+\end{aligned}
+$$
 
-如果 B 后面还有其他块，FA2 就继续更新 $m,l,u$，不会在 B 处先归一化。两种保存方式在数学上等价；浮点实现可能因运算顺序和精度产生舍入差异。
+FA1 每轮保存 O′ = u′/l′，FA2 保留 u′，全部块结束后才归一化。 本例只有 A、B 两块，最终输出均为`[7/8,3/4]` ；如果后面还有块，FA2 就省去本轮的分母归一化。两者数学上等价，浮点实现可能有舍入差异。
 
-## 五、完整执行过程与 vLLM 实现
+## 五、收益取决于原来卡在哪里
 
-### Query 块的完整生命周期
+FA2 的改动没有减少 dense Attention 所需的 Query-Key 配对数。它让已有工作更容易分散到 GPU 上执行，并减少协作和非矩阵操作的成本；因此，收益应结合输入形状判断。
 
-把三项优化放到同一个过程里：
+| 场景 | 能从三项改动中获得什么 |
+| --- | --- |
+| Query 很多、batch/head 较少的长 Prefill | Query 分块能增加独立任务，改善 SM 利用 |
+| 原本已有大量 batch/head 任务 | 新增 Query 并行的边际收益可能降低，块内分工和缩放仍有优化空间 |
+| 普通单 token Decode | 每请求、每 head 只有一行 Query，无法沿这一维再拆；表现更多取决于KV 读取与其他并行维度 |
 
-```text
-不同请求、head、Query 行块形成独立线程块
-每个线程块：
-    载入自己的 Q 块；初始化各行 m、l、u
-    依次处理所有可见 KV 块：
-        协作载入当前 K/V 块
-        各 warp 为自己负责的 Query 行计算分数
-        更新各行 m、l，重缩放 u，累加当前块的 Value 贡献
-        释放或复用当前分数与指数权重的存储
-    对各行计算 O = u / l
-    将结果写入自己负责的输出行
-```
+[论文 §4.1、图 4](https://arxiv.org/html/2307.08691v1#S4.SS1) 在 A100 80GB SXM4 上测试了序列长度 512–16K、head 维度 64/128 和不同因果设置，前向加反向的合计性能相对原始 FA 约提升到两倍。这个数字包含反向，不能当作 vLLM 推理的固定加速比。
 
-原始 FA1 论文 Algorithm 1 的外层循环固定 K/V、内层遍历 Q，会将各 Query 块的状态写回 HBM，供下一轮 K/V 更新。FA2 固定一个 Query 块，让它在同一个线程块内扫描 K/V，累计状态可以在片上保留到结束。分块计算的数学关系没有变化，变化的是**输出由谁负责，以及状态保留在哪里** 。
+在推理服务中，应分别看 Attention 内核耗时、整次模型前向耗时和请求吞吐。FA2 直接改善的是前者；最终收益还受模型其他算子、KV 访问和服务负载限制。
 
-这也带来取舍：负责不同 Query 块的线程块都要读取所需的 K/V，实际 HBM 流量取决于缓存复用等因素。不能仅凭“输出只写一次”，就断言所有形状下的总显存流量都更少。
+### vLLM 中的核心实现位置
 
-### vLLM 如何进入 FA2 内核
-
-以 **vLLM v0.25.1、FA2、分页 KV Cache 的普通 Prefill 路径** 为例，不展开 GQA 的特殊重排或跨线程块的 KV 拆分。
-
-Python backend 将 Q、K/V cache、序列长度和 `block_table` 交给 [`flash_attn_varlen_func`](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/vllm/v1/attention/backends/flash_attn.py#L952-L977)。当 `fa_version=2` 时，[接口分支](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/vllm/vllm_flash_attn/flash_attn_interface.py#L296-L340)调用 `_vllm_fa2_C.varlen_fwd`。CUDA 源码来自[构建配置固定的 flash-attention 提交](https://github.com/vllm-project/vllm/blob/752a3a504485790a2e8491cacbb35c137339ad34/cmake/external_projects/vllm_flash_attn.cmake#L38-L43)。
-
-这里有一个容易被函数名误导的分支：**分页 K/V 会选择名为 `splitkv` 的内核，但不一定真的把同一个 Query 的 KV 分给多个线程块。**
-
-普通变长 Prefill 的分页分支[要求 `num_splits <= 1`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/flash_api.cpp#L705-L714)，因此本例进入 `compute_attn_1rowblock_splitkv` 的 `Split=false` 分支，仍由一个线程块扫描全部可见 K/V。[该分支的索引](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L1111-L1120)将三个 block 轴分别用于 Query 块、请求和 head。完整入口链可在[后端查阅材料](Attention后端查阅.md#分页-fa2-的入口)中核对。
-
-本文使用的 $d=128$、64 行 Q、128 行 KV、4 个 warp，也对应这个版本[分页内核分发中的配置](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_launch_template.h#L163-L169)。分页表负责寻找 K/V 的物理位置；内核按 Query 行划分输出的关系保持不变。
-
-### 在源码中核对三个改动
-
-沿上面的调用路径，三个改动分别落在以下位置：
-
-| 主线                 | 源码中的对应关系                                                                             |
-| -------------------- | -------------------------------------------------------------------------------------------- |
-| 增加独立线程块       | 上述`Split=false` 分支的 block 索引区分 Query 块、请求和 head，不同 Query 块属于不同线程块 |
-| 减少跨 Warp 输出合并 | 第三节的`TiledMma` 配置沿行方向组织 Warp，让不同 Warp 负责不同输出行                       |
-| 减少非矩阵运算       | `acc_o` 在循环内保留分子，按分母缩放输出的操作移到循环结束后                               |
-
-沿 KV 循环，可以把第四节的更新式对应到以下三个源码位置：
-
-| 数学动作                         | 源码位置                                                                                                                                                                                  | 处理后的状态                                                    |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 更新最大值、指数和，并缩放旧分子 | [`softmax_rescale_o(acc_s, acc_o, ...)`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L935-L938) | `acc_s` 被转换为未归一化指数权重，旧 `acc_o` 已按新基准缩放 |
-| 加入当前 Value 贡献              | [`gemm_rs(acc_o, ...)`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L941-L947)                  | `acc_o` 包含截至当前块的累计分子 $u$                      |
-| 遍历结束后归一化                 | [`normalize_softmax_lse`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L1000-L1012)              | `acc_o` 变为最终输出 $O$                                  |
-
-[`softmax_rescale_o` 的实现](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/softmax.h#L136-L166)同时缩放旧的 `row_sum` 和 `acc_o`，随后累加当前块的指数和。它使用 `exp2` 并把缩放系数合入计算，数学上仍对应前面的稳定指数更新。
-
-`row_sum` 在循环内还可以按线程保存局部和，到 [`normalize_softmax_lse`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/softmax.h#L169-L185) 才做同一行所需的线程间求和、取倒数并缩放输出。这是 **warp 内线程片段的归约** ，用于补齐同一行的分母。
-
-示例按 KV₀、KV₁ 的顺序讲解；该内核实际上[从后向前遍历 KV 块](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L849-L860)，先处理需要 mask 的边界。只要各块恰好处理一次，并正确更新共同基准，数学结果不依赖采用哪个遍历方向。
-
-## 六、收益与适用边界
-
-三条主线分别增加可并行的任务、减少任务内部的结果交换、减少非矩阵运算；延后输出归一化是第三条主线中的具体改进。它们都保留了每条 Query 对所需 K/V 的完整计算，结果在数学上不变；性能收益取决于原来受哪项开销限制。
-
-### 论文中的性能收益
-
-FA2 论文在 A100 80GB SXM4 上测试了序列长度 512～16K、head dimension 为 64 或 128，以及有、无因果 mask 的配置。其 Attention 前向与反向合计的速度，相比原始 FlashAttention 约提升到 2 倍；这组测试包含反向计算，不能直接作为推理 Prefill 的加速比例。[测试设置与结果见论文 §4.1、图 4](https://arxiv.org/html/2307.08691v1#S4.SS1)
-
-这些结果验证了执行组织优化的价值；在 vLLM 中能获得多少收益，还要看前向内核、请求形状，以及 Attention 在整次推理中的耗时占比。
-
-### Prefill 与 Decode
-
-长 Prefill 有较多 Query 行，尤其在 batch/head 数较少时，容易从 Query 块并行中受益。普通单 token Decode 中，每个请求、每个 head 只有一行 Query，这一维无法继续拆分；仍可依靠 batch/head 并行，但不能期待同样的 Query 并行收益。
-
-延迟归一化等优化仍可能减少 Decode 的一部分开销，但速度还取决于 KV Cache 读取、任务数量和具体内核。FA2 改善的是 Attention 的执行效率，没有减少 dense Attention 必须计算的 Query-Key 配对数，也不能把内核加速比例直接当成整个 vLLM 服务的吞吐提升比例。
+vLLM v0.25.1 的 [FlashAttention 后端](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/attention/backends/flash_attn.py#L952-L977) 通过 `flash_attn_varlen_func` 调用 FA2 CUDA 扩展，核心算法与正文一致。CUDA 源码位于构建配置指定的 [FlashAttention 依赖](https://github.com/vllm-project/vllm/blob/v0.25.1/cmake/external_projects/vllm_flash_attn.cmake#L38-L43) 中：[`flash_fwd_kernel.h`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/flash_fwd_kernel.h#L849-L1012) 组织分块计算，`softmax.h`中的 [`softmax_rescale_o`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/softmax.h#L136-L166) 更新在线状态，[`normalize_softmax_lse`](https://github.com/vllm-project/flash-attention/blob/2c839c33742309ec41e620bf837495ec9926c56e/csrc/flash_attn/src/softmax.h#L169-L185) 在遍历结束后归一化输出。

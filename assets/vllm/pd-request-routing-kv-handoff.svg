@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1240" viewBox="0 0 1440 1240" role="img" aria-labelledby="title desc">
+<title id="title">P/D 分离：请求路由与 KV 交接</title><desc id="desc">依据 PDF 原图重绘：中文说明、原图关系、原图示例数据，保留英文专业术语。</desc>
+<defs><marker id="a2865a8" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#2865a8"/></marker><marker id="a187264" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#187264"/></marker><marker id="aac642e" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac642e"/></marker><marker id="a7654a5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#7654a5"/></marker><marker id="a607187" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#607187"/></marker><marker id="aac428b" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac428b"/></marker><marker id="ab45650" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#b45650"/></marker></defs>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}.mono{font-family:"DejaVu Sans Mono","LXGW WenKai GB Screen",monospace}</style>
+<rect width="1440" height="1240" fill="#fbfcfe"/>
+<text x="26" y="45" font-size="34" fill="#172e46" text-anchor="start" font-weight="700">P/D 分离：请求路由与 KV 交接</text>
+<text x="1414" y="38" font-size="16" fill="#607187" text-anchor="end" font-weight="400">vLLM v0.25.1</text>
+<text x="26" y="82" font-size="21" fill="#607187" text-anchor="start" font-weight="400">两套完整 Engine；Router 传递请求和控制参数，KV 字节由 Worker 直接传输。</text>
+<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="10" height="10"><path d="M-2 2 L2 -2 M0 10 L10 0 M8 12 L12 8" stroke="#a9c4bd" stroke-width="1.2"/></pattern></defs>
+<rect x="56" y="117" width="230" height="74" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="171.0" y="164.2" font-size="30" fill="#2865a8" text-anchor="middle" font-weight="700">Client</text>
+<rect x="519" y="117" width="391" height="74" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="714.5" y="164.88" font-size="32" fill="#2865a8" text-anchor="middle" font-weight="700">P/D Router</text>
+<path d="M286 137 L509.0 137.0" fill="none" stroke="#2865a8" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="519,137 509.0,141.5 509.0,132.5" fill="#2865a8"/>
+<path d="M519 173 L296.0 173.0" fill="none" stroke="#2865a8" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="286,173 296.0,168.5 296.0,177.5" fill="#2865a8"/>
+<text x="402.0" y="128.64" font-size="21" fill="#2865a8" text-anchor="middle" font-weight="400">① 请求</text>
+<text x="402.5" y="202.64" font-size="21" fill="#2865a8" text-anchor="middle" font-weight="400">⑤ 流式 tokens</text>
+<rect x="1034" y="117" width="361" height="74" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1214.5" y="147.36316472591028" font-size="22.12278424696569" fill="#7654a5" text-anchor="middle" font-weight="700">Router 携带控制元数据</text>
+<text x="1214.5" y="175.68032856202638" font-size="22.12278424696569" fill="#7654a5" text-anchor="middle" font-weight="700">KV Tensor 走 Worker 数据路径</text>
+<path d="M616 191 L616 233 L285 233 L285.0 281.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="285,291 280.5,281.0 289.5,281.0" fill="#ac642e"/>
+<text x="153.0" y="266.98" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">② Prefill 请求</text>
+<path d="M524 291 L524 270 L710 270 L710.0 201.0" fill="none" stroke="#7654a5" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="710,191 714.5,201.0 705.5,201.0" fill="#7654a5"/>
+<text x="724.5" y="302.8" font-size="20" fill="#7654a5" text-anchor="middle" font-weight="400">③ kv_transfer_params</text>
+<path d="M807 191 L807 233 L1154 233 L1154.0 281.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="1154,291 1149.5,281.0 1158.5,281.0" fill="#187264"/>
+<text x="1288.0" y="266.98" font-size="22" fill="#187264" text-anchor="middle" font-weight="400">④ Decode 请求</text>
+<rect x="38" y="303" width="486" height="655" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="32" y="297" width="486" height="655" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="26" y="291" width="486" height="655" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="269.0" y="327.18" font-size="27" fill="#ac642e" text-anchor="middle" font-weight="700">Prefill Pool · 代表性 P 实例</text>
+<rect x="46" y="355" width="446" height="58" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="269.0" y="392.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">API Server</text>
+<rect x="46" y="438" width="446" height="145" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="269.0" y="473.16" font-size="24" fill="#ac642e" text-anchor="middle" font-weight="700">EngineCore / Scheduler</text>
+<rect x="218" y="530" width="259" height="42" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="347.5" y="557.398494471889" font-size="18.819101387908727" fill="#ac642e" text-anchor="middle" font-weight="700">Scheduler KV Connector</text>
+<rect x="46" y="614" width="252" height="62" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="172.0" y="652.82" font-size="23" fill="#ac642e" text-anchor="middle" font-weight="700">ModelExecutor</text>
+<text x="398.0" y="619.797416034197" font-size="16.704876559364912" fill="#ac642e" text-anchor="middle" font-weight="400">KVConnectorMetadata</text>
+<text x="398.0" y="641.1796580301841" font-size="16.704876559364912" fill="#ac642e" text-anchor="middle" font-weight="400">随 SchedulerOutput</text>
+<text x="398.0" y="662.5619000261712" font-size="16.704876559364912" fill="#ac642e" text-anchor="middle" font-weight="400">传给 Worker</text>
+<rect x="46" y="706" width="446" height="176" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="269.0" y="741.16" font-size="24" fill="#ac642e" text-anchor="middle" font-weight="700">GPU Workers</text>
+<rect x="61" y="762" width="243" height="54" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="182.5" y="784.5844155844155" font-size="14.718614718614718" fill="#ac642e" text-anchor="middle" font-weight="700">GPUModelRunner</text>
+<text x="182.5" y="803.4242424242424" font-size="14.718614718614718" fill="#ac642e" text-anchor="middle" font-weight="700">prompt forward</text>
+<rect x="61" y="831" width="243" height="36" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="182.5" y="853.715489521579" font-size="13.86908682817341" fill="#ac642e" text-anchor="middle" font-weight="700">本地 GPU KV Pages · producer</text>
+<rect x="328" y="762" width="146" height="105" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="401.0" y="809.503928526169" font-size="16.653571579436488" fill="#ac642e" text-anchor="middle" font-weight="700">Worker</text>
+<text x="401.0" y="830.8205001478477" font-size="16.653571579436488" fill="#ac642e" text-anchor="middle" font-weight="700">KV Connector</text>
+<path d="M168 413 L168.0 428.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="168,438 163.5,428.0 172.5,428.0" fill="#ac642e"/>
+<path d="M168 583 L168.0 604.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="168,614 163.5,604.0 172.5,604.0" fill="#ac642e"/>
+<path d="M168 676 L168.0 696.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="168,706 163.5,696.0 172.5,696.0" fill="#ac642e"/>
+<path d="M400 572 L400.0 577.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="400,587 395.5,577.0 404.5,577.0" fill="#ac642e"/>
+<path d="M400 682 L400.0 752.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="400,762 395.5,752.0 404.5,752.0" fill="#ac642e"/>
+<text x="269.0" y="918.3" font-size="20" fill="#ac642e" text-anchor="middle" font-weight="400">计算密集的 prompt 阶段：优化 TTFT</text>
+<rect x="940" y="303" width="486" height="655" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="934" y="297" width="486" height="655" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="928" y="291" width="486" height="655" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<text x="1171.0" y="327.18" font-size="27" fill="#187264" text-anchor="middle" font-weight="700">Decode Pool · 代表性 D 实例</text>
+<rect x="948" y="355" width="446" height="58" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1171.0" y="392.5" font-size="25" fill="#187264" text-anchor="middle" font-weight="700">API Server</text>
+<rect x="948" y="438" width="446" height="145" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<text x="1171.0" y="473.16" font-size="24" fill="#187264" text-anchor="middle" font-weight="700">EngineCore / Scheduler</text>
+<text x="1171.0" y="506.28" font-size="17" fill="#172e46" text-anchor="middle" font-weight="400">WAITING_FOR_REMOTE_KVS → RUNNING</text>
+<rect x="1120" y="530" width="259" height="42" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1249.5" y="557.398494471889" font-size="18.819101387908727" fill="#187264" text-anchor="middle" font-weight="700">Scheduler KV Connector</text>
+<rect x="948" y="614" width="252" height="62" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1074.0" y="652.82" font-size="23" fill="#187264" text-anchor="middle" font-weight="700">ModelExecutor</text>
+<text x="1300.0" y="619.797416034197" font-size="16.704876559364912" fill="#187264" text-anchor="middle" font-weight="400">KVConnectorMetadata</text>
+<text x="1300.0" y="641.1796580301841" font-size="16.704876559364912" fill="#187264" text-anchor="middle" font-weight="400">随 SchedulerOutput</text>
+<text x="1300.0" y="662.5619000261712" font-size="16.704876559364912" fill="#187264" text-anchor="middle" font-weight="400">传给 Worker</text>
+<rect x="948" y="706" width="446" height="176" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<text x="1171.0" y="741.16" font-size="24" fill="#187264" text-anchor="middle" font-weight="700">GPU Workers</text>
+<rect x="963" y="762" width="243" height="54" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1084.5" y="784.5844155844155" font-size="14.718614718614718" fill="#187264" text-anchor="middle" font-weight="700">GPUModelRunner</text>
+<text x="1084.5" y="803.4242424242424" font-size="14.718614718614718" fill="#187264" text-anchor="middle" font-weight="700">decode loop + sampling</text>
+<rect x="963" y="831" width="243" height="36" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1084.5" y="853.6082130118828" font-size="13.55356768200805" fill="#187264" text-anchor="middle" font-weight="700">本地 GPU KV Pages · consumer</text>
+<rect x="1230" y="762" width="146" height="105" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1303.0" y="809.503928526169" font-size="16.653571579436488" fill="#187264" text-anchor="middle" font-weight="700">Worker</text>
+<text x="1303.0" y="830.8205001478477" font-size="16.653571579436488" fill="#187264" text-anchor="middle" font-weight="700">KV Connector</text>
+<path d="M1070 413 L1070.0 428.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="1070,438 1065.5,428.0 1074.5,428.0" fill="#187264"/>
+<path d="M1070 583 L1070.0 604.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="1070,614 1065.5,604.0 1074.5,604.0" fill="#187264"/>
+<path d="M1070 676 L1070.0 696.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="1070,706 1065.5,696.0 1074.5,696.0" fill="#187264"/>
+<path d="M1302 572 L1302.0 577.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="1302,587 1297.5,577.0 1306.5,577.0" fill="#187264"/>
+<path d="M1302 682 L1302.0 752.0" fill="none" stroke="#187264" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<polygon points="1302,762 1297.5,752.0 1306.5,752.0" fill="#187264"/>
+<text x="1171.0" y="918.3" font-size="20" fill="#187264" text-anchor="middle" font-weight="400">延迟敏感的 token 循环：保护 ITL / TPOT</text>
+<rect x="544" y="349" width="342" height="118" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="715.0" y="386.38" font-size="23" fill="#7654a5" text-anchor="middle" font-weight="700">控制路径：经过 P/D Router</text>
+<text x="715.0" y="415.82" font-size="23" fill="#7654a5" text-anchor="middle" font-weight="700">P API → Router → D API</text>
+<text x="715.0" y="445.26" font-size="23" fill="#7654a5" text-anchor="middle" font-weight="700">携带 kv_transfer_params</text>
+<rect x="544" y="656" width="342" height="96" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="715.0" y="684.100278551532" font-size="21.16991643454039" fill="#7654a5" text-anchor="middle" font-weight="700">数据路径：Worker → Worker</text>
+<text x="715.0" y="711.1977715877438" font-size="21.16991643454039" fill="#7654a5" text-anchor="middle" font-weight="700">D 发起 NIXL READ</text>
+<text x="715.0" y="738.2952646239554" font-size="21.16991643454039" fill="#7654a5" text-anchor="middle" font-weight="700">P 的 KV Payload → D 目标页</text>
+<path d="M474 825 L520 825 L520 787 L907 787 L907 825 L1220.0 825.0" fill="none" stroke="#7654a5" stroke-width="4" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="1230,825 1220.0,829.5 1220.0,820.5" fill="#7654a5"/>
+<text x="716.0" y="835.9155844155844" font-size="18.614718614718615" fill="#7654a5" text-anchor="middle" font-weight="400">KV 字节方向：P → D</text>
+<text x="716.0" y="859.7424242424241" font-size="18.614718614718615" fill="#7654a5" text-anchor="middle" font-weight="400">Router 不搬运真实 KV</text>
+<rect x="26" y="975" width="1388" height="175" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="1011.18" font-size="27" fill="#2865a8" text-anchor="middle" font-weight="700">相同 token 位置，独立的 Engine-local Block IDs</text>
+<text x="720.0" y="1041.14" font-size="21" fill="#172e46" text-anchor="middle" font-weight="400">block_size = 16 · prompt = 64 · 四个 BlockTable 条目 · 满足 NIXL 默认传输阈值</text>
+<rect x="47" y="1061" width="272" height="25" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="183.0" y="1079.28" font-size="17" fill="#607187" text-anchor="middle" font-weight="700">请求逻辑页 / token 范围</text>
+<rect x="319" y="1061" width="262" height="25" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="450.0" y="1079.28" font-size="17" fill="#607187" text-anchor="middle" font-weight="700">P BlockPool ID</text>
+<rect x="581" y="1061" width="262" height="25" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="712.0" y="1079.28" font-size="17" fill="#607187" text-anchor="middle" font-weight="700">D BlockPool ID</text>
+<rect x="47" y="1086" width="272" height="25" rx="4" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.3"/>
+<text x="183.0" y="1104.28" font-size="17" fill="#2865a8" text-anchor="middle" font-weight="400">B0 / 0–15 · B1 / 16–31</text>
+<rect x="319" y="1086" width="262" height="25" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="450.0" y="1104.28" font-size="17" fill="#ac642e" text-anchor="middle" font-weight="400">5 · 18</text>
+<rect x="581" y="1086" width="262" height="25" rx="4" fill="#e8f5f1" stroke="#187264" stroke-width="1.3"/>
+<text x="712.0" y="1104.28" font-size="17" fill="#187264" text-anchor="middle" font-weight="400">91 · 7</text>
+<rect x="47" y="1111" width="272" height="25" rx="4" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.3"/>
+<text x="183.0" y="1129.28" font-size="17" fill="#2865a8" text-anchor="middle" font-weight="400">B2 / 32–47 · B3 / 48–63</text>
+<rect x="319" y="1111" width="262" height="25" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="450.0" y="1129.28" font-size="17" fill="#ac642e" text-anchor="middle" font-weight="400">9 · 27</text>
+<rect x="581" y="1111" width="262" height="25" rx="4" fill="#e8f5f1" stroke="#187264" stroke-width="1.3"/>
+<text x="712.0" y="1129.28" font-size="17" fill="#187264" text-anchor="middle" font-weight="400">42 · 13</text>
+<rect x="873" y="1061" width="522" height="75" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1134.0" y="1092.626056501169" font-size="19.579811662769842" fill="#7654a5" text-anchor="middle" font-weight="700">ID 仅属于本地 BlockPool，可不同或偶然相同。</text>
+<text x="1134.0" y="1117.6882154295142" font-size="19.579811662769842" fill="#7654a5" text-anchor="middle" font-weight="700">Connector 将 K/V Payload 复制到 D 拥有的目标页。</text>
+<rect x="26" y="1171" width="1388" height="48" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="1202.48" font-size="22" fill="#2865a8" text-anchor="middle" font-weight="700">独立 Scheduler · 独立 BlockTable · 独立 GPU 内存池 · 一个逻辑请求</text>
+</svg>

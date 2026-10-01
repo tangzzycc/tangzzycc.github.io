@@ -1,4 +1,4 @@
-![vLLM V1 软件架构图](../../../assets/image-20260917-222700.png){ width="90%" }
+![vLLM V1 软件架构图](../../../assets/vllm/vllm-v1-runtime-architecture.png){ width="90%" }
 
 一个请求会跨越四层边界:**模块是代码职责边界,线程是并发边界,进 程是内存隔离边界,GPU 是设备边界**
 

@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2060" viewBox="0 0 1440 2060" role="img" aria-labelledby="title desc">
+<title id="title">一次 Decode：GQA + Paged KV + Split-KV</title><desc id="desc">依据 PDF 原图重绘：中文说明、原图关系、原图示例数据，保留英文专业术语。</desc>
+<defs><marker id="a2865a8" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#2865a8"/></marker><marker id="a187264" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#187264"/></marker><marker id="aac642e" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac642e"/></marker><marker id="a7654a5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#7654a5"/></marker><marker id="a607187" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#607187"/></marker><marker id="aac428b" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac428b"/></marker><marker id="ab45650" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#b45650"/></marker></defs>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}.mono{font-family:"DejaVu Sans Mono","LXGW WenKai GB Screen",monospace}</style>
+<rect width="1440" height="2060" fill="#fbfcfe"/>
+<text x="26" y="45" font-size="34" fill="#172e46" text-anchor="start" font-weight="700">一次 Decode：GQA + Paged KV + Split-KV</text>
+<text x="1414" y="38" font-size="16" fill="#607187" text-anchor="end" font-weight="400">vLLM v0.25.1</text>
+<text x="26" y="82" font-size="21" fill="#607187" text-anchor="start" font-weight="400">1 个请求 · 4 个 Query head · 2 个 KV head · d = 2 · 当前 token 位于位置 7，K/V 已写入缓存。</text>
+<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="10" height="10"><path d="M-2 2 L2 -2 M0 10 L10 0 M8 12 L12 8" stroke="#a9c4bd" stroke-width="1.2"/></pattern></defs>
+<rect x="26" y="108" width="1388" height="260" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="143.5" font-size="25" fill="#2865a8" text-anchor="middle" font-weight="700">1. GQA：每个 Query 读取哪一组 K/V？</text>
+<text x="709.5" y="188.82" font-size="23" fill="#172e46" text-anchor="middle" font-weight="400">共享 K/V，各自计算分数、权重和输出。高亮 Query head 0。</text>
+<rect x="46" y="216" width="306" height="94" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="199.0" y="256.9295359352781" font-size="20.234880215739533" fill="#2865a8" text-anchor="middle" font-weight="700">Query head 0 → KV head 0</text>
+<text x="199.0" y="282.83018261142473" font-size="20.234880215739533" fill="#2865a8" text-anchor="middle" font-weight="700">q₀ = [√2, 0] → O₀</text>
+<rect x="391" y="216" width="306" height="94" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="544.0" y="256.9295359352781" font-size="20.234880215739533" fill="#2865a8" text-anchor="middle" font-weight="700">Query head 1 → KV head 0</text>
+<text x="544.0" y="282.83018261142473" font-size="20.234880215739533" fill="#2865a8" text-anchor="middle" font-weight="700">q1 = [·, ·] → O1</text>
+<rect x="736" y="216" width="306" height="94" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="889.0" y="256.9295359352781" font-size="20.234880215739533" fill="#7654a5" text-anchor="middle" font-weight="700">Query head 2 → KV head 1</text>
+<text x="889.0" y="282.83018261142473" font-size="20.234880215739533" fill="#7654a5" text-anchor="middle" font-weight="700">q2 = [·, ·] → O2</text>
+<rect x="1081" y="216" width="306" height="94" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1234.0" y="256.9295359352781" font-size="20.234880215739533" fill="#7654a5" text-anchor="middle" font-weight="700">Query head 3 → KV head 1</text>
+<text x="1234.0" y="282.83018261142473" font-size="20.234880215739533" fill="#7654a5" text-anchor="middle" font-weight="700">q3 = [·, ·] → O3</text>
+<rect x="46" y="216" width="306" height="94" rx="6" fill="none" stroke="#2865a8" stroke-width="3"/>
+<rect x="46" y="329" width="306" height="29" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="199.0" y="350.3" font-size="20" fill="#ac642e" text-anchor="middle" font-weight="700">q₀ → 任务 A：位置 0–3</text>
+<rect x="391" y="329" width="306" height="29" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="544.0" y="350.3" font-size="20" fill="#7654a5" text-anchor="middle" font-weight="700">q₀ → 任务 B：位置 4–7</text>
+<path d="M199 310 L199.0 319.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="199,329 194.5,319.0 203.5,319.0" fill="#ac642e"/>
+<path d="M199 310 L199 318 L544 318 L544.0 320.2" fill="none" stroke="#7654a5" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="544,329 540.04,320.2 547.96,320.2" fill="#7654a5"/>
+<text x="1053.5" y="346.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="700">第 1 组：同样两个 split，各自产生 O₂、O₃</text>
+<rect x="26" y="390" width="1388" height="262" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="425.5" font-size="25" fill="#2865a8" text-anchor="middle" font-weight="700">2. Split-KV：沿位置拆任务，向量保持完整</text>
+<text x="155.0" y="472.16" font-size="24" fill="#2865a8" text-anchor="middle" font-weight="700">逻辑位置 t</text>
+<rect x="274" y="445" width="128" height="48" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="338.0" y="477.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">0</text>
+<rect x="410" y="445" width="128" height="48" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="474.0" y="477.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">1</text>
+<rect x="546" y="445" width="128" height="48" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="610.0" y="477.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">2</text>
+<rect x="682" y="445" width="128" height="48" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="746.0" y="477.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">3</text>
+<rect x="818" y="445" width="128" height="48" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="882.0" y="477.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">4</text>
+<rect x="954" y="445" width="128" height="48" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1018.0" y="477.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">5</text>
+<rect x="1090" y="445" width="128" height="48" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1154.0" y="477.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">6</text>
+<rect x="1226" y="445" width="128" height="48" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1290.0" y="477.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">7</text>
+<text x="155.0" y="533.1" font-size="23" fill="#2865a8" text-anchor="middle" font-weight="700">KV head 0</text>
+<text x="155.0" y="562.5400000000001" font-size="23" fill="#2865a8" text-anchor="middle" font-weight="700">每位置 K / V</text>
+<rect x="274" y="505" width="128" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="338.0" y="533.5064935064935" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[0,0]</text>
+<text x="338.0" y="561.2121212121212" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[1,0]</text>
+<rect x="410" y="505" width="128" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="474.0" y="533.5064935064935" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[0,0]</text>
+<text x="474.0" y="561.2121212121212" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[1,0]</text>
+<rect x="546" y="505" width="128" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="610.0" y="533.5064935064935" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[ln2,0]</text>
+<text x="610.0" y="561.2121212121212" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[0,1]</text>
+<rect x="682" y="505" width="128" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="746.0" y="533.5064935064935" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[ln2,0]</text>
+<text x="746.0" y="561.2121212121212" font-size="21.645021645021643" fill="#ac642e" text-anchor="middle" font-weight="700">[0,1]</text>
+<rect x="818" y="505" width="128" height="70" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="882.0" y="533.5064935064935" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[ln4,0]</text>
+<text x="882.0" y="561.2121212121212" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[1,1]</text>
+<rect x="954" y="505" width="128" height="70" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1018.0" y="533.5064935064935" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[ln4,0]</text>
+<text x="1018.0" y="561.2121212121212" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[1,1]</text>
+<rect x="1090" y="505" width="128" height="70" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1154.0" y="533.5064935064935" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[0,0]</text>
+<text x="1154.0" y="561.2121212121212" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[2,0]</text>
+<rect x="1226" y="505" width="128" height="70" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1290.0" y="533.5064935064935" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[0,0]</text>
+<text x="1290.0" y="561.2121212121212" font-size="21.645021645021643" fill="#7654a5" text-anchor="middle" font-weight="700">[2,0]</text>
+<rect x="275" y="596" width="536" height="39" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="543.0" y="621.7718446601941" font-size="18.446601941747574" fill="#ac642e" text-anchor="middle" font-weight="700">任务 A：位置 0–3 / pages 3、1</text>
+<rect x="819" y="596" width="536" height="39" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1087.0" y="621.7718446601941" font-size="18.446601941747574" fill="#7654a5" text-anchor="middle" font-weight="700">任务 B：位置 4–7 / pages 6、4</text>
+<rect x="26" y="674" width="1388" height="455" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="709.5" font-size="25" fill="#2865a8" text-anchor="middle" font-weight="700">3. Paged KV：查页表，读取物理记录</text>
+<rect x="45" y="729" width="383" height="118" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="236.5" y="765.4399999999999" font-size="24" fill="#2865a8" text-anchor="middle" font-weight="700">page_size = 2</text>
+<text x="236.5" y="796.16" font-size="24" fill="#2865a8" text-anchor="middle" font-weight="700">BlockTable = [3,1,6,4]</text>
+<text x="236.5" y="826.8799999999999" font-size="24" fill="#2865a8" text-anchor="middle" font-weight="700">逻辑页 0 / 1 / 2 / 3</text>
+<rect x="455" y="729" width="939" height="118" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="924.5" y="765.4399999999999" font-size="24" fill="#607187" text-anchor="middle" font-weight="700">物理页 3 / 1 / 6 / 4</text>
+<text x="924.5" y="796.16" font-size="24" fill="#607187" text-anchor="middle" font-weight="700">逻辑顺序连续，HBM 中的物理页可以不连续</text>
+<text x="924.5" y="826.8799999999999" font-size="24" fill="#607187" text-anchor="middle" font-weight="700">同一物理页包含不同 KV head，这里展开 KV head 0</text>
+<path d="M428 788 L445.0 788.0" fill="none" stroke="#2865a8" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="455,788 445.0,792.5 445.0,783.5" fill="#2865a8"/>
+<rect x="45" y="876" width="319" height="169" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="204.5" y="911.16" font-size="24" fill="#ac642e" text-anchor="middle" font-weight="700">物理页 3</text>
+<text x="204.5" y="956.3266666666666" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">位置 0、1</text>
+<text x="204.5" y="988.66" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">K = [0,0]</text>
+<text x="204.5" y="1020.9933333333333" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">V = [1,0]</text>
+<rect x="388" y="876" width="319" height="169" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="547.5" y="911.16" font-size="24" fill="#ac642e" text-anchor="middle" font-weight="700">物理页 1</text>
+<text x="547.5" y="956.3266666666666" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">位置 2、3</text>
+<text x="547.5" y="988.66" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">K = [ln2,0]</text>
+<text x="547.5" y="1020.9933333333333" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">V = [0,1]</text>
+<rect x="731" y="876" width="319" height="169" rx="6" fill="#fff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="890.5" y="911.16" font-size="24" fill="#7654a5" text-anchor="middle" font-weight="700">物理页 6</text>
+<text x="890.5" y="956.3266666666666" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">位置 4、5</text>
+<text x="890.5" y="988.66" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">K = [ln4,0]</text>
+<text x="890.5" y="1020.9933333333333" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">V = [1,1]</text>
+<rect x="1074" y="876" width="319" height="169" rx="6" fill="#fff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1233.5" y="911.16" font-size="24" fill="#7654a5" text-anchor="middle" font-weight="700">物理页 4</text>
+<text x="1233.5" y="956.3266666666666" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">位置 6、7</text>
+<text x="1233.5" y="988.66" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">K = [0,0]</text>
+<text x="1233.5" y="1020.9933333333333" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">V = [2,0]</text>
+<text x="709.5" y="1097.16" font-size="24" fill="#172e46" text-anchor="middle" font-weight="400">读取位置 5：逻辑页 2 → BlockTable[2] = 6 → 页内偏移 1 → KV head 0 切片。</text>
+<rect x="26" y="1151" width="1388" height="642" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="1186.5" font-size="25" fill="#2865a8" text-anchor="middle" font-weight="700">4. 分段贡献：两个任务 → 同一个输出</text>
+<text x="712.5" y="1234.16" font-size="24" fill="#2865a8" text-anchor="middle" font-weight="700">沿 Query head 0：分数 s = q₀ · kᵀ / √2；每个位置都贡献一次。</text>
+<rect x="45" y="1266" width="662" height="389" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="376.0" y="1301.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">任务 A：位置 0–3</text>
+<rect x="62" y="1324" width="70" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="97.0" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">位置</text>
+<rect x="132" y="1324" width="105" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="184.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">分数 s</text>
+<rect x="237" y="1324" width="108" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="291.0" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">exp(s)</text>
+<rect x="345" y="1324" width="155" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="422.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">V</text>
+<rect x="500" y="1324" width="187" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="593.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">exp(s) × V</text>
+<rect x="62" y="1370" width="70" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="97.0" y="1400.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">0</text>
+<rect x="132" y="1370" width="105" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="184.5" y="1400.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">0</text>
+<rect x="237" y="1370" width="108" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="291.0" y="1400.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">1</text>
+<rect x="345" y="1370" width="155" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="422.5" y="1400.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[1,0]</text>
+<rect x="500" y="1370" width="187" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="593.5" y="1400.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[1,0]</text>
+<rect x="62" y="1416" width="70" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="97.0" y="1446.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">1</text>
+<rect x="132" y="1416" width="105" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="184.5" y="1446.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">0</text>
+<rect x="237" y="1416" width="108" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="291.0" y="1446.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">1</text>
+<rect x="345" y="1416" width="155" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="422.5" y="1446.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[1,0]</text>
+<rect x="500" y="1416" width="187" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="593.5" y="1446.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[1,0]</text>
+<rect x="62" y="1462" width="70" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="97.0" y="1492.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">2</text>
+<rect x="132" y="1462" width="105" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="184.5" y="1492.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">ln2</text>
+<rect x="237" y="1462" width="108" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="291.0" y="1492.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">2</text>
+<rect x="345" y="1462" width="155" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="422.5" y="1492.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[0,1]</text>
+<rect x="500" y="1462" width="187" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="593.5" y="1492.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[0,2]</text>
+<rect x="62" y="1508" width="70" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="97.0" y="1538.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">3</text>
+<rect x="132" y="1508" width="105" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="184.5" y="1538.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">ln2</text>
+<rect x="237" y="1508" width="108" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="291.0" y="1538.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">2</text>
+<rect x="345" y="1508" width="155" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="422.5" y="1538.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[0,1]</text>
+<rect x="500" y="1508" width="187" height="46" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="593.5" y="1538.48" font-size="22" fill="#ac642e" text-anchor="middle" font-weight="400">[0,2]</text>
+<rect x="62" y="1576" width="626" height="59" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="375.0" y="1614.34" font-size="26" fill="#ac642e" text-anchor="middle" font-weight="700">Z_A = 6 · U_A = [2,4]</text>
+<rect x="731" y="1266" width="662" height="389" rx="6" fill="#fff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1062.0" y="1301.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">任务 B：位置 4–7</text>
+<rect x="748" y="1324" width="70" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="783.0" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">位置</text>
+<rect x="818" y="1324" width="105" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="870.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">分数 s</text>
+<rect x="923" y="1324" width="108" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="977.0" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">exp(s)</text>
+<rect x="1031" y="1324" width="155" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="1108.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">V</text>
+<rect x="1186" y="1324" width="187" height="46" rx="4" fill="#f5f7fa" stroke="#607187" stroke-width="1.3"/>
+<text x="1279.5" y="1354.48" font-size="22" fill="#607187" text-anchor="middle" font-weight="700">exp(s) × V</text>
+<rect x="748" y="1370" width="70" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="783.0" y="1400.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">4</text>
+<rect x="818" y="1370" width="105" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="870.5" y="1400.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">ln4</text>
+<rect x="923" y="1370" width="108" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="977.0" y="1400.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">4</text>
+<rect x="1031" y="1370" width="155" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1108.5" y="1400.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[1,1]</text>
+<rect x="1186" y="1370" width="187" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1279.5" y="1400.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[4,4]</text>
+<rect x="748" y="1416" width="70" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="783.0" y="1446.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">5</text>
+<rect x="818" y="1416" width="105" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="870.5" y="1446.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">ln4</text>
+<rect x="923" y="1416" width="108" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="977.0" y="1446.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">4</text>
+<rect x="1031" y="1416" width="155" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1108.5" y="1446.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[1,1]</text>
+<rect x="1186" y="1416" width="187" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1279.5" y="1446.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[4,4]</text>
+<rect x="748" y="1462" width="70" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="783.0" y="1492.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">6</text>
+<rect x="818" y="1462" width="105" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="870.5" y="1492.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">0</text>
+<rect x="923" y="1462" width="108" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="977.0" y="1492.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">1</text>
+<rect x="1031" y="1462" width="155" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1108.5" y="1492.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[2,0]</text>
+<rect x="1186" y="1462" width="187" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1279.5" y="1492.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[2,0]</text>
+<rect x="748" y="1508" width="70" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="783.0" y="1538.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">7</text>
+<rect x="818" y="1508" width="105" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="870.5" y="1538.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">0</text>
+<rect x="923" y="1508" width="108" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="977.0" y="1538.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">1</text>
+<rect x="1031" y="1508" width="155" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1108.5" y="1538.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[2,0]</text>
+<rect x="1186" y="1508" width="187" height="46" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1279.5" y="1538.48" font-size="22" fill="#7654a5" text-anchor="middle" font-weight="400">[2,0]</text>
+<rect x="748" y="1576" width="626" height="59" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1061.0" y="1614.34" font-size="26" fill="#7654a5" text-anchor="middle" font-weight="700">Z_B = 10 · U_B = [12,8]</text>
+<path d="M376 1655 L376 1701 L584.0 1701.0" fill="none" stroke="#ac642e" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="594,1701 584.0,1705.5 584.0,1696.5" fill="#ac642e"/>
+<path d="M1062 1655 L1062 1701 L854.0 1701.0" fill="none" stroke="#7654a5" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="round"/>
+<polygon points="844,1701 854.0,1696.5 854.0,1705.5" fill="#7654a5"/>
+<rect x="594" y="1669" width="250" height="67" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="719.0" y="1696.3961038961038" font-size="20.346320346320347" fill="#187264" text-anchor="middle" font-weight="700">归并两段</text>
+<text x="719.0" y="1722.4393939393938" font-size="20.346320346320347" fill="#187264" text-anchor="middle" font-weight="700">分子与分母分别相加</text>
+<text x="706.0" y="1767.52" font-size="28" fill="#187264" text-anchor="middle" font-weight="700">O₀ = (U_A + U_B) / (Z_A + Z_B) = [14,12] / 16 = [7/8, 3/4]</text>
+<rect x="26" y="1815" width="1388" height="151" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<text x="720.0" y="1850.5" font-size="25" fill="#187264" text-anchor="middle" font-weight="700">完整八个位置的概率与输出一致</text>
+<text x="720.0" y="1893.84" font-size="26" fill="#187264" text-anchor="middle" font-weight="700">p = [1,1,2,2,4,4,1,1] / 16 → Value 加权 → O₀</text>
+<text x="720.0" y="1935.82" font-size="23" fill="#172e46" text-anchor="middle" font-weight="400">每个 Query head 都归并自己的贡献；两个二维贡献合成一个二维输出。</text>
+<rect x="26" y="1988" width="1388" height="50" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="720.0" y="2020.48" font-size="22" fill="#2865a8" text-anchor="middle" font-weight="700">GQA 共享 K/V · Paged KV 地址映射 · Split-KV 并行任务 + 归并</text>
+</svg>

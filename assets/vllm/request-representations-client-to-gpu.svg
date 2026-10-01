@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="810.4306220095693" viewBox="0 0 1440 810.4306220095693" role="img" aria-labelledby="title desc">
+<title id="title">请求的数据形态：从 Client 到 GPU</title><desc id="desc">依据 PDF 原图布局重构，中文说明为主，保留英文专业术语。采用本地既有配图字体、浅色分区与细线箭头。</desc>
+<defs><marker id="a2865a8" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#2865a8"/></marker><marker id="a187264" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#187264"/></marker><marker id="aac642e" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac642e"/></marker><marker id="a7654a5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#7654a5"/></marker><marker id="a607187" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#607187"/></marker><marker id="aac428b" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#ac428b"/></marker><marker id="ab45650" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse"><path d="M1 1 L8 4.5 L1 8 Z" fill="#b45650"/></marker></defs>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}.mono{font-family:"DejaVu Sans Mono","LXGW WenKai GB Screen",monospace}</style>
+<rect x="0" y="0" width="1440" height="810.4306220095693" rx="0" fill="#fbfcfe" stroke="none" stroke-width="1.3"/>
+<text x="720" y="49" font-size="39" fill="#172e46" text-anchor="middle" font-weight="700">vLLM V1 请求的数据形态：从 Client 到 GPU</text>
+<text x="35" y="84" font-size="23" fill="#607187" text-anchor="start" font-weight="400">同一个请求，在每一层边界转换为不同的数据表示</text>
+<text x="1402" y="84" font-size="18" fill="#607187" text-anchor="end" font-weight="400">v0.25.1 · 经典 GPUModelRunner</text>
+<rect x="32" y="115" width="310" height="35" rx="4" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.3"/>
+<text x="187.0" y="141.0" font-size="25" fill="#2865a8" text-anchor="middle" font-weight="700">客户端 / API</text>
+<rect x="374" y="115" width="1028" height="35" rx="4" fill="#e8f5f1" stroke="#187264" stroke-width="1.3"/>
+<text x="888.0" y="141.0" font-size="25" fill="#187264" text-anchor="middle" font-weight="700">EngineCore / Scheduler</text>
+<rect x="32" y="164" width="302" height="254" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<circle cx="57" cy="195" r="17" fill="#2865a8"/>
+<text x="57" y="202" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+<rect x="83" y="182" width="26" height="21" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.8"/>
+<path d="M88 203 L88 209 L95 203" fill="none" stroke="#2865a8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M89 189 L103 189" fill="none" stroke="#2865a8" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M89 195 L103 195" fill="none" stroke="#2865a8" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="222.5" y="197.41170967955946" font-size="17.38738141046905" fill="#2865a8" text-anchor="middle" font-weight="700">ChatCompletionRequest</text>
+<text x="222.5" y="229.12" font-size="18" fill="#2865a8" text-anchor="middle" font-weight="400">单个 API 请求</text>
+<path d="M43 238 L323 238" fill="none" stroke="#a9c4df" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="49" y="263" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">messages</text>
+<text x="49" y="289" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">model</text>
+<text x="49" y="315" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">temperature / top_p</text>
+<text x="49" y="341" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">max_tokens</text>
+<text x="49" y="367" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">stream</text>
+<path d="M43 385 L323 385" fill="none" stroke="#a9c4df" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="183.0" y="407.96" font-size="19" fill="#2865a8" text-anchor="middle" font-weight="700">OpenAI 协议对象</text>
+<rect x="374" y="164" width="302" height="254" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<circle cx="399" cy="195" r="17" fill="#187264"/>
+<text x="399" y="202" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+<rect x="429" y="186" width="22" height="22" rx="2" fill="#e8f5f1" stroke="#187264" stroke-width="1.8"/>
+<rect x="434" y="191" width="12" height="12" rx="1" fill="none" stroke="#187264" stroke-width="1.4"/>
+<path d="M434 182 L434 186" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M434 208 L434 212" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M425 191 L429 191" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M451 191 L455 191" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M440 182 L440 186" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M440 208 L440 212" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M425 197 L429 197" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M451 197 L455 197" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M446 182 L446 186" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M446 208 L446 212" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M425 203 L429 203" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M451 203 L455 203" fill="none" stroke="#187264" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="564.5" y="198.7125933042643" font-size="21.21350971842436" fill="#187264" text-anchor="middle" font-weight="700">EngineCoreRequest</text>
+<text x="564.5" y="229.12" font-size="18" fill="#187264" text-anchor="middle" font-weight="400">标准化的单个引擎请求</text>
+<path d="M385 238 L665 238" fill="none" stroke="#a9d1c5" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="391" y="263" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">request_id</text>
+<text x="391" y="289" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">prompt_token_ids</text>
+<text x="391" y="315" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">sampling_params</text>
+<text x="391" y="341" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">mm_features</text>
+<text x="391" y="367" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">arrival_time / priority</text>
+<path d="M385 385 L665 385" fill="none" stroke="#a9d1c5" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="525.0" y="407.96" font-size="19" fill="#187264" text-anchor="middle" font-weight="700">紧凑的请求传输结构</text>
+<rect x="716" y="164" width="315" height="254" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<circle cx="741" cy="195" r="17" fill="#187264"/>
+<text x="741" y="202" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+<circle cx="780" cy="195" r="12" fill="#e8f5f1" stroke="#187264" stroke-width="1.8"/>
+<path d="M780 187 L780 195 L786 195" fill="none" stroke="#187264" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="913.0" y="199.32" font-size="23" fill="#187264" text-anchor="middle" font-weight="700">Request</text>
+<text x="913.0" y="229.12" font-size="18" fill="#187264" text-anchor="middle" font-weight="400">单个可变的调度请求</text>
+<path d="M727 238 L1020 238" fill="none" stroke="#a9d1c5" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="733" y="263" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">prompt / output / spec tokens</text>
+<text x="733" y="289" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">num_computed_tokens</text>
+<text x="733" y="315" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">status</text>
+<text x="733" y="341" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">block_hashes</text>
+<text x="733" y="367" font-size="20" fill="#172e46" text-anchor="start" font-weight="400">sampling_params</text>
+<path d="M727 385 L1020 385" fill="none" stroke="#a9d1c5" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="873.5" y="407.96" font-size="19" fill="#187264" text-anchor="middle" font-weight="700">Scheduler 侧的权威状态</text>
+<rect x="1071" y="164" width="331" height="254" rx="6" fill="#fff" stroke="#187264" stroke-width="1.5"/>
+<circle cx="1096" cy="195" r="17" fill="#187264"/>
+<text x="1096" y="202" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">4</text>
+<rect x="1125" y="182" width="22" height="28" rx="2" fill="#e8f5f1" stroke="#187264" stroke-width="1.8"/>
+<circle cx="1130" cy="189" r="1.3" fill="#187264"/>
+<path d="M1134 189 L1142 189" fill="none" stroke="#187264" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1130" cy="196" r="1.3" fill="#187264"/>
+<path d="M1134 196 L1142 196" fill="none" stroke="#187264" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1130" cy="203" r="1.3" fill="#187264"/>
+<path d="M1134 203 L1142 203" fill="none" stroke="#187264" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1276.0" y="199.32" font-size="23" fill="#187264" text-anchor="middle" font-weight="700">SchedulerOutput</text>
+<text x="1276.0" y="228.79614983153863" font-size="17.047499504525337" fill="#187264" text-anchor="middle" font-weight="400">一个 engine step 的执行计划</text>
+<path d="M1082 238 L1391 238" fill="none" stroke="#a9d1c5" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1088" y="263" font-size="18.5" fill="#172e46" text-anchor="start" font-weight="400">scheduled_new_reqs</text>
+<text x="1088" y="284" font-size="18.5" fill="#172e46" text-anchor="start" font-weight="400">scheduled_cached_reqs</text>
+<text x="1088" y="305" font-size="18.5" fill="#172e46" text-anchor="start" font-weight="400">num_scheduled_tokens</text>
+<text x="1088" y="326" font-size="18.5" fill="#172e46" text-anchor="start" font-weight="400">finished_req_ids</text>
+<rect x="1085" y="340" width="303" height="23" rx="4" fill="#e8f5f1" stroke="#187264" stroke-width="1.3"/>
+<text x="1236.5" y="357.45" font-size="17.5" fill="#187264" text-anchor="middle" font-weight="400">NewRequestData：完整初始化</text>
+<rect x="1085" y="368" width="303" height="23" rx="4" fill="#e8f5f1" stroke="#187264" stroke-width="1.3"/>
+<text x="1236.5" y="385.45" font-size="17.5" fill="#187264" text-anchor="middle" font-weight="400">CachedRequestData：状态更新</text>
+<path d="M1082 395 L1391 395" fill="none" stroke="#a9d1c5" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1236.5" y="412.12" font-size="18" fill="#187264" text-anchor="middle" font-weight="700">批量计划，覆盖本轮多个请求</text>
+<path d="M334 278 L365.0 278.0" fill="none" stroke="#187264" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="374,278 365.0,281.8 365.0,274.2" fill="#187264"/>
+<path d="M676 278 L707.0 278.0" fill="none" stroke="#187264" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="716,278 707.0,281.8 707.0,274.2" fill="#187264"/>
+<path d="M1031 278 L1062.0 278.0" fill="none" stroke="#187264" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="1071,278 1062.0,281.8 1062.0,274.2" fill="#187264"/>
+<path d="M1236 418 L1236 442 L20 442 L20 602 L26.0 602.0" fill="none" stroke="#187264" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="35,602 26.0,605.8 26.0,598.2" fill="#187264"/>
+<rect x="32" y="465" width="649" height="32" rx="4" fill="#fff1e5" stroke="#ac642e" stroke-width="1.3"/>
+<text x="356.5" y="489.5" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">GPU Worker · CPU 侧持久状态</text>
+<rect x="716" y="465" width="686" height="32" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1059.0" y="489.5" font-size="25" fill="#7654a5" text-anchor="middle" font-weight="700">GPU · 本轮模型输入张量</text>
+<rect x="35" y="506" width="298" height="192" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<circle cx="60" cy="537" r="17" fill="#ac642e"/>
+<text x="60" y="544" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">5</text>
+<rect x="89" y="524" width="22" height="28" rx="2" fill="#fff1e5" stroke="#ac642e" stroke-width="1.8"/>
+<circle cx="94" cy="531" r="1.3" fill="#ac642e"/>
+<path d="M98 531 L106 531" fill="none" stroke="#ac642e" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="94" cy="538" r="1.3" fill="#ac642e"/>
+<path d="M98 538 L106 538" fill="none" stroke="#ac642e" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="94" cy="545" r="1.3" fill="#ac642e"/>
+<path d="M98 545 L106 545" fill="none" stroke="#ac642e" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="223.5" y="540.1760260220062" font-size="19.6353706529596" fill="#ac642e" text-anchor="middle" font-weight="700">CachedRequestState</text>
+<text x="184.0" y="567.12" font-size="18" fill="#ac642e" text-anchor="middle" font-weight="400">Worker 侧的单请求持久状态</text>
+<path d="M46 574 L322 574" fill="none" stroke="#e4c7ad" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="51" y="592" font-size="18" fill="#172e46" text-anchor="start" font-weight="400">req_id</text>
+<text x="51" y="610" font-size="18" fill="#172e46" text-anchor="start" font-weight="400">prompt / output token IDs</text>
+<text x="51" y="628" font-size="18" fill="#172e46" text-anchor="start" font-weight="400">block_ids</text>
+<text x="51" y="646" font-size="18" fill="#172e46" text-anchor="start" font-weight="400">num_computed_tokens</text>
+<text x="51" y="664" font-size="18" fill="#172e46" text-anchor="start" font-weight="400">sampling_params</text>
+<path d="M47 671 L321 671" fill="none" stroke="#e4c7ad" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="184.0" y="689.78" font-size="17" fill="#ac642e" text-anchor="middle" font-weight="700">GPUModelRunner 本地执行状态</text>
+<rect x="386" y="506" width="295" height="192" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<circle cx="411" cy="537" r="17" fill="#ac642e"/>
+<text x="411" y="544" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">6</text>
+<rect x="437.0" y="524.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="446.0" y="524.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="455.0" y="524.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="437.0" y="533.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="446.0" y="533.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="455.0" y="533.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="437.0" y="542.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="446.0" y="542.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="455.0" y="542.0" width="9.0" height="9.0" rx="0" fill="#fff1e5" stroke="#e4c7ad" stroke-width="0.9"/>
+<rect x="437" y="524" width="27" height="27" rx="1" fill="none" stroke="#ac642e" stroke-width="1.8"/>
+<text x="573.0" y="542.0" font-size="25" fill="#ac642e" text-anchor="middle" font-weight="700">InputBatch</text>
+<text x="533.5" y="567.12" font-size="18" fill="#ac642e" text-anchor="middle" font-weight="400">持久的动态批次</text>
+<path d="M397 574 L670 574" fill="none" stroke="#e4c7ad" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="402" y="592" font-size="17.7" fill="#172e46" text-anchor="start" font-weight="400">req_id_to_index</text>
+<text x="402" y="610" font-size="17.7" fill="#172e46" text-anchor="start" font-weight="400">token_ids_cpu</text>
+<text x="402" y="628" font-size="17.7" fill="#172e46" text-anchor="start" font-weight="400">num_computed_tokens_cpu</text>
+<text x="402" y="646" font-size="17.7" fill="#172e46" text-anchor="start" font-weight="400">block_table</text>
+<text x="402" y="664" font-size="17.7" fill="#172e46" text-anchor="start" font-weight="400">temperature / top_p / top_k</text>
+<path d="M398 671 L669 671" fill="none" stroke="#e4c7ad" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="533.5" y="689.78" font-size="17" fill="#ac642e" text-anchor="middle" font-weight="700">多个请求按 batch 行聚合</text>
+<path d="M333 602 L377.0 602.0" fill="none" stroke="#ac642e" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="386,602 377.0,605.8 377.0,598.2" fill="#ac642e"/>
+<path d="M681 602 L707.0 602.0" fill="none" stroke="#7654a5" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="butt"/>
+<polygon points="716,602 707.0,605.8 707.0,598.2" fill="#7654a5"/>
+<rect x="716" y="506" width="686" height="192" rx="6" fill="#fff" stroke="#7654a5" stroke-width="1.5"/>
+<circle cx="741" cy="537" r="17" fill="#7654a5"/>
+<text x="741" y="544" font-size="24" fill="#fff" text-anchor="middle" font-weight="700">7</text>
+<rect x="771" y="528" width="22" height="22" rx="2" fill="#f0edfa" stroke="#7654a5" stroke-width="1.8"/>
+<rect x="776" y="533" width="12" height="12" rx="1" fill="none" stroke="#7654a5" stroke-width="1.4"/>
+<path d="M776 524 L776 528" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M776 550 L776 554" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M767 533 L771 533" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M793 533 L797 533" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M782 524 L782 528" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M782 550 L782 554" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M767 539 L771 539" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M793 539 L797 539" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M788 524 L788 528" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M788 550 L788 554" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M767 545 L771 545" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M793 545 L797 545" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1098.5" y="542.34" font-size="26" fill="#7654a5" text-anchor="middle" font-weight="700">GPU 张量与 Attention 元数据</text>
+<text x="1098.5" y="571.12" font-size="18" fill="#7654a5" text-anchor="middle" font-weight="400">为本轮模型计算拼接 token，并保留请求边界</text>
+<path d="M727 580 L1391 580" fill="none" stroke="#cfbee1" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="730" y="592" width="77" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="768.5" y="615.4136335595311" font-size="16.345465761875385" fill="#7654a5" text-anchor="middle" font-weight="400">input_ids</text>
+<text x="768.5" y="634.7012831585441" font-size="16.345465761875385" fill="#7654a5" text-anchor="middle" font-weight="400">[T]</text>
+<rect x="817" y="592" width="77" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="855.5" y="615.3814507772021" font-size="16.47419689119171" fill="#7654a5" text-anchor="middle" font-weight="400">positions</text>
+<text x="855.5" y="634.8210031088083" font-size="16.47419689119171" fill="#7654a5" text-anchor="middle" font-weight="400">[T]</text>
+<rect x="904" y="592" width="116" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="962.0" y="615.7660264105642" font-size="14.935894357743097" fill="#7654a5" text-anchor="middle" font-weight="400">query_start_loc</text>
+<text x="962.0" y="633.390381752701" font-size="14.935894357743097" fill="#7654a5" text-anchor="middle" font-weight="400">[B + 1]</text>
+<rect x="1030" y="592" width="80" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1070.0" y="615.125" font-size="17.5" fill="#7654a5" text-anchor="middle" font-weight="400">seq_lens</text>
+<text x="1070.0" y="635.775" font-size="17.5" fill="#7654a5" text-anchor="middle" font-weight="400">[B]</text>
+<rect x="1120" y="592" width="145" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1192.5" y="615.5833829660512" font-size="15.666468135795117" fill="#7654a5" text-anchor="middle" font-weight="400">block_table_tensor</text>
+<text x="1192.5" y="634.0698153662894" font-size="15.666468135795117" fill="#7654a5" text-anchor="middle" font-weight="400">[B, max_blocks]</text>
+<rect x="1275" y="592" width="113" height="55" rx="4" fill="#f0edfa" stroke="#7654a5" stroke-width="1.3"/>
+<text x="1331.5" y="615.2390446667606" font-size="17.043821332957588" fill="#7654a5" text-anchor="middle" font-weight="400">slot_mapping</text>
+<text x="1331.5" y="635.3507538396506" font-size="17.043821332957588" fill="#7654a5" text-anchor="middle" font-weight="400">[T]</text>
+<path d="M728 657 L1390 657" fill="none" stroke="#cfbee1" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1059.0" y="682.46" font-size="19" fill="#7654a5" text-anchor="middle" font-weight="700">CommonAttentionMetadata 在 CPU 侧持有张量引用</text>
+<rect x="32" y="716" width="1370" height="69" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<path d="M472 718 L472 776" fill="none" stroke="#a9c4df" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M1005 718 L1005 776" fill="none" stroke="#a9c4df" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="252.0" y="741.5" font-size="22" fill="#172e46" text-anchor="middle" font-weight="700">单请求对象 → 单步执行计划</text>
+<text x="252.0" y="767.46" font-size="22" fill="#172e46" text-anchor="middle" font-weight="700">→ Worker 动态批次 → GPU 张量</text>
+<text x="740.0" y="741.5" font-size="22" fill="#172e46" text-anchor="middle" font-weight="700">B = 本轮请求数</text>
+<text x="740.0" y="767.46" font-size="22" fill="#172e46" text-anchor="middle" font-weight="700">T = 本轮所有请求调度的 token 总数</text>
+<text x="1203.5" y="741.75" font-size="21" fill="#172e46" text-anchor="middle" font-weight="700">GPU 消费张量和元数据</text>
+<text x="1203.5" y="766.53" font-size="21" fill="#172e46" text-anchor="middle" font-weight="700">Python 请求对象留在 CPU 侧</text>
+</svg>
