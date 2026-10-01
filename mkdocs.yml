@@ -32,6 +32,24 @@ nav:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - GPU Kernel:
       - 学习索引: gpu-kernel/index.md
+      - LeetGPU 练习:
+          - 题目索引: gpu-kernel/leetgpu/index.md
+          - Vector Addition：向量加法: gpu-kernel/leetgpu/001-vector-add.md
+          - Matrix Multiplication：矩阵乘法: gpu-kernel/leetgpu/002-matrix-multiplication.md
+          - Matrix Transpose：矩阵转置: gpu-kernel/leetgpu/003-matrix-transpose.md
+          - Reduction：求和归约: gpu-kernel/leetgpu/004-reduction.md
+          - Softmax: gpu-kernel/leetgpu/005-softmax.md
+          - Softmax Attention: gpu-kernel/leetgpu/006-softmax-attention.md
+          - Prefix Sum：前缀和: gpu-kernel/leetgpu/016-prefix-sum.md
+          - General Matrix Multiplication (GEMM)：通用矩阵乘法: gpu-kernel/leetgpu/022-gemm.md
+          - Top K Selection：Top-K 选择: gpu-kernel/leetgpu/029-top-k-selection.md
+          - INT8 Quantized MatMul：INT8 量化矩阵乘法: gpu-kernel/leetgpu/032-int8-quantized-matmul.md
+          - Causal Self-Attention：因果自注意力: gpu-kernel/leetgpu/053-causal-self-attention.md
+          - Rotary Positional Embedding：旋转位置编码: gpu-kernel/leetgpu/061-rope-embedding.md
+          - Weight Dequantization：权重反量化: gpu-kernel/leetgpu/064-weight-dequantization.md
+          - INT4 Weight-Only Quantized MatMul：W4A16 量化矩阵乘法: gpu-kernel/leetgpu/081-int4-matmul.md
+          - Fused Residual Add and RMS Norm: gpu-kernel/leetgpu/083-fused-residual-add-rms-norm.md
+          - Layer Normalization：层归一化: gpu-kernel/leetgpu/113-layer-normalization.md
       - FlashRT RDNA 3.5:
           - 学习路径: gpu-kernel/flashrt-rdna35/index.md
           - 00 · AMD GPU 硬件模型与术语: gpu-kernel/flashrt-rdna35/00-AMD-GPU硬件模型与术语.md

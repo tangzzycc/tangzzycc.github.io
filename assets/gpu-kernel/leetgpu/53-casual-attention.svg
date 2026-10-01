@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+<title id="title">因果自注意力 · Causal Self-Attention</title>
+<desc id="desc">Six by six causal mask. The diagonal and lower triangle are visible; the upper triangle is negative infinity.</desc>
+<defs><marker id="arrow-2865a8" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#2865a8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="arrow-187264" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#187264" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="arrow-ac642e" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#ac642e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="arrow-7654a5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#7654a5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="arrow-607187" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#607187" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="arrow-b45650" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#b45650" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif;fill:#172e46}.mono{font-family:"DejaVu Sans Mono","LXGW WenKai GB Screen",monospace}</style>
+<rect x="0" y="0" width="1600" height="1050" rx="0" fill="#fbfcfe" stroke="none" stroke-width="1.8" />
+<rect x="48" y="36" width="6" height="40" rx="3" fill="#e65b3d" stroke="none" stroke-width="1.8" />
+<text x="74" y="69" font-size="42" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="700" class="label">因果自注意力 · Causal Self-Attention</text>
+<text x="48" y="110" font-size="23" fill="#607187" style="fill:#607187" text-anchor="start" font-weight="400" class="label">Query i 仅能访问满足 j ≤ i 的 Key。</text>
+<rect x="48" y="156" width="870" height="804" rx="18" fill="#fff" stroke="#ced7e2" stroke-width="1.8" />
+<rect x="958" y="156" width="594" height="804" rx="18" fill="#fff" stroke="#ced7e2" stroke-width="1.8" />
+<text x="80" y="210" font-size="26" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="700" class="label">因果掩码 · 6 个位置</text>
+<text x="524" y="252" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">Key 位置 j →</text>
+<text x="88" y="266" font-size="22" fill="#607187" style="fill:#607187" text-anchor="start" font-weight="400" class="label">Query i</text>
+<text x="262.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">0</text>
+<text x="364.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">1</text>
+<text x="466.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">2</text>
+<text x="568.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">3</text>
+<text x="670.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">4</text>
+<text x="772.0" y="278" font-size="22" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">5</text>
+<text x="174" y="333" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">0</text>
+<rect x="218" y="286" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="262.0" y="332.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="320" y="286" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="364.0" y="332.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="422" y="286" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="466.0" y="332.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="524" y="286" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="568.0" y="332.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="626" y="286" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="670.0" y="332.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="728" y="286" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="772.0" y="332.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<text x="174" y="435" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">1</text>
+<rect x="218" y="388" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="262.0" y="434.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="320" y="388" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="364.0" y="434.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="422" y="388" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="466.0" y="434.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="524" y="388" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="568.0" y="434.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="626" y="388" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="670.0" y="434.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="728" y="388" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="772.0" y="434.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<text x="174" y="537" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">2</text>
+<rect x="218" y="490" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="262.0" y="536.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="320" y="490" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="364.0" y="536.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="422" y="490" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="466.0" y="536.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="524" y="490" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="568.0" y="536.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="626" y="490" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="670.0" y="536.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="728" y="490" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="772.0" y="536.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<text x="174" y="639" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">3</text>
+<rect x="218" y="592" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#2865a8" stroke-width="2.8" />
+<text x="262.0" y="638.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="700" class="label">✓</text>
+<rect x="320" y="592" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#2865a8" stroke-width="2.8" />
+<text x="364.0" y="638.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="700" class="label">✓</text>
+<rect x="422" y="592" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#2865a8" stroke-width="2.8" />
+<text x="466.0" y="638.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="700" class="label">✓</text>
+<rect x="524" y="592" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#2865a8" stroke-width="2.8" />
+<text x="568.0" y="638.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="700" class="label">✓</text>
+<rect x="626" y="592" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="670.0" y="638.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<rect x="728" y="592" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="772.0" y="638.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<text x="174" y="741" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">4</text>
+<rect x="218" y="694" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="262.0" y="740.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="320" y="694" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="364.0" y="740.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="422" y="694" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="466.0" y="740.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="524" y="694" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="568.0" y="740.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="626" y="694" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="670.0" y="740.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="728" y="694" width="88" height="72" rx="8" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.5" />
+<text x="772.0" y="740.15" font-size="29" fill="#b45650" style="fill:#b45650" text-anchor="middle" font-weight="400" class="label">−∞</text>
+<text x="174" y="843" font-size="24" fill="#607187" style="fill:#607187" text-anchor="middle" font-weight="400" class="label">5</text>
+<rect x="218" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="262.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="320" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="364.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="422" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="466.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="524" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="568.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="626" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="670.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="728" y="796" width="88" height="72" rx="8" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.5" />
+<text x="772.0" y="842.15" font-size="29" fill="#2865a8" style="fill:#2865a8" text-anchor="middle" font-weight="400" class="label">✓</text>
+<rect x="116" y="914" width="26" height="22" rx="4" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.8" />
+<text x="154" y="932" font-size="22" fill="#2865a8" style="fill:#2865a8" text-anchor="start" font-weight="400" class="label">可见</text>
+<rect x="350" y="914" width="26" height="22" rx="4" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.8" />
+<text x="388" y="932" font-size="22" fill="#b45650" style="fill:#b45650" text-anchor="start" font-weight="400" class="label">屏蔽</text>
+<text x="992" y="216" font-size="30" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="700" class="label">Query 3</text>
+<text x="992" y="261" font-size="23" fill="#2865a8" style="fill:#2865a8" text-anchor="start" font-weight="400" class="label">可见 Key：0、1、2、3</text>
+<text x="992" y="302" font-size="23" fill="#b45650" style="fill:#b45650" text-anchor="start" font-weight="400" class="label">未来 Key：4、5</text>
+<rect x="992" y="345" width="526" height="186" rx="12" fill="#e8f1fb" stroke="#a9c4df" stroke-width="1.8" />
+<text x="1018" y="389" font-size="28" fill="#2865a8" style="fill:#2865a8" text-anchor="start" font-weight="700" class="label">j ≤ i</text>
+<text x="1018" y="430" font-size="23" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="400" class="label">保留缩放后的 Q · K 分数。</text>
+<text x="1018" y="492" font-size="23" fill="#2865a8" style="fill:#2865a8" text-anchor="start" font-weight="400" class="label">对角线位置也可见。</text>
+<rect x="992" y="568" width="526" height="150" rx="12" fill="#faeceb" stroke="#dfb2ae" stroke-width="1.8" />
+<text x="1018" y="612" font-size="28" fill="#b45650" style="fill:#b45650" text-anchor="start" font-weight="700" class="label">j &gt; i</text>
+<text x="1018" y="658" font-size="23" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="400" class="label">将分数设为 −∞。</text>
+<text x="992" y="785" font-size="23" fill="#172e46" style="fill:#172e46" text-anchor="start" font-weight="700" class="label">沿每行计算 Softmax。</text>
+<text x="992" y="831" font-size="22" fill="#607187" style="fill:#607187" text-anchor="start" font-weight="400" class="label">屏蔽位置的 Attention</text>
+<text x="992" y="863" font-size="22" fill="#607187" style="fill:#607187" text-anchor="start" font-weight="400" class="label">权重为 0。</text>
+<text x="48" y="1017" font-size="22" fill="#607187" style="fill:#607187" text-anchor="start" font-weight="400" class="label">掩码只改变可见范围；Q、K、V 的形状保持不变。</text>
+</svg>

@@ -2,6 +2,12 @@
 
 这里记录 GPU Kernel 的实现与性能优化笔记，关注线程工作划分、内存层级、数据复用和硬件调度之间的关系。
 
+## LeetGPU 练习
+
+- [LeetGPU Kernel 练习笔记](leetgpu/index.md)
+
+这组笔记配合 `~/leetgpu-challenges` 中的题目边做边整理，每道题对应一篇 Markdown，先交代题目，再围绕 Kernel 实现与优化展开。
+
 ## FlashRT RDNA 3.5
 
 - [FlashRT RDNA 3.5 Kernel 源码精读](flashrt-rdna35/index.md)
