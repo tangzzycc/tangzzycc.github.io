@@ -2,7 +2,7 @@
 
 ![从 EngineCoreRequest 到 Request](../../../assets/vllm/enginecore-request-conversion.png){ width="100%" }
 
-上一课我们介绍了 `EngineCore` 进程：它包含接收请求的 `input_thread`、执行调度循环的主线程，以及负责发送结果的 `output_thread`。
+上一节介绍了 `EngineCore` 进程：它包含接收请求的 `input_thread`、执行调度循环的主线程，以及负责发送结果的 `output_thread`。
 
 但这里还留下一个关键问题：
 
@@ -13,7 +13,7 @@ API Server 发送过来的究竟是什么？Scheduler 最终管理的又是什�
 - `EngineCoreRequest`：跨进程传输对象
 - `Request`：EngineCore 内部的运行时请求对象
 
-本课重点不是请求状态如何变化，而是理解这两个对象为什么同时存在，以及转换过程中增加了哪些运行时信息。
+本节重点不是请求状态如何变化，而是理解这两个对象为什么同时存在，以及转换过程中增加了哪些运行时信息。
 
 ## 1. 为什么需要两种请求对象
 
@@ -23,25 +23,17 @@ API Server 发送过来的究竟是什么？Scheduler 最终管理的又是什�
 
 ### 1. 请求身份与时间
 
-`request_id: str`
-
-EngineCore 内部使用的唯一请求 ID。
+`request_id: str`：EngineCore 内部使用的唯一请求 ID。
 
 用户最初提供的 ID 可能重复，因此 vLLM 会给它追加随机后缀：
 
-```text
-用户请求 ID：
- chatcmpl-123
+- 用户请求 ID：chatcmpl-123
 
-内部请求 ID：
- chatcmpl-123-a83f20cd
-```
+- 内部请求 ID：chatcmpl-123-a83f20cd
 
 转换发生在 [assign_request_id](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/input_processor.py#L223-L240)
 
-`external_req_id: str | None`
-
-保存用户原始请求 ID，用于：
+`external_req_id: str | None`：保存用户原始请求 ID，用于：
 
 - 最终输出中的 `request_id`；
 - 用户通过原始 ID 取消请求；
@@ -54,9 +46,7 @@ external_req_id = 用户看到的 ID
 request_id      = vLLM 内部唯一 ID
 ```
 
-`arrival_time: float`
-
-请求到达引擎的时间，主要用于：
+`arrival_time: float`：请求到达引擎的时间，主要用于：
 
 - 调度策略；
 - 排队时间统计；
@@ -65,9 +55,7 @@ request_id      = vLLM 内部唯一 ID
 
 ### 2. 模型输入
 
-`prompt_token_ids: list[int] | None`
-
-经过 Chat Template 和 Tokenizer 后的整数序列：
+`prompt_token_ids: list[int] | None`：经过 Chat Template 和 Tokenizer 后的整数序列：
 
 ```text
 "Hello" → [9707]
@@ -75,15 +63,11 @@ request_id      = vLLM 内部唯一 ID
 
 这是最常见的纯文本输入。
 
-`prompt_embeds: torch.Tensor | None`
-
-调用方直接传入的预计算 embedding。
+`prompt_embeds: torch.Tensor | None`：调用方直接传入的预计算 embedding。
 
 这种情况下，模型不需要再通过 embedding table 把 token ID 转成向量。
 
-`prompt_is_token_ids: list[bool] | None`
-
-混合输入的位置掩码。
+`prompt_is_token_ids: list[bool] | None`：混合输入的位置掩码。
 
 当一个请求同时包含 token ID 和预计算 embedding 时：
 
@@ -97,9 +81,7 @@ prompt_is_token_ids: True   True   False  True
 - `False`：该位置使用 `prompt_embeds`；
 - `None`：纯 token 或纯 embedding 请求。
 
-`mm_features: list[MultiModalFeatureSpec] | None`
-
-已经预处理的多模态特征，例如：
+`mm_features: list[MultiModalFeatureSpec] | None`：已经预处理的多模态特征，例如：
 
 - 图片特征；
 - 视频特征；
@@ -126,9 +108,7 @@ pooling_params: PoolingParams | None
 
 ### 4. 模型与缓存配置
 
-`lora_request: LoRARequest | None`
-
-指定本次请求使用哪个 LoRA Adapter，包括：
+`lora_request: LoRARequest | None`：指定本次请求使用哪个 LoRA Adapter，包括：
 
 - LoRA ID；
 - LoRA 路径；
@@ -136,9 +116,7 @@ pooling_params: PoolingParams | None
 
 这使不同请求可以在同一基础模型上使用不同 LoRA。
 
-`cache_salt: str | None`
-
-参与 Prefix Cache 的内容哈希计算。
+`cache_salt: str | None`：参与 Prefix Cache 的内容哈希计算。
 
 即使两条请求的 token 相同，只要 `cache_salt` 不同，也不会错误复用相同的 prefix cache：
 
@@ -150,9 +128,7 @@ hash(token blocks, cache_salt)
 
 ### 5. 路由与调度控制
 
-`data_parallel_rank: int | None`
-
-指定请求路由到哪个数据并行模型副本。
+`data_parallel_rank: int | None`：指定请求路由到哪个数据并行模型副本。
 
 ```text
 API Server
@@ -166,9 +142,7 @@ API Server
 
 它主要是 CoreClient 路由字段，不会被复制进 Scheduler 的 `Request`。
 
-`client_index: int = 0`
-
-表示请求来自哪个前端客户端进程。
+`client_index: int = 0`：表示请求来自哪个前端客户端进程。
 
 多个 API Server 可能连接相同的一组 EngineCore：
 
@@ -192,9 +166,7 @@ CoreClient 设置该字段的位置见 [add_request_async](https://github.com/vl
 
 单 EngineCore、普通单卡运行时通常一直为 `0`，可以先忽略。
 
-`priority: int = 0`
-
-请求优先级，交给 Scheduler 决定调度顺序。
+`priority: int = 0`：请求优先级，交给 Scheduler 决定调度顺序。
 
 它只是表达调度意图，不代表请求一定立刻执行；实际还要受以下条件约束：
 
@@ -206,9 +178,7 @@ CoreClient 设置该字段的位置见 [add_request_async](https://github.com/vl
 
 ### 6. 可观测性与高级功能
 
-`trace_headers: Mapping[str, str] | None`
-
-携带分布式链路追踪上下文，例如 OpenTelemetry 的 `traceparent`。
+`trace_headers: Mapping[str, str] | None`：携带分布式链路追踪上下文，例如 OpenTelemetry 的 `traceparent`。
 
 这样可以把：
 
@@ -222,29 +192,21 @@ HTTP 请求
 
 关联到同一条 trace。
 
-`resumable: bool = False`
-
-表示请求是否支持流式暂停后恢复。
+`resumable: bool = False`：表示请求是否支持流式暂停后恢复。
 
 进入 `Request` 后会创建相应的 streaming queue，保存流式更新。
 
-`reasoning_ended: bool | None = None`
-
-记录 reasoning 阶段是否已经结束，主要服务于：
+`reasoning_ended: bool | None = None`：记录 reasoning 阶段是否已经结束，主要服务于：
 
 - reasoning model；
 - structured output；
 - reasoning parser 与 grammar 状态衔接。
 
-`reasoning_parser_kwargs: dict[str, Any] | None = None`
-
-传递给 reasoning parser 的附加参数。
+`reasoning_parser_kwargs: dict[str, Any] | None = None`：传递给 reasoning parser 的附加参数。
 
 这些参数最终会进入 `StructuredOutputRequest`，而不是直接参与模型矩阵计算。
 
-`abort_immediately: bool = False`
-
-请求进入 Scheduler 后立即取消。
+`abort_immediately: bool = False`：请求进入 Scheduler 后立即取消。
 
 它看起来有些奇怪，但主要是为了触发标准的请求结束清理流程，特别是 P/D 分离场景：
 
@@ -322,13 +284,11 @@ pending_tokens
 
 这里要区分：
 
-```text
-block_hashes
+- block_hashes
  找到“内容相同”的缓存块
 
-KVCacheManager.req_to_blocks
+- KVCacheManager.req_to_blocks
  记录请求实际持有哪些缓存块
-```
 
 `Request` 保存内容身份和计算进度，但 KV block 的所有权映射仍由 KV Cache Manager 维护。
 
@@ -398,7 +358,7 @@ Request
 
 因此，`Request` 最核心的三组状态是：生命周期状态、Token 计算进度和 Prefix Cache 身份；其余字段主要服务于异步调度、推测解码、结构化输出、流式传输和 P/D 分离等扩展能力。
 
-## 3. 请求如何进入 EngineCore
+## 4. 请求如何进入 EngineCore
 
 ### 1. 发送请求
 

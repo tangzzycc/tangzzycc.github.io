@@ -40,9 +40,19 @@ nav:
           - FlashAttention-2：并行划分与非矩阵运算优化: vllm/进阶篇/FlashAttention-2：线程块与Warp的工作划分.md
           - FlashAttention-3：异步搬运与计算流水线: vllm/进阶篇/FlashAttention-3：异步搬运与计算流水线.md
           - Decode Attention：Paged KV、GQA 与 Split-KV: vllm/进阶篇/Decode Attention：Paged KV、GQA与Split-KV.md
+          - MLA：低秩压缩、矩阵吸收与解耦 RoPE: vllm/进阶篇/MLA：低秩压缩、矩阵吸收与解耦RoPE.md
+          - 稀疏 Attention：选择性访问与高效计算: vllm/进阶篇/稀疏Attention：选择性访问与高效计算.md
       - 开发实践:
           - CogAgent-18B 模型接入与推理优化: vllm/开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md
           - RDNA 3.5 上的 vLLM LoRA Kernel 优化: vllm/开发实践/RDNA3.5上的vLLM-LoRA-Kernel优化.md
+          - 单输出 GEMM 与 Shared Expert 门控的 ROCm 优化: vllm/开发实践/单输出GEMM与Shared-Expert门控的ROCm优化.md
+          - RDNA W4A16 的形状分发与 LDS 边界: vllm/开发实践/RDNA-W4A16的形状分发与LDS边界.md
+          - GPTQ 权重加载与 RDNA INT4 布局重排: vllm/开发实践/GPTQ权重加载与RDNA-INT4布局重排.md
+          - Channelwise GPTQ MoE 的加载与 Triton 执行: vllm/开发实践/Channelwise-GPTQ-MoE的加载与Triton执行.md
+          - ROCm Attention 滑动窗口的参数与边界: vllm/开发实践/ROCm-Attention滑动窗口的参数与边界.md
+          - 多模态 Prefix-LM 在 ROCm Attention 中的实现: vllm/开发实践/多模态Prefix-LM在ROCm-Attention中的实现.md
+          - MRV2 投机解码中的 ShortConv 历史恢复: vllm/开发实践/MRV2投机解码中的ShortConv历史恢复.md
+          - MRV2 的 PIECEWISE 填充与投机解码启动 Profiling: vllm/开发实践/MRV2的PIECEWISE填充与投机解码启动Profiling.md
       - 杂记:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - GPU Kernel:
@@ -169,7 +179,7 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=15
+  - stylesheets/extra.css?v=17
 
 extra_javascript:
   - javascripts/mathjax.js

@@ -4,9 +4,7 @@
 
 ## 1. Protocol Object
 
-HTTP 入口是：
-
-[POST /v1/chat/completions](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/api_router.py#L40-L74)
+HTTP 入口是：[POST /v1/chat/completions](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/api_router.py#L40-L74)
 
 ```python
 async def create_chat_completion(
@@ -17,19 +15,15 @@ async def create_chat_completion(
     generator = await handler.create_chat_completion(request, raw_request)
 ```
 
-FastAPI/Pydantic 将 JSON 请求体转换成：
-
-[ChatCompletionRequest](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/protocol.py#L196-L245)
+FastAPI/Pydantic 将 JSON 请求体转换成：[ChatCompletionRequest](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/protocol.py#L196-L245)
 
 它同时包含两类信息：
 
-```text
-模型输入：
+- 模型输入：
 messages、tools、chat_template、多模态内容
 
-生成控制：
+- 生成控制：
 temperature、top_p、max_tokens、stop、response_format
-```
 
 这也是后面需要拆成两条分支的原因。
 
@@ -37,9 +31,7 @@ temperature、top_p、max_tokens、stop、response_format
 
 ### 2.1 进入 OpenAIServingChat
 
-主要入口是：
-
-[OpenAIServingChat._create_chat_completion()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L249-L371)
+主要入口是：[OpenAIServingChat._create_chat_completion()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L249-L371)
 
 这里首先调用：
 
@@ -53,9 +45,7 @@ result = await self.render_chat_request(request)
 return await self.online_renderer.render_chat(request)
 ```
 
-对应代码：
-
-[render_chat_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L206-L231)
+对应代码：[render_chat_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L206-L231)
 
 ### 2.2 OnlineRenderer 做 API 语义验证
 
@@ -75,9 +65,7 @@ conversation, engine_inputs = await self.preprocess_chat(...)
 
 ### 2.3 构造 ChatParams 和 TokenizeParams
 
-实现位于：
-
-[OnlineRenderer.preprocess_chat()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/online_renderer.py#L330-L376)
+实现位于：[OnlineRenderer.preprocess_chat()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/online_renderer.py#L330-L376)
 
 ```python
 tok_params = request.build_tok_params(self.model_config)
@@ -90,15 +78,13 @@ chat_params = request.build_chat_params(
 
 这两个对象职责不同：
 
-```text
-ChatParams
+- ChatParams
   控制消息解析和 Chat Template
   chat_template、tools、documents、add_generation_prompt
 
-TokenizeParams
+- TokenizeParams
   控制分词和长度限制
   max_model_len、max_output_tokens、truncate_prompt_tokens
-```
 
 构造代码：
 
@@ -117,9 +103,7 @@ await renderer.render_chat_async(
 )
 ```
 
-核心编排位于：
-
-[BaseRenderer.render_chat_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L1070-L1108)
+核心编排位于：[BaseRenderer.render_chat_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L1070-L1108)
 
 它包含四步：
 
@@ -141,9 +125,7 @@ process_for_engine_async()
 
 ### 2.5 应用模型 Chat Template
 
-普通 HF 模型使用：
-
-[HfRenderer.render_messages_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/hf.py#L1057-L1173)
+普通 HF 模型使用：[HfRenderer.render_messages_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/hf.py#L1057-L1173)
 
 它先把 OpenAI 消息规范化：
 
@@ -164,9 +146,7 @@ prompt_raw = await self._apply_chat_template_async(
 )
 ```
 
-真正调用 Hugging Face 的位置是：
-
-[safe_apply_chat_template()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/hf.py#L707-L802)
+真正调用 Hugging Face 的位置是：[safe_apply_chat_template()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/hf.py#L707-L802)
 
 ```python
 plain = tokenizer.apply_chat_template(
@@ -202,9 +182,7 @@ conversation = [
 
 ### 2.6 分词并转换成 EngineInput
 
-统一分词入口：
-
-[tokenize_prompts_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L630-L647)
+统一分词入口：[tokenize_prompts_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L630-L647)
 
 **示例**
 
@@ -253,9 +231,7 @@ tok_prompt = {
 }
 ```
 
-然后：
-
-[process_for_engine_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L961-L981) 把前端使用的 TokPrompt 转成推理引擎可以直接接收的标准 EngineInput
+然后：[process_for_engine_async()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/renderers/base.py#L961-L981) 把前端使用的 TokPrompt 转成推理引擎可以直接接收的标准 EngineInput
 
 根据输入类型产生：
 
@@ -264,13 +240,9 @@ tok_prompt = {
 - MultiModalInput
 - EncoderDecoderInput
 
-这些类型定义在：
+这些类型定义在：[vllm/inputs/engine.py](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/inputs/engine.py#L29-L162)
 
-[vllm/inputs/engine.py](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/inputs/engine.py#L29-L162)
-
-最终统一为：
-
-[EngineInput 类型别名](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/inputs/engine.py#L232-L282)
+最终统一为：[EngineInput 类型别名](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/inputs/engine.py#L232-L282)
 
 注意：EngineInput 不是一个具体 class，而是一组 TypedDict 的联合类型。
 
@@ -282,9 +254,7 @@ tok_prompt = {
 prompt_token_ids = self._extract_prompt_components(engine_input).token_ids
 ```
 
-然后计算允许生成的 token 数：
-
-[get_max_tokens()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/serve/utils/api_utils.py#L170-L206)
+然后计算允许生成的 token 数：[get_max_tokens()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/serve/utils/api_utils.py#L170-L206)
 
 核心约束是：
 
@@ -297,9 +267,7 @@ effective_max_tokens = min(
 )
 ```
 
-接着调用：
-
-[ChatCompletionRequest.to_sampling_params()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/protocol.py#L588-L630)
+接着调用：[ChatCompletionRequest.to_sampling_params()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/protocol.py#L588-L630)
 
 把 OpenAI API 字段转换为内部 SamplingParams：
 
@@ -339,9 +307,7 @@ generator = self.engine_client.generate(
 )
 ```
 
-代码位置：
-
-[serving.py:357](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L357-L371)
+代码位置：[serving.py:357](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/entrypoints/openai/chat_completion/serving.py#L357-L371)
 
 这里的 engine_client 对在线服务而言就是 AsyncLLM。
 
@@ -370,11 +336,7 @@ generate() 本身是一个异步生成器，它同时承担请求提交与结果
 
 ### 4.3 InputProcessor 构造 EngineCoreRequest
 
-在：
-
-[AsyncLLM.add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L280-L398)
-
-调用：
+在：[AsyncLLM.add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L280-L398) 调用：
 
 ```python
 request = self.input_processor.process_inputs(
@@ -385,9 +347,7 @@ request = self.input_processor.process_inputs(
 )
 ```
 
-核心实现：
-
-[InputProcessor.process_inputs()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/input_processor.py#L242-L385)
+核心实现：[InputProcessor.process_inputs()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/input_processor.py#L242-L385)
 
 它负责：
 
@@ -418,9 +378,7 @@ return EngineCoreRequest(
 
 ### 4.4 EngineCoreRequest 是进程间传输对象
 
-定义位于：
-
-[EngineCoreRequest](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/__init__.py#L88-L137)
+定义位于：[EngineCoreRequest](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/__init__.py#L88-L137)
 
 它使用：
 
@@ -451,9 +409,7 @@ trace_headers
 
 ### 4.5 前端登记输出状态，并发送给 EngineCore
 
-最终在：
-
-[AsyncLLM._add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L400-L415)
+最终在：[AsyncLLM._add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/async_llm.py#L400-L415)
 
 ```python
 # 当前 API Server 进程保存输出处理状态

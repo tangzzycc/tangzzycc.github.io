@@ -2,12 +2,6 @@
 
 ![EngineCore 的类结构与运行时组成](../../../assets/vllm/enginecore-static-structure.png){ width="100%" }
 
-![EngineCore 的创建与启动](../../../assets/vllm/enginecore-process-startup.png){ width="100%" }
-
-![EngineCore 内部的线程与状态边界](../../../assets/vllm/enginecore-threads-and-state.png){ width="100%" }
-
-![请求在 EngineCore 中如何前进一步](../../../assets/vllm/enginecore-request-step-loop.png){ width="100%" }
-
 ## 一、EngineCore 为什么要单独运行
 
 API Server 面向用户，负责 HTTP、协议转换、分词和流式输出；EngineCore 面向推理系统，负责调度、KV Cache 和模型执行。二者的工作负载差异很大：
@@ -18,7 +12,9 @@ API Server 面向用户，负责 HTTP、协议转换、分词和流式输出；E
 
 如果将这些工作全部放进一个 asyncio 事件循环，模型初始化、调度循环、序列化和异常处理会相互干扰。因此，vLLM 在线服务的主路径把 EngineCore 放入独立后台进程，通过 ZMQ 与 API Server 通信。
 
-## 二、图一：EngineCore 的创建与启动
+## 二、EngineCore 的创建与启动
+
+![EngineCore 的创建与启动](../../../assets/vllm/enginecore-process-startup.png){ width="100%" }
 
 ### 1. 从 API Server 进入 AsyncLLM
 
@@ -58,16 +54,14 @@ self.engine_core = EngineCoreClient.make_async_mp_client(...)
 
 这里容易产生一个误解：`EngineCoreClient` 不是 EngineCore 进程，它是位于 API Server 进程中的代理。
 
-它向下发送 `EngineCore[Request](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/request.py#L59-L195)`，向上接收 `EngineCoreOutputs`，让 `AsyncLLM` 不必关心 EngineCore 是本地进程、数据并行实例还是远端执行环境。
+它向下发送 [EngineCoreRequest](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/request.py#L59-L195)，向上接收 `EngineCoreOutputs`，让 `AsyncLLM` 不必关心 EngineCore 是本地进程、数据并行实例还是远端执行环境。
 
 ### 3. 先建立通信端点，再启动子进程
 
 [MPClient](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/core_client.py#L480-L649) 首先创建：
 
-```text
-API Server ZMQ ROUTER  -> 请求发送端
-API Server ZMQ PULL    -> 结果接收端
-```
+- API Server ZMQ ROUTER  -> 请求发送端
+- API Server ZMQ PULL    -> 结果接收端
 
 之后调用 [launch_core_engines()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/utils.py#L1072-L1222)。
 
@@ -86,13 +80,11 @@ class EngineCoreProc(EngineCore):
 
 两者的区别是：
 
-```text
-EngineCore
+- EngineCore
   Scheduler、Executor、KV Cache 初始化、step()
 
-EngineCoreProc
+- EngineCoreProc
   EngineCore + ZMQ + I/O 线程 + 队列 + 握手 + 进程生命周期
-```
 
 `EngineCoreProc` 先创建 `input_queue` 和 `output_queue`，进入握手上下文，然后调用 `super().__init__()` 初始化真正的 EngineCore。
 
@@ -134,9 +126,11 @@ self.model_executor.initialize_from_config(kv_cache_configs)
 - `block_size`
 - 数据类型和并行规模
 
-因此，READY 表示整个运行时已经可服务，而不只是子进程执行到了第一行。握手完成后，`run_engine_core()` 才调用 `[run_busy_loop()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/core.py#L1259-L1267)`。
+因此，READY 表示整个运行时已经可服务，而不只是子进程执行到了第一行。握手完成后，`run_engine_core()` 才调用 [run_busy_loop()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/core.py#L1259-L1267)。
 
-## 三、图二：EngineCore 内部的线程与状态边界
+## 三、EngineCore 内部的线程与状态边界
+
+![EngineCore 内部的线程与状态边界](../../../assets/vllm/enginecore-threads-and-state.png){ width="100%" }
 
 EngineCore 内部结构：I/O 线程负责搬运，主线程负责决策，Executor 负责执行。
 
@@ -164,11 +158,10 @@ input_queue
 
 输入线程把 `(request_type, request)` 放进 `input_queue`。主线程从队列中取出消息，再通过 [_handle_client_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/engine/core.py#L1372-L1432) 分发：
 
-```text
-ADD     -> add_request()
-ABORT   -> abort_requests()
-UTILITY -> 调用 EngineCore 工具方法
-```
+- ADD     -> add_request()
+- ABORT   -> abort_requests()
+- UTILITY -> 调用 EngineCore 工具方法
+
 
 新增请求最终进入 [Scheduler.add_request()](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/core/sched/scheduler.py#L2012-L2035)。
 
@@ -186,13 +179,11 @@ UTILITY -> 调用 EngineCore 工具方法
 
 这里必须区分逻辑状态与物理存储：
 
-```text
-EngineCore / Scheduler
+- EngineCore / Scheduler
  管理 block ID、请求所有权、缓存命中等元数据
 
-GPU Worker
+- GPU Worker
  持有真正存储 K/V 数值的 GPU Tensor
-```
 
 因此，EngineCore 负责决定请求“应当使用哪些 KV block”，但不会在 Python 主线程中保存每一层的真实 K/V 数据。
 
@@ -228,7 +219,9 @@ API Server
 
 I/O 线程使反序列化、序列化和 Socket 等待可以与 GPU 执行部分重叠，但请求状态的核心推进仍集中在主线程。
 
-## 四、图三：请求在 EngineCore 中如何前进一步
+## 四、请求在 EngineCore 中如何前进一步
+
+![请求在 EngineCore 中如何前进一步](../../../assets/vllm/enginecore-request-step-loop.png){ width="100%" }
 
 这张图描述的不是请求从开始到结束的一次性流水线，而是 EngineCore 每一轮迭代所执行的闭环。
 
@@ -282,13 +275,11 @@ scheduler_output = self.scheduler.schedule(...)
 
 它产生的 [SchedulerOutput](https://github.com/vllm-project/vllm/blob/v0.25.1/vllm/v1/core/sched/output.py#L181-L245) 描述：
 
-```text
-本轮执行哪些新请求
-哪些已有请求继续执行
-每个请求执行多少 token
-使用哪些 KV block
-哪些请求被抢占
-```
+- 本轮执行哪些新请求
+- 哪些已有请求继续执行
+- 每个请求执行多少 token
+- 使用哪些 KV block
+- 哪些请求被抢占
 
 它不是请求状态，也不是模型结果，只是本轮 GPU 执行所需的计划。
 

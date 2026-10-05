@@ -9,7 +9,7 @@
 
 :root {
   --md-text-font: "LXGW WenKai GB Screen", "霞鹜文楷 GB 屏幕阅读版", sans-serif;
-  --md-code-font: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
+  --md-code-font: "Roboto Mono", "SFMono-Regular", Consolas, monospace, "LXGW WenKai GB Screen";
 }
 
 /* 与参考仓库一致，保持 Material 默认视觉，仅补充阅读体验修正。 */
@@ -39,10 +39,10 @@
   margin-left: auto;
 }
 
-/* 未显式指定对齐方式时，表头与单元格内容默认居中。 */
-.md-typeset table:not([class]) th:not([align]),
-.md-typeset table:not([class]) td:not([align]) {
-  text-align: center !important;
+/* 全站表格内容统一靠左，包括 Markdown 显式指定对齐的列。 */
+.md-typeset table th,
+.md-typeset table td {
+  text-align: left !important;
 }
 
 /* Material 默认将提示框缩小到 .64rem；改为与所在正文等大。 */
