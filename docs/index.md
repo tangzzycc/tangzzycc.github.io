@@ -11,8 +11,8 @@
 - [vLLM V1 整体架构](vllm/基础篇/vLLM V1整体架构.md)
 - [CogAgent-18B 在 vLLM 中的模型接入与推理优化](vllm/开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md)
 - [vLLM Multi-LoRA 推理](vllm/杂记/vLLM Multi-LoRA推理.md)
-- [开源 PR 记录](open-source/index.md)
-- [Comfy-Kitchen #127](open-source/Comfy-Kitchen-127-Rowwise-INT8-Vectorized-Load.md)
+- [GPU Kernel 学习笔记](gpu-kernel/index.md)
+- [开源 PR 追踪](pr-tracking/index.md)
 - [秋招记录](career/index.md)
 
 ???+ success "最近整理"

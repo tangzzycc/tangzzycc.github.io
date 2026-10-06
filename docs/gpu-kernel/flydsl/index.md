@@ -11,3 +11,8 @@ FlyDSL 是面向 AMD GPU Kernel 的 Python DSL。它把逻辑坐标、Thread/Val
 ![三篇 FlyDSL 笔记与四个官方示例的学习顺序](../../../assets/gpu-kernel/flydsl/flydsl-learning-path.png){ width="96%" }
 
 前两篇以 FlyDSL `1941889400621f1fc3d8f03bada1a4e7380cdf7e` 为固定版本进行源码核对；第三篇来自 JinnPan 博客源码提交 `f1054a225ef7861efe99b60748a3697c40500d8c`，只转换中文正文、代码、表格与插图的排版，不改写原文内容。阅读时始终追踪三条线：逻辑坐标如何映射到地址、一个 Thread/Wave 实际持有哪些 Value、数据何时位于 GMEM、LDS 或 VGPR。
+
+## PR 实践
+
+- [PR #1057 · RDNA3 GEMM Tile Policy](FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md)
+- [PR #1113 · Fused RoPE Head-Dim 96](FlyDSL-1113-Fused-RoPE-Head-Dim-96.md)

@@ -7,6 +7,10 @@ use_directory_urls: true
 watch:
   - assets
 
+# 旧 PR 索引与重复的 FlashRT Kernel 笔记保留在源码中，不再发布。
+exclude_docs: |
+  /open-source/
+
 validation:
   links:
     # 图片位于仓库根目录，构建钩子会将其复制到站点根路径。
@@ -78,6 +82,8 @@ nav:
       - FlashRT RDNA 3.5:
           - 学习路径: gpu-kernel/flashrt-rdna35/index.md
           - 00 · AMD GPU 硬件模型与术语: gpu-kernel/flashrt-rdna35/00-AMD-GPU硬件模型与术语.md
+          - Frontend 与 Pipeline: gpu-kernel/flashrt-rdna35/01-Pi05-Frontend与Pipeline.md
+          - Pi0.5 模型结构与推理流程: gpu-kernel/flashrt-rdna35/02-Pi05模型结构与推理流程.md
           - 01 · HIP 执行模型与 Wave32 归约: gpu-kernel/flashrt-rdna35/01-HIP执行模型与Wave32归约.md
           - 02 · Activation 与 Residual Kernel: gpu-kernel/flashrt-rdna35/02-Activation与Residual-Kernel.md
           - 03 · Normalization Kernel: gpu-kernel/flashrt-rdna35/03-Normalization-Kernel.md
@@ -85,30 +91,16 @@ nav:
           - 05 · Encoder FlashAttention Kernel: gpu-kernel/flashrt-rdna35/05-Encoder-FlashAttention-Kernel.md
           - 06 · Decoder GQA Kernel: gpu-kernel/flashrt-rdna35/06-Decoder-GQA-Kernel.md
           - 07 · Small-M WMMA GEMM Kernel: gpu-kernel/flashrt-rdna35/07-SmallM-WMMA-GEMM-Kernel.md
+          - Temporal K/V 跨帧复用: gpu-kernel/flashrt-rdna35/06-Temporal-KV跨帧复用.md
       - FlyDSL:
           - 学习路径: gpu-kernel/flydsl/index.md
           - 01 · FlyDSL 编程模型与编译流程: gpu-kernel/flydsl/01-FlyDSL编程模型与编译流程.md
           - 02 · Layout 代数与 Tile 编程: gpu-kernel/flydsl/02-Layout代数与Tile编程.md
           - 03 · FlyDSL — 一次源码精读: gpu-kernel/flydsl/03-四个示例读懂FlyDSL.md
+          - "PR #1057 · RDNA3 GEMM Tile Policy": gpu-kernel/flydsl/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
+          - "PR #1113 · Fused RoPE Head-Dim 96": gpu-kernel/flydsl/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
       - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
-  - 开源PR记录:
-      - 总览: open-source/index.md
-      - FlashRT:
-          - "PR #213/#215 · Pi0.5 RDNA 3.5 后端与 Temporal K/V": open-source/FlashRT-213/index.md
-          - "01 · Frontend 与 Pipeline": open-source/FlashRT-213/01-Pi05-Frontend与Pipeline.md
-          - "02 · Pi0.5 模型结构与推理流程": open-source/FlashRT-213/02-Pi05模型结构与推理流程.md
-          - "03 · RDNA 3.5 融合算子": open-source/FlashRT-213/03-RDNA3.5融合算子.md
-          - "04 · RDNA 3.5 Attention Kernel": open-source/FlashRT-213/04-RDNA3.5-Attention-Kernel.md
-          - "05 · RDNA 3.5 GEMM 实现": open-source/FlashRT-213/05-RDNA3.5-GEMM实现.md
-          - "06 · Temporal K/V 跨帧复用": open-source/FlashRT-213/06-Temporal-KV跨帧复用.md
-      - Comfy-Kitchen:
-          - "PR #127 · Rowwise INT8 向量化 Kernel": open-source/Comfy-Kitchen-127-Rowwise-INT8-Vectorized-Load.md
-          - "PR #129 · SVDQuant INT4 Quantizer": open-source/Comfy-Kitchen-129-SVDQuant-INT4-Quantizer.md
-          - "PR #134 · AWQ W4A16 WMMA": open-source/Comfy-Kitchen-134-AWQ-W4A16-WMMA.md
-          - "PR #157 · Triton Stochastic FP8 Rounding": open-source/Comfy-Kitchen-157-Triton-Stochastic-FP8-Rounding.md
-      - FlyDSL:
-          - "PR #1057 · RDNA3 GEMM Tile Policy": open-source/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
-          - "PR #1113 · Fused RoPE Head-Dim 96": open-source/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
+  - 开源 PR 追踪: pr-tracking/index.md
   - 秋招记录: career/index.md
   - 关于本站: about.md
 
@@ -180,6 +172,7 @@ plugins:
 
 extra_css:
   - stylesheets/extra.css?v=17
+  - stylesheets/pr-tracking.css?v=4
 
 extra_javascript:
   - javascripts/mathjax.js

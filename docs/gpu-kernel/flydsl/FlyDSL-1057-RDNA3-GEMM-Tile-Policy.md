@@ -8,7 +8,7 @@ PR #1057 没有重写 RDNA3 WMMA GEMM 的数学或流水线，而是给 `gfx1151
 - 本文对应源码：[`ddd2040`](https://github.com/ROCm/FlyDSL/commit/ddd20408baba52462c488d50c2a048754458d518)
 - 选择策略：[`rdna3_f16_gemm_autotune.py`](https://github.com/ROCm/FlyDSL/blob/ddd20408baba52462c488d50c2a048754458d518/kernels/gemm/rdna3_f16_gemm_autotune.py)
 
-![gfx1151 GEMM tile policy](../../assets/pr/flydsl-1057-tile-policy.png){ width="95%" }
+![gfx1151 GEMM tile policy](../../../assets/pr/flydsl-1057-tile-policy.png){ width="95%" }
 
 ## 1. Tile 参数与合法性过滤
 

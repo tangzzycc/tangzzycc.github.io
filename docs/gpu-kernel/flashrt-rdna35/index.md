@@ -1,6 +1,6 @@
 # FlashRT RDNA 3.5 Kernel 源码精读
 
-[FlashRT PR #213](https://github.com/flashrt-project/FlashRT/pull/213) 为 Pi0.5 增加了面向 `gfx1151` 的 BF16 推理后端。`open-source/FlashRT-213` 中的笔记关注 PR 的模型、Frontend 和端到端数据流；这个子系列只关注其中的 RDNA HIP Kernel，目标是能从源码中还原每个 Kernel 的 Thread Ownership、Memory Access、Reduction、Synchronization 和 BF16 Rounding Boundary。
+[FlashRT PR #213](https://github.com/flashrt-project/FlashRT/pull/213) 为 Pi0.5 增加了面向 `gfx1151` 的 BF16 推理后端。[Frontend 与 Pipeline](01-Pi05-Frontend与Pipeline.md) 和 [Pi0.5 模型结构与推理流程](02-Pi05模型结构与推理流程.md) 关注 PR 的模型、Frontend 和端到端数据流；Kernel 章节的目标是能从源码中还原每个 Kernel 的 Thread Ownership、Memory Access、Reduction、Synchronization 和 BF16 Rounding Boundary。[Temporal K/V 跨帧复用](06-Temporal-KV跨帧复用.md) 放在 Kernel 章节之后阅读。
 
 - PR 合并后固定版本：[`e2cf5d1`](https://github.com/flashrt-project/FlashRT/commit/e2cf5d1fe7209e3f4fbf212c5b6321467e8f4874)
 - PR 基线：[`dd549e2`](https://github.com/flashrt-project/FlashRT/commit/dd549e2)
@@ -14,6 +14,8 @@
 | 章节 | 回答的核心问题 |
 | --- | --- |
 | [00 · AMD GPU 硬件模型与 Kernel 阅读术语](00-AMD-GPU硬件模型与术语.md) | Grid、Workgroup、Wavefront、Lane 如何映射到 WGP、CU、SIMD，VGPR/SGPR/LDS/Cache 又分别由谁拥有？ |
+| [Frontend 与 Pipeline](01-Pi05-Frontend与Pipeline.md) | FlashRT 如何把 OpenPI 模型变成静态、可捕获的推理流程？ |
+| [Pi0.5 模型结构与推理流程](02-Pi05模型结构与推理流程.md) | Pi0.5 怎样从图像、指令和随机噪声生成连续动作？ |
 | [01 · HIP 执行模型与 Wave32 归约](01-HIP执行模型与Wave32归约.md) | 如何从 `grid/block/thread` 还原数据所有权，`__shfl_*`、LDS 和 `__syncthreads()` 如何组成 Block Reduction？ |
 | [02 · Activation 与 Residual Kernel](02-Activation与Residual-Kernel.md) | Scalar/Packed 路径如何分流，Merged GeGLU 和 Gated Residual 如何对应内存布局？ |
 | [03 · Normalization Kernel](03-Normalization-Kernel.md) | 8 个 Norm Kernel 怎样完成行内归约，固定宽度为什么能用 Register 换掉重读？ |
@@ -21,6 +23,7 @@
 | [05 · Encoder FlashAttention Kernel](05-Encoder-FlashAttention-Kernel.md) | 两个 Wave 如何协作完成 `16×16` QK、Online Softmax 和 `P×V`？ |
 | [06 · Decoder GQA Kernel](06-Decoder-GQA-Kernel.md) | Split-key 如何将 KV 分给 8 Waves，为什么还保留一条 Row-owned 实现？ |
 | [07 · Small-M WMMA GEMM Kernel](07-SmallM-WMMA-GEMM-Kernel.md) | Narrow-N Split-K 与 Wider-N LDS Tiling 如何共用 WMMA Mapping，又如何与 hipBLASLt 分工？ |
+| [Temporal K/V 跨帧复用](06-Temporal-KV跨帧复用.md) | 连续帧如何复用 Prefix K/V，同时保持失败恢复与 graph refresh 正确？ |
 
 ## PR #213 的 Kernel 清单
 

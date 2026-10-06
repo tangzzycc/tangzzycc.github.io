@@ -8,7 +8,7 @@ PR #1113 的修复由两部分组成：把 vector width 限制为原生 `{1,2,4,
 - 本文对应源码：[`f4fa09f`](https://github.com/ROCm/FlyDSL/commit/f4fa09f694871a815084ddbb56116afd4843a118)
 - 核心文件：[`fused_rope_cache_kernel.py`](https://github.com/ROCm/FlyDSL/blob/f4fa09f694871a815084ddbb56116afd4843a118/kernels/attention/fused_rope_cache_kernel.py)
 
-![Fused RoPE head-dim 96 lane mapping](../../assets/pr/flydsl-1113-rope-d96.png){ width="95%" }
+![Fused RoPE head-dim 96 lane mapping](../../../assets/pr/flydsl-1113-rope-d96.png){ width="95%" }
 
 ## 1. Fused kernel 与 NeoX 配对关系
 
