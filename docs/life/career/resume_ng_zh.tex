@@ -1,0 +1,298 @@
+% !TeX TS-program = xelatex
+\documentclass{resume}
+
+\ResumeName{\raisebox{0.3em}{唐嘉鹏}}
+
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+
+% 如果想插入照片，请使用以下两个库。
+\usepackage{graphicx}
+\usepackage{tikz}
+
+% 一级列表使用实心圆点
+\renewcommand{\labelitemi}{\textbullet}
+\renewcommand{\labelitemii}{%
+  \raisebox{0.15ex}{\scriptsize$\circ$}%
+}
+
+% 在模板原有列表参数上增加垂直留白，不改变横向缩进和换行宽度。
+\let\ResumeOriginalItemize\itemize
+\let\ResumeOriginalEndItemize\enditemize
+\renewenvironment{itemize}{%
+  \ResumeOriginalItemize
+  \addtolength{\topsep}{0.2em}%
+  \addtolength{\itemsep}{0.2em}%
+}{%
+  \ResumeOriginalEndItemize
+}
+
+% 实习公司标题使用 AMD 标记加公司名称。
+\newcommand{\AMDMark}{%
+  \raisebox{-0.15em}{%
+    \includegraphics[height=0.9em]{amd-mark.png}%
+  }%
+  \hspace{0.3em}%
+}
+
+% 三列项目标题：
+% 可选参数控制中间岗位/角色向右偏移的距离，默认不偏移。
+\newcommand{\ResumeItemThreeColumn}[4][0pt]{%
+  {\zihao{-4}%
+    \par\noindent
+    \makebox[0pt][l]{{\heiti #2}}%
+    \hspace*{#1}%
+    \makebox[\textwidth][c]{{\zihao{5}#3}}%
+    \hspace*{-#1}%
+    \makebox[0pt][r]{#4}%
+    \par
+    \pdfbookmark[2]{#2}{subsec:\arabic{resumebookmark}}%
+    \stepcounter{resumebookmark}%
+    \vspace{0.3em}%
+  }%
+}
+
+% 三列实习标题，仅左侧公司名称使用更大字号。
+\newcommand{\ResumeCompanyThreeColumn}[4][0pt]{%
+  {\zihao{-4}%
+    \par\noindent
+    \makebox[0pt][l]{{\fontsize{13pt}{16pt}\selectfont\heiti #2}}%
+    \hspace*{#1}%
+    \makebox[\textwidth][c]{#3}%
+    \hspace*{-#1}%
+    \makebox[0pt][r]{#4}%
+    \par
+    \pdfbookmark[2]{#2}{subsec:\arabic{resumebookmark}}%
+    \stepcounter{resumebookmark}%
+  }%
+}
+
+% 实习经历中的工作小标题。
+\newcommand{\ResumeWorkTitle}[1]{%
+  \par\vspace{0.2em}
+  \noindent{\zihao{5}\textbf{#1}}\par
+}
+
+% ====================
+% 在这里添加字体设置代码
+
+% 设置英文和数字的主字体
+\setmainfont{Times New Roman}
+
+% 设置中文的主字体
+% 直接读取 Windows 系统字体文件，并开启伪粗体支持
+% \setCJKmainfont[Path=./, BoldFont=SIMHEI.TTF]{SIMHEI.TTF}
+% \setCJKsansfont[Path=./, BoldFont=SIMHEI.TTF]{SIMHEI.TTF}
+% \setCJKmonofont[Path=./, BoldFont=SIMHEI.TTF]{SIMHEI.TTF}
+
+% ====================
+
+\begin{document}
+
+\ResumeContacts{
+  \hspace*{-1em}%
+  男,%
+  24岁,%
+  (+86)158-0628-1370,%
+  \ResumeUrl{mailto:3081129260@qq.com}{3081129260@qq.com},%
+  \ResumeUrl{https://github.com/tangzzycc}{GitHub: tangzzycc},%
+  % \ResumeUrl{https://blog.fkynjyq.com}{blog.fkynjyq.com}
+  % \footnote{下划线内容包含超链接。},%
+  求职意向：AI Infra%
+}
+
+% 如果想插入照片，请取消此代码的注释。
+% 但是默认不推荐插入照片，因为这不是简历的重点。
+% 如果默认的照片插入格式不能满足你的需求，
+% 可以调整照片大小，或者使用其他方式插入照片。
+% \begin{tikzpicture}[remember picture, overlay]
+%   \node[
+%     anchor=north east,
+%     inner sep=1cm
+%   ] at (current page.north east)
+%   {\includegraphics[width=2cm]{tang.jpg}};
+% \end{tikzpicture}
+
+\ResumeTitle
+
+
+\vspace{0.35em}
+\section{教育经历}
+
+\ResumeItem
+[西安交通大学|硕士研究生]
+{西安交通大学 \textbf{985}}
+[\textnormal{软件工程，软件学院|专业硕士}]
+[2024.09—2027.06]
+
+\textbf{GPA: 3.82/4.0}，多次获得学业奖学金，
+\textbf{英语水平：CET6}。
+
+\textbf{研究方向：}高通 Snapdragon 平台端侧大模型部署、混合精度推理与 NPU 算子优化。
+
+
+\ResumeItem
+[中国石油大学（华东）|本科生]
+{中国石油大学（华东） \textbf{211}}
+[\textnormal{软件工程，计算机科学与技术学院|本科}]
+[2020.09—2024.06]
+
+\vspace{0.35em}
+\section{实习经历}
+
+\ResumeCompanyThreeColumn
+{\texorpdfstring{\AMDMark AMD}{AMD}}
+{\textit{Physical AI Intern}}
+{2026.7 — 至今}
+
+\begin{itemize}
+  \item \textbf{vLLM ROCm 多模态与 LoRA 优化}：扩展 vLLM 对
+  CogAgent-18B 的多模态推理支持；面向 AMD RDNA 3.5 架构 GPU 优化 LoRA 算子。
+  \begin{itemize}
+      \item \textbf{CogAgent-18B 模型支持与 AWQ W4A16 推理优化}：针对
+      CogAgent-18B 双视觉编码及视觉特征逐层注入语言模型的结构，完成其在
+      vLLM V1 中的端到端推理支持，适配 Torch Compile 与 HIP Graph，并完成
+      与 Hugging Face BF16 的精度对齐；完成 AWQ W4A16 推理支持，并基于
+      ROCm Profiler 工具进行性能分析调优。相较最初的 Hugging Face BF16
+      Eager 推理，TTFT 降低 \textbf{47.4\%}、Decode 吞吐提升
+      \textbf{5.28$\times$}、端到端延迟降低 \textbf{76.1\%}。
+    
+    \item \textbf{LoRA 算子优化}：面向 AMD RDNA架构下小 Batch 多 LoRA 推理，实现并调优
+    Shrink/Expand Triton 算子，使 Decode 吞吐提升
+    \textbf{18.6\%$\sim$24.8\%}、端到端延迟最高降低
+    \textbf{19.0\%}。
+
+    \item 参与 vLLM 社区 ROCm 相关 Issue 的排查，并通过 PR 提交修复与优化。
+  \end{itemize}
+
+  \item \textbf{FastFlowLM LoRA 推理支持}：面向 Gemma4-E 系列，
+  扩展 FastFlowLM NPU 推理框架，实现 PEFT Adapter
+  权重转换、硬件友好布局重排及元数据生成、运行时加载管理及 Prefill/Decode AIE 算子适配；实现
+  Adapter 与 Base Q4NX 权重的解耦加载和计算，并支持多种常见 LoRA Rank 配置。
+
+\end{itemize}
+
+
+\vspace{0.35em}
+\section{开源贡献}
+
+\begin{itemize}
+
+  \item \textbf{vLLM}：ROCm/RDNA 量化与算子优化、多模态 Prefix-LM 支持及投机解码修复。
+  \begin{itemize}
+    \item \textbf{多模态 Prefix-LM}：为 ROCm Attention 补齐多模态 Prefix-LM 支持，
+    并在实现过程中发现、定位并修复 MRV2 的 PIECEWISE 填充计数错误，
+    解决自适应投机解码因输入超出编译范围而启动失败的问题。
+    （PR \ResumeUrl{https://github.com/vllm-project/vllm/pull/60040}{\#60040}、
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/60049}{\#60049} 进行中）
+
+    \item \textbf{ROCm/RDNA 修复与优化}：修复 GPTQ 权重加载并优化 RDNA INT4 重排，加快模型加载，
+    修正 Channelwise GPTQ MoE fallback、W4A16 算子分发及 Attention 滑动窗口边界，
+    优化 Qwen MoE 共享专家门控的单输出 GEMM 路径。
+    （PR \ResumeUrl{https://github.com/vllm-project/vllm/pull/53283}{\#53283}、
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/59550}{\#59550} 已合并；
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/52637}{\#52637}、
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/58513}{\#58513}、
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/52619}{\#52619} 进行中）
+
+    \item \textbf{LFM2.5 投机解码}：修复 MRV2 中 LFM2.5 草稿模型跨轮 ShortConv
+    历史污染问题，恢复有效卷积历史，并修正 Chunked Prefill 的下一 token 输入。
+    （PR \ResumeUrl{https://github.com/vllm-project/vllm/pull/59600}{\#59600} 进行中）
+  \end{itemize}
+
+  \item \textbf{FlashRT}：支持 AMD RDNA架构 $\pi$0.5 BF16 推理与优化。
+  （PR \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/213}{\#213}、
+  \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/215}{\#215} 已合并）
+  \begin{itemize}
+    \item 实现 BF16 推理 Pipeline，手工实现并优化 HIP 激活、归一化、RoPE、
+    Attention 与 WMMA GEMM 算子，通过 Fused Kernel 减少中间访存与启动开销，
+    并实现跨帧 K/V 复用与缓存失效管理。
+  \end{itemize}
+
+  \item \textbf{ROCm/FlyDSL}：RDNA GPU 算子优化与架构适配。
+  \begin{itemize}
+    \item 针对 gfx1151 按矩阵形状优化 WMMA GEMM Tile 选择，修复 JIT 编译目标
+    与 Launcher Cache 跨架构复用问题；调整 Fused RoPE Cache 的向量宽度与跨 Lane 配对，
+    修复 RDNA wave32 下 head dimension=96 的 NeoX RoPE 计算错误。
+    （PR \ResumeUrl{https://github.com/ROCm/FlyDSL/pull/1057}{\#1057}、
+    \ResumeUrl{https://github.com/ROCm/FlyDSL/pull/1113}{\#1113} 进行中）
+  \end{itemize}
+\end{itemize}
+
+
+
+\vspace{0.35em}
+\section{项目经历}
+
+\ResumeItemThreeColumn
+{vLLM Adaptive KV Offload 推理服务优化}
+{独立开发者}
+{2026.06 — 2026.07}
+
+\begin{itemize}
+
+  \item \textbf{自适应 KV 缓存调度}：针对中短请求命中外部
+  KV Cache 后，仍可能因存储加载排队导致 TTFT 升高的问题，在
+  vLLM V1 中实现 Load-vs-Recompute策略，在线比较 KV 加载与重新
+  Prefill 的完成成本，按请求动态选择缓存复用或重算。
+
+  \item \textbf{性能分析与优化}：利用 Profiler 工具与
+  IO Trace 对 KV Promotion、H2D 与 GPU Prefill 进行端到端时序
+  分析，识别存储排队与计算资源竞争；据此优化跨请求
+  Load/Recompute 并行调度，并引入重算准入和 Queued IO 取消机制，
+  降低冗余传输与额外 Prefill 开销。
+
+  \item \textbf{混合负载测试}：在 4$\times$ RTX 5090 部署
+  Qwen3.6-35B-A3B-FP8 的 TP4 Storage-bound 混合负载中，使被
+  策略选择重算的 4K 延迟敏感请求 TTFT P50/P99 分别降低
+  \textbf{54.7\%/36.4\%}，整体吞吐略优于基线，有效缓解存储
+  拥塞引起的请求尾延迟。
+
+\end{itemize}
+
+\ResumeItemThreeColumn
+{高通Snapdragon平台大模型推理优化}
+{课题组项目}
+{2026.01 — 2026.04}
+
+\begin{itemize}
+  \item \textbf{Qwen3-1.7B GPTQ W4A16 端侧推理}：面向骁龙
+  8 Gen 3 与 SA8797 车载平台，完成 Qwen3-1.7B GPTQ-Int4
+  模型在 ExecuTorch/QNN 上的端到端部署与推理优化，打通离线
+  量化权重接入、自定义算子及端侧执行链路。
+  \begin{itemize}
+    \item \textbf{量化与图编译链路}：改造Executorch/QNN量化与
+    图编译链路，支持直接接入离线GPTQ w4量化模型，读取权重
+    参数并完成GPTQ Linear替换，绕过默认在线PTQ校准流程，
+    避免离线权重进行二次量化。
+
+    \item \textbf{自定义算子与性能优化}：实现基于 HVX 查找表
+    计算的自定义 Linear 算子，将 GPTQ 权重解包、HVX 分块
+    布局重排和激活查找表计算接入 QNN 后端；进一步通过投影
+    算子融合、MHA2SHA 图优化与 8-bit KV Cache 降低算子调度
+    和访存开销，在骁龙 8 Gen 3 上实现 Decode 吞吐提升约
+    \textbf{15\%}。
+  \end{itemize}
+
+  % 后续添加 Qwen3.5 推理支持
+  \item \textbf{Qwen3.5 推理支持}：扩展
+    ExecuTorch/QNN Runtime 对 Hybrid Attention 架构的支持，
+    针对不同 Attention 层采用不同缓存机制的特点，重新设计模型
+    状态接口与 Prefill/Decode 状态传递流程，实现 KV Cache 与
+    线性注意力状态的统一管理；完善模型导出、QNN 图编译与端侧
+    Runner 适配，打通 Qwen3.5-0.8B FP16 端到端推理链路。
+\end{itemize}
+
+
+\vspace{0.35em}
+\section[专业技能]{专业技能}
+
+\begin{itemize}
+  \item \textbf{编程与工程：}熟悉 C/C++、Python，掌握 CMake、Docker、Git 等工程工具，具备 Linux 开发调试经验，能够熟练使用 Codex 等 AI Coding 工具提升开发与调试效率。
+
+  \item \textbf{推理框架与部署：}熟悉 vLLM 等常见大模型推理框架，了解 Continuous Batching、PagedAttention、模型量化、投机解码等常见推理优化技术，并具备 Qualcomm、AMD 等端侧平台的模型部署经验。
+
+  \item \textbf{算子开发与性能分析：}熟悉 GPU 架构与内存模型，掌握 CUDA、HIP、Triton 编程，具备算子融合与自定义算子开发经验，能够使用 Nsight Compute/System、ROCm Profiler等工具进行 Kernel 性能分析与调优。
+
+\end{itemize}
+
+\end{document}

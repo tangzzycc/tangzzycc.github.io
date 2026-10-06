@@ -1,18 +1,106 @@
-# FlyDSL：从编程模型到四个官方示例
+---
+title: "FlyDSL"
+hide:
+  - navigation
+  - toc
+  - footer
+---
 
-FlyDSL 是面向 AMD GPU Kernel 的 Python DSL。它把逻辑坐标、Thread/Value 所有权、GMEM/LDS/VGPR 数据移动和 MFMA Operand Layout 组织成可以组合、可以在 MLIR 中 Lower 的编程模型。
+<div class="notebook-index" markdown="1">
 
-当前笔记收缩为三篇。前两篇负责建立阅读前置，第三篇沿 JinnPan 的《FlyDSL — 一次源码精读》完整整理四个官方示例：
+<div class="index-intro" markdown="1">
 
-1. [FlyDSL 编程模型与编译流程](01-FlyDSL编程模型与编译流程.md)：从 GPU 执行层级出发，解释 `@flyc.jit`、`@flyc.kernel`、参数 specialization、MLIR Lowering 与 JIT Cache。
-2. [Layout 代数与 Tile 编程](02-Layout代数与Tile编程.md)：系统讲解 `Layout=(Shape,Stride)`、Divide、Slice、Tensor View、Thread/Value Layout 和 Tiled Copy。
-3. [FlyDSL — 一次源码精读](03-四个示例读懂FlyDSL.md)：经作者授权迁移 JinnPan 的原博客，沿 Vector Add、Tiled Copy、TiledMma 和 Preshuffle GEMM 四个示例阅读完整实现，并保留原文插图。
+<p class="index-eyebrow">GPU Kernel / Python DSL · AMD GPU</p>
 
-![三篇 FlyDSL 笔记与四个官方示例的学习顺序](../../../assets/gpu-kernel/flydsl/flydsl-learning-path.png){ width="96%" }
+# FlyDSL
 
-前两篇以 FlyDSL `1941889400621f1fc3d8f03bada1a4e7380cdf7e` 为固定版本进行源码核对；第三篇来自 JinnPan 博客源码提交 `f1054a225ef7861efe99b60748a3697c40500d8c`，只转换中文正文、代码、表格与插图的排版，不改写原文内容。阅读时始终追踪三条线：逻辑坐标如何映射到地址、一个 Thread/Wave 实际持有哪些 Value、数据何时位于 GMEM、LDS 或 VGPR。
+从编程模型与编译流程开始，理解 Layout、Thread / Value 所有权与数据移动，再沿四个官方示例阅读完整实现。
+
+</div>
+
+## 编程模型与示例
+
+<div class="index-grid" markdown="1">
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">01</p>
+
+### [FlyDSL 编程模型与编译流程](01-FlyDSL编程模型与编译流程.md)
+
+GPU 执行层级、JIT / Kernel 边界、参数特化与 MLIR Lowering。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">02</p>
+
+### [Layout 代数与 Tile 编程](02-Layout代数与Tile编程.md)
+
+Shape / Stride、Divide、Slice、Tensor View 与 Tiled Copy。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">03 · 四个官方示例</p>
+
+### [FlyDSL — 一次源码精读](03-四个示例读懂FlyDSL.md)
+
+沿 Vector Add、Tiled Copy、TiledMma 与 Preshuffle GEMM 阅读源码。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+</div>
 
 ## PR 实践
 
-- [PR #1057 · RDNA3 GEMM Tile Policy](FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md)
-- [PR #1113 · Fused RoPE Head-Dim 96](FlyDSL-1113-Fused-RoPE-Head-Dim-96.md)
+<div class="index-grid" markdown="1">
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">PR #1057</p>
+
+### [RDNA3 GEMM Tile Policy](FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md)
+
+RDNA3 GEMM 的 Tile Policy 与形状选择。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">PR #1113</p>
+
+### [Fused RoPE · Head-Dim 96](FlyDSL-1113-Fused-RoPE-Head-Dim-96.md)
+
+Head-Dim 96 的融合 RoPE 实现与数据布局。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+</div>
+
+<details class="index-details" markdown="1">
+<summary>源码版本与原文来源</summary>
+
+前两篇以 FlyDSL `1941889400621f1fc3d8f03bada1a4e7380cdf7e` 为固定版本核对源码。第三篇经作者授权迁移 JinnPan 的《FlyDSL — 一次源码精读》，对应博客源码提交 `f1054a225ef7861efe99b60748a3697c40500d8c`，保留原文内容与插图。
+
+</details>
+
+<div class="index-more" markdown="1">
+
+[返回 GPU Kernel](../index.md)
+
+</div>
+
+</div>

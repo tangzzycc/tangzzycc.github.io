@@ -1,0 +1,225 @@
+/* 首页与模块索引共用的入口布局，配色继承全站主题。 */
+.md-typeset .notebook-index {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 0 32px;
+}
+
+.notebook-index .index-intro {
+  max-width: 800px;
+  padding: 4px 0 28px;
+}
+
+.md-typeset .notebook-index .index-eyebrow {
+  margin: 0 0 16px;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.7rem;
+  letter-spacing: 0.025em;
+}
+
+.md-typeset .notebook-index h1 {
+  margin: 0 0 18px;
+  color: var(--md-default-fg-color);
+  font-size: clamp(30px, 3vw, 42px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.notebook-index .index-intro > p:not(.index-eyebrow) {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.85rem;
+  line-height: 1.85;
+}
+
+/* 索引里的标题不显示段落锚点图标，卡片标题负责导航。 */
+.notebook-index .headerlink {
+  display: none;
+}
+
+.md-typeset .notebook-index h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 12px 0 18px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.notebook-index .index-section-count {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.65rem;
+  font-weight: 400;
+}
+
+.notebook-index .index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 32px;
+}
+
+.notebook-index .index-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 210px;
+  padding: 22px 24px 40px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px;
+  background: var(--md-default-bg-color);
+  transition: border-color 150ms ease;
+}
+
+.notebook-index .index-card:hover {
+  border-color: var(--md-default-fg-color--lighter);
+}
+
+.md-typeset .notebook-index .index-card-label {
+  margin: 0 0 14px;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+.md-typeset .notebook-index .index-card h3 {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.md-typeset .notebook-index .index-card h3 a {
+  color: var(--md-default-fg-color);
+}
+
+.notebook-index .index-card h3 a::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-radius: 12px;
+}
+
+.notebook-index .index-card h3 a:focus-visible {
+  outline: none;
+}
+
+.notebook-index .index-card h3 a:focus-visible::after {
+  outline: 2px solid var(--md-default-fg-color--light);
+  outline-offset: 3px;
+}
+
+.notebook-index .index-card > p:not(.index-card-label) {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.notebook-index .index-card-arrow {
+  position: absolute;
+  bottom: 14px;
+  right: 20px;
+  color: var(--md-default-fg-color--lighter);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.notebook-index .index-jump {
+  margin-top: 18px;
+  font-size: 0.75rem;
+  line-height: 2;
+}
+
+.notebook-index .index-more {
+  padding-top: 18px;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  font-size: 0.72rem;
+  line-height: 2;
+}
+
+.md-typeset .notebook-index .index-more > p,
+.md-typeset .notebook-index .index-jump > p {
+  margin: 0;
+}
+
+/* 技术参考默认折叠，仍保留索引原有的来源和验证说明。 */
+.md-typeset .notebook-index details.index-details {
+  margin: 16px 0;
+  padding: 0 20px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 10px;
+  box-shadow: none;
+  background: var(--md-default-bg-color);
+  font-size: 0.78rem;
+}
+
+.md-typeset .notebook-index details.index-details > summary {
+  margin: 0 -20px;
+  padding: 16px 44px 16px 20px;
+  color: var(--md-default-fg-color--light);
+  background: transparent;
+  font-weight: 400;
+}
+
+.md-typeset .notebook-index details.index-details > summary::before {
+  display: none;
+}
+
+.md-typeset .notebook-index details.index-details > summary::after {
+  top: 16px;
+  right: 16px;
+  color: var(--md-default-fg-color--light);
+}
+
+.notebook-index .index-record-panel {
+  margin: 24px 0;
+  padding: 20px 24px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.md-typeset .notebook-index .index-record-panel h2 {
+  margin-top: 0;
+}
+
+.notebook-index a:focus-visible {
+  outline: 2px solid var(--md-default-fg-color--light);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+@media screen and (max-width: 59.984375em) {
+  .notebook-index .index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 34.984375em) {
+  .notebook-index .index-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .notebook-index .index-card {
+    min-height: 180px;
+    padding: 20px 20px 38px;
+  }
+
+  .notebook-index .index-intro {
+    padding-bottom: 24px;
+  }
+
+  .notebook-index .index-record-panel {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-index .index-card {
+    transition: none;
+  }
+}

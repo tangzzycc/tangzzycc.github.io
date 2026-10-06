@@ -202,16 +202,14 @@
 
   .sidebar-rail-toggle:hover,
   .sidebar-rail-toggle:focus-visible {
-    color: var(--md-accent-fg-color);
-    background: var(--md-accent-fg-color--transparent);
-    opacity: 1;
+    color: var(--md-default-fg-color--light);
+    background: transparent;
+    opacity: 0.85;
     outline: none;
-    transform: scale(1.06);
   }
 
   .sidebar-rail-toggle:focus-visible {
-    border-color: var(--md-accent-fg-color);
-    box-shadow: 0 0 0 0.1rem var(--md-accent-fg-color--transparent);
+    border-color: var(--md-default-fg-color--lighter);
   }
 
   .sidebar-rail-toggle:active {
@@ -248,9 +246,8 @@
   body.sidebar-secondary-collapsed .sidebar-rail-toggle--secondary {
     margin-right: auto;
     margin-left: auto;
-    color: var(--md-primary-fg-color);
-    background: var(--md-accent-fg-color--transparent);
-    opacity: 1;
+    color: var(--md-default-fg-color--light);
+    background: transparent;
   }
 
   body.sidebar-primary-collapsed .md-content,

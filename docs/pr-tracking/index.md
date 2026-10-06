@@ -15,8 +15,6 @@ hide:
   <a class="pr-tracker-github" href="https://github.com/tangzzycc">GitHub <span aria-hidden="true">↗</span></a>
 </div>
 
-按项目记录 15 个 Open 或 Merged PR，覆盖推理框架、GPU Kernel 与模型部署。
-
 ## vLLM <span class="pr-section-count">8</span> { #vllm }
 
 <div class="pr-card-grid pr-project--vllm" markdown="0">

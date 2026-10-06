@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{# 全站不收录到搜索引擎，允许抓取以便识别 noindex。 #}
+{% block extrahead %}
+  {{ super() }}
+  <meta name="robots" content="noindex">
+{% endblock %}
+
+{# 模块导航已并入页头，移除原来的第二行标签栏。 #}
+{% block tabs %}{% endblock %}

@@ -1,24 +1,103 @@
-# Tang 的笔记本
+---
+title: "Tang's Notebook"
+hide:
+  - navigation
+  - toc
+  - footer
+---
 
-这里记录 AI Infra、vLLM、开源实践和求职过程中的学习与思考。
+<div class="notebook-index notebook-index--home" markdown="1">
 
-!!! info "关于这个笔记本"
-    内容仍在持续整理。目前主要关注大模型推理框架与系统工程，笔记会随着学习逐步补充。
+<div class="index-intro" markdown="1">
 
-## 笔记目录
+<p class="index-eyebrow">TANG’S NOTEBOOK</p>
 
-- [AI Infra 学习笔记](ai-infra/index.md)
-- [vLLM V1 整体架构](vllm/基础篇/vLLM V1整体架构.md)
-- [CogAgent-18B 在 vLLM 中的模型接入与推理优化](vllm/开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md)
-- [vLLM Multi-LoRA 推理](vllm/杂记/vLLM Multi-LoRA推理.md)
-- [GPU Kernel 学习笔记](gpu-kernel/index.md)
-- [开源 PR 追踪](pr-tracking/index.md)
-- [秋招记录](career/index.md)
+# 从推理框架到 GPU Kernel
 
-???+ success "最近整理"
-    - vLLM V1 请求处理流程与模块边界
-    - CogAgent-18B 模型接入、双视觉路径与 gfx115x 推理优化
-    - Multi-LoRA 的显存管理与 SGMV 算子
-    - 开源贡献过程记录
+围绕源码阅读、算子实现与开源实践，记录大模型推理系统如何运行，也记录动手编程和生活中的一些经历。
 
-更多内容可以通过顶部导航或搜索框查找。
+</div>
+
+<div class="index-grid" markdown="1">
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">学习索引</p>
+
+### [AI Infra](ai-infra/index.md)
+
+推理系统与工程实践的学习入口，串起框架、算子和实际开发。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">源码阅读</p>
+
+### [vLLM 笔记](vllm/index.md)
+
+从请求调度与 KV Cache，到 Attention、模型接入与 ROCm 优化。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">算子与性能</p>
+
+### [GPU Kernel](gpu-kernel/index.md)
+
+阅读 FlyDSL 与 FlashRT，理解线程分工、内存访问和 GEMM 优化。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">编程练习</p>
+
+### [HandCoding](handcoding/index.md)
+
+动手实现与优化 GPU 算子，按题目整理 LeetGPU 练习。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">开源实践</p>
+
+### [开源 PR 追踪](pr-tracking/index.md)
+
+按项目查看我的 Open 与 Merged PR，以及对应的学习笔记。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">日常记录</p>
+
+### [生活](life/index.md)
+
+技术之外的日常与个人经历，目前整理秋招过程。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+</div>
+
+<div class="index-more" markdown="1">
+
+[GitHub · @tangzzycc](https://github.com/tangzzycc)
+
+</div>
+
+</div>

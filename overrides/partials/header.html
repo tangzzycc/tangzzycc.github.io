@@ -1,0 +1,39 @@
+{% import "partials/tabs-item.html" as item with context %}
+<header class="md-header notebook-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="{{ lang.t('header') }}">
+    <a class="notebook-brand" href="{{ nav.homepage.url | url }}" aria-label="{{ config.site_name }}">
+      <span class="notebook-logo" aria-hidden="true">{% include "partials/logo.html" %}</span>
+      <span>{{ config.site_name }}</span>
+    </a>
+    <div class="md-header__title" data-md-component="header-title" hidden>
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">{{ config.site_name }}</div>
+        <div class="md-header__topic" data-md-component="header-topic">{{ page.title }}</div>
+      </div>
+    </div>
+    <div class="notebook-navigation">
+      <ul class="md-tabs__list">
+        {% for nav_item in nav.items %}
+          {% if nav_item != nav.homepage %}
+            {{ item.render(nav_item) }}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="notebook-header-actions">
+      {% if config.theme.palette and config.theme.palette is not mapping %}
+        {% include "partials/palette.html" %}
+        {% include "partials/javascripts/palette.html" %}
+      {% endif %}
+      <label class="md-header__button md-icon notebook-search-toggle" for="__search" title="{{ lang.t('search') }}" aria-label="{{ lang.t('search') }}" aria-haspopup="dialog" aria-expanded="false" tabindex="0" role="button">
+        {% set icon = config.theme.icon.search or "material/magnify" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </label>
+      <label class="md-header__button md-icon notebook-drawer-toggle" for="__drawer" title="导航" aria-label="导航">
+        {% set icon = config.theme.icon.menu or "material/menu" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </label>
+    </div>
+    {% include "partials/search.html" %}
+  </nav>
+</header>

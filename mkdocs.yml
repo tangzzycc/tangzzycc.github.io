@@ -18,7 +18,7 @@ validation:
     not_found: ignore
 
 nav:
-  - 🏡 主页: index.md
+  - Tang's Notebook: index.md
   - AI Infra:
       - 学习索引: ai-infra/index.md
   - vLLM 笔记:
@@ -61,24 +61,6 @@ nav:
           - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
   - GPU Kernel:
       - 学习索引: gpu-kernel/index.md
-      - LeetGPU 练习:
-          - 题目索引: gpu-kernel/leetgpu/index.md
-          - Vector Addition：向量加法: gpu-kernel/leetgpu/001-vector-add.md
-          - Matrix Multiplication：矩阵乘法: gpu-kernel/leetgpu/002-matrix-multiplication.md
-          - Matrix Transpose：矩阵转置: gpu-kernel/leetgpu/003-matrix-transpose.md
-          - Reduction：求和归约: gpu-kernel/leetgpu/004-reduction.md
-          - Softmax: gpu-kernel/leetgpu/005-softmax.md
-          - Softmax Attention: gpu-kernel/leetgpu/006-softmax-attention.md
-          - Prefix Sum：前缀和: gpu-kernel/leetgpu/016-prefix-sum.md
-          - General Matrix Multiplication (GEMM)：通用矩阵乘法: gpu-kernel/leetgpu/022-gemm.md
-          - Top K Selection：Top-K 选择: gpu-kernel/leetgpu/029-top-k-selection.md
-          - INT8 Quantized MatMul：INT8 量化矩阵乘法: gpu-kernel/leetgpu/032-int8-quantized-matmul.md
-          - Causal Self-Attention：因果自注意力: gpu-kernel/leetgpu/053-causal-self-attention.md
-          - Rotary Positional Embedding：旋转位置编码: gpu-kernel/leetgpu/061-rope-embedding.md
-          - Weight Dequantization：权重反量化: gpu-kernel/leetgpu/064-weight-dequantization.md
-          - INT4 Weight-Only Quantized MatMul：W4A16 量化矩阵乘法: gpu-kernel/leetgpu/081-int4-matmul.md
-          - Fused Residual Add and RMS Norm: gpu-kernel/leetgpu/083-fused-residual-add-rms-norm.md
-          - Layer Normalization：层归一化: gpu-kernel/leetgpu/113-layer-normalization.md
       - FlashRT RDNA 3.5:
           - 学习路径: gpu-kernel/flashrt-rdna35/index.md
           - 00 · AMD GPU 硬件模型与术语: gpu-kernel/flashrt-rdna35/00-AMD-GPU硬件模型与术语.md
@@ -100,12 +82,34 @@ nav:
           - "PR #1057 · RDNA3 GEMM Tile Policy": gpu-kernel/flydsl/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
           - "PR #1113 · Fused RoPE Head-Dim 96": gpu-kernel/flydsl/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
       - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
+  - HandCoding:
+      - handcoding/index.md
+      - LeetGPU 练习:
+          - 题目索引: handcoding/leetgpu/index.md
+          - Vector Addition：向量加法: handcoding/leetgpu/001-vector-add.md
+          - Matrix Multiplication：矩阵乘法: handcoding/leetgpu/002-matrix-multiplication.md
+          - Matrix Transpose：矩阵转置: handcoding/leetgpu/003-matrix-transpose.md
+          - Reduction：求和归约: handcoding/leetgpu/004-reduction.md
+          - Softmax: handcoding/leetgpu/005-softmax.md
+          - Softmax Attention: handcoding/leetgpu/006-softmax-attention.md
+          - Prefix Sum：前缀和: handcoding/leetgpu/016-prefix-sum.md
+          - General Matrix Multiplication (GEMM)：通用矩阵乘法: handcoding/leetgpu/022-gemm.md
+          - Top K Selection：Top-K 选择: handcoding/leetgpu/029-top-k-selection.md
+          - INT8 Quantized MatMul：INT8 量化矩阵乘法: handcoding/leetgpu/032-int8-quantized-matmul.md
+          - Causal Self-Attention：因果自注意力: handcoding/leetgpu/053-causal-self-attention.md
+          - Rotary Positional Embedding：旋转位置编码: handcoding/leetgpu/061-rope-embedding.md
+          - Weight Dequantization：权重反量化: handcoding/leetgpu/064-weight-dequantization.md
+          - INT4 Weight-Only Quantized MatMul：W4A16 量化矩阵乘法: handcoding/leetgpu/081-int4-matmul.md
+          - Fused Residual Add and RMS Norm: handcoding/leetgpu/083-fused-residual-add-rms-norm.md
+          - Layer Normalization：层归一化: handcoding/leetgpu/113-layer-normalization.md
   - 开源 PR 追踪: pr-tracking/index.md
-  - 秋招记录: career/index.md
-  - 关于本站: about.md
+  - 生活:
+      - life/index.md
+      - 秋招记录: life/career/index.md
 
 theme:
   name: material
+  custom_dir: overrides
   language: zh
   # 字体由 stylesheets/extra.css 从本地资源加载。
   font: false
@@ -124,14 +128,14 @@ theme:
     - content.code.annotate
   palette:
     - scheme: default
-      primary: cyan
-      accent: cyan
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: 切换到深色模式
     - scheme: slate
-      primary: orange
-      accent: orange
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: 切换到浅色模式
@@ -171,14 +175,18 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=17
+  - stylesheets/extra.css?v=18
   - stylesheets/pr-tracking.css?v=4
+  - stylesheets/notebook-theme.css?v=4
+  - stylesheets/home.css?v=2
 
 extra_javascript:
+  - javascripts/header-search.js
   - javascripts/mathjax.js
   - javascripts/code-fold.js
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=4
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-copyright: 本地知识库 · 持续整理中
+extra:
+  generator: false

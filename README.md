@@ -17,10 +17,11 @@ NO_MKDOCS_2_WARNING=1 .venv/bin/mkdocs serve
 
 - `docs/ai-infra/`：AI Infra 学习索引
 - `docs/vllm/`：vLLM 专题笔记
-- `docs/gpu-kernel/`：GPU Kernel 源码精读、优化与 LeetGPU 练习笔记
+- `docs/gpu-kernel/`：GPU Kernel 源码精读与优化笔记
+- `docs/handcoding/`：动手编程练习，目前包含 LeetGPU
 - `docs/pr-tracking/`：tangzzycc 的 Open 与 Merged PR 追踪
 - `docs/open-source/`：旧 PR 索引与重复 Kernel 文档归档（不参与站点构建）
-- `docs/career/`：秋招进度
+- `docs/life/`：生活记录，其中 `career/` 保存秋招进度
 - `assets/`：站点 Logo、笔记图片和本地字体
 - `mkdocs.yml`：导航与站点配置
 

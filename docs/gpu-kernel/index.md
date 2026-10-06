@@ -1,31 +1,67 @@
+---
+title: "GPU Kernel"
+hide:
+  - navigation
+  - toc
+  - footer
+---
+
+<div class="notebook-index" markdown="1">
+
+<div class="index-intro" markdown="1">
+
+<p class="index-eyebrow">线程分工 · 内存层级 · 数据复用</p>
+
 # GPU Kernel
 
-这里记录 GPU Kernel 的实现与性能优化笔记，关注线程工作划分、内存层级、数据复用和硬件调度之间的关系。
+从硬件执行方式出发，阅读算子实现与性能优化。关注数据由谁持有、如何移动，以及计算与同步如何配合。
 
-## LeetGPU 练习
+</div>
 
-- [LeetGPU Kernel 练习笔记](leetgpu/index.md)
+<div class="index-grid" markdown="1">
 
-这组笔记配合 `~/leetgpu-challenges` 中的题目边做边整理，每道题对应一篇 Markdown，先交代题目，再围绕 Kernel 实现与优化展开。
+<section class="index-card" markdown="1">
 
-## FlashRT RDNA 3.5
+<p class="index-card-label">HIP · Wave32 · BF16</p>
 
-- [FlashRT RDNA 3.5 Kernel 源码精读](flashrt-rdna35/index.md)
+### [FlashRT RDNA 3.5](flashrt-rdna35/index.md)
 
-这组笔记围绕 FlashRT PR #213 新增的 24 个 RDNA HIP Kernel 展开。内容从 HIP Launch、Thread/Wave/Workgroup Ownership 和 Wave32 Reduction 开始，再逐个拆解 Activation、Residual、Normalization、RoPE、Encoder/Decoder Attention 与 Small-M WMMA GEMM，并说明 Host Launcher、Python Provider 和 Fallback 共同形成的实际执行边界。
+从 Pi0.5 推理流程到 24 个 RDNA HIP Kernel，追踪 Launcher、Provider 与 Fallback。
 
-## FlyDSL
+<span class="index-card-arrow" aria-hidden="true">↗</span>
 
-- [FlyDSL：从 Layout 到生产级 Kernel](flydsl/index.md)
+</section>
 
-这组三篇笔记先讲清 `@flyc.jit` / `@flyc.kernel` 的编译边界与 Layout/Tile 编程基础，再通过经授权迁移的《FlyDSL — 一次源码精读》，沿四个官方示例完整阅读 Vector Add、Tiled Copy、TiledMma 和 Preshuffle GEMM。
+<section class="index-card" markdown="1">
 
-## GEMM
+<p class="index-card-label">Python DSL · AMD GPU</p>
 
-- [GEMM CUDA Core 优化：从 Naive 到接近 cuBLAS](GEMM-CUDA-Core优化.md)
+### [FlyDSL](flydsl/index.md)
 
-这篇笔记主要基于 Simon Boehm 的英文博客 [How to Optimize a CUDA Matmul Kernel for cuBLAS-like Performance: a Worklog](https://siboehm.com/articles/22/CUDA-MMM) 及其 [SGEMM_CUDA](https://github.com/siboehm/SGEMM_CUDA) 配套实现。
+理解编译边界与 Layout / Tile 编程，阅读四个官方示例和 PR 实践。
 
-笔记沿用原博客的 Kernel 优化顺序和 A6000 实验主线，并参考 Hamza Elshafie 的 [H100 GEMM 优化工作日志](https://hamzaelshafie.bearblog.dev/worklog-optimising-gemm-on-nvidia-h100-for-cublas-like-performance-wip/) 补充 CUDA Core 通用机制与示意图。Tensor Core 路径不在本文范围内。
+<span class="index-card-arrow" aria-hidden="true">↗</span>
 
-在中文翻译的基础上，正文补充 Roofline 推导、线程与内存映射、图片解读、尾块处理以及双缓冲分析。完整 CUDA 实现集中在 GitHub 的 [GEMM Kernel 源码目录](https://github.com/tangzzycc/notebook/tree/master/docs/gpu-kernel/gemm-kernels)。
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">CUDA · GEMM</p>
+
+### [GEMM CUDA Core 优化](GEMM-CUDA-Core优化.md)
+
+沿 Naive GEMM 到接近 cuBLAS 的过程，理解访存、分块与寄存器复用。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+</div>
+
+<div class="index-more" markdown="1">
+
+[HandCoding · LeetGPU 练习](../handcoding/leetgpu/index.md) · [GEMM Kernel 源码](https://github.com/tangzzycc/notebook/tree/master/docs/gpu-kernel/gemm-kernels)
+
+</div>
+
+</div>

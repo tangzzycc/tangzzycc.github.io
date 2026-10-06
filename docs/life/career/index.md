@@ -1,10 +1,33 @@
+---
+title: "秋招记录"
+hide:
+  - navigation
+  - toc
+  - footer
+---
+
+<div class="notebook-index" markdown="1">
+
+<div class="index-intro" markdown="1">
+
+<p class="index-eyebrow">生活 / 求职</p>
+
 # 秋招记录
 
-### 已投递企业
+记录投递、笔试、测评与面试进展。
+
+</div>
+
+<details class="index-details career-companies" markdown="1">
+<summary>已投递企业</summary>
 
 快手（简历挂）、百度、网易、B站、PDD、京东、米哈游（简历挂）、大疆、影石、同花顺、腾讯、阿里（简历13挂）、地平线、文远知行、Intel、得物、小红书（简历2挂）、滴滴、壁仞、摩尔线程（简历挂）、寒武纪（简历挂）、海光、燧原、商汤（简历挂）、OPPO（简历挂）、vivo、海康、华为、蚂蚁、蔚来、小鹏、理想（简历挂）、字节（简历1挂）、腾讯音乐、曦望、群核科技、黑芝麻智能、沐曦、美团（简历挂）、深信服、平安银行、顽岩资产、小马智行、元戎启行（简历挂）、科大讯飞、智元机器人、荣耀、虾皮（简历挂）
 
-### TODO List
+</details>
+
+<section class="index-record-panel" markdown="1">
+
+## 笔试与测评
 
 - [ ] 文远知行笔试（不做了）
 - [ ] 科大讯飞笔试（忘做了）
@@ -23,7 +46,11 @@
 - [X] 美团笔试9-22
 - [X] 沐曦笔试
 
-### 面试推进汇总
+</section>
+
+<section class="index-record-panel" markdown="1">
+
+## 面试推进汇总
 
 - 字节：8-28 Global Ads Infra一面 → 一面挂
         10-12 Data AML一面 →
@@ -33,3 +60,13 @@
 - PDD：10-10一面 →
 - 地平线：
 - 华为：
+
+</section>
+
+<div class="index-more" markdown="1">
+
+[返回生活](../index.md)
+
+</div>
+
+</div>
