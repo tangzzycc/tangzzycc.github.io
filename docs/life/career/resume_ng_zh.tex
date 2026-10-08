@@ -203,9 +203,8 @@
   （PR \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/213}{\#213}、
   \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/215}{\#215} 已合并）
   \begin{itemize}
-    \item 实现 BF16 推理 Pipeline，手工实现并优化 HIP 激活、归一化、RoPE、
-    Attention 与 WMMA GEMM 算子，通过 Fused Kernel 减少中间访存与启动开销，
-    并实现跨帧 K/V 复用与缓存失效管理。
+    \item 构建 BF16 推理 Pipeline，实现并优化激活、归一化、RoPE、Attention 与 WMMA GEMM 等 HIP Kernel，
+    通过算子融合减少中间访存与 Kernel 启动开销，并实现跨帧 K/V 缓存复用与失效管理。
   \end{itemize}
 
   \item \textbf{ROCm/FlyDSL}：RDNA GPU 算子优化与架构适配。
