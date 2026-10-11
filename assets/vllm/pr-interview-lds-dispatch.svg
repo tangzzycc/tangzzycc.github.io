@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="640" viewBox="0 0 1440 640" role="img" aria-labelledby="title desc">
+<title id="title">medium-skinny：总工作集可以大于 LDS 前缀</title><desc id="desc">M=3，K=12288，BF16：激活共 36864 元素（72 KiB），没有增大 LDS 分配。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="640" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">medium-skinny：总工作集可以大于 LDS 前缀</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">ROCm / RDNA</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">M=3，K=12288，BF16：激活共 36864 元素（72 KiB），没有增大 LDS 分配。</text>
+<text x="45" y="160" font-size="29" fill="#172e46" text-anchor="start">激活 X 的展平工作集：M×K</text>
+<rect x="45" y="200" width="1135" height="100" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="612.5" y="259.92" font-size="31" fill="#2865a8" text-anchor="middle">前 32768 元素：LDS，64 KiB</text>
+<rect x="1180" y="200" width="215" height="100" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1287.5" y="258.0" font-size="25" fill="#ac642e" text-anchor="middle">尾部 4096</text>
+<text x="1287" y="337" font-size="24" fill="#ac642e" text-anchor="middle">global：8 KiB</text>
+<path d="M45 342 L45 350 L1395 350 L1395 342" fill="none" stroke="#7654a5" stroke-width="2"/>
+<text x="720.0" y="380" font-size="28" fill="#7654a5" text-anchor="middle">同一份输入，按整个展平前缀划分读取来源</text>
+<rect x="26" y="430" width="1388" height="165" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="468" font-size="28" fill="#187264" text-anchor="start">分发判断与 C++ 支持范围必须对齐</text>
+<rect x="55" y="500" width="540" height="60" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="325.0" y="538.64" font-size="27" fill="#187264" text-anchor="middle">M≤5 且 M×K≤39321 → HIP</text>
+<rect x="825" y="500" width="540" height="60" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1095.0" y="538.0" font-size="25" fill="#7654a5" text-anchor="middle">其他已支持形状 → Triton fallback</text>
+<text x="45" y="625" font-size="25" fill="#607187" text-anchor="start">32768 是元素数；39321 是总工作集上限；二者都不是 INT4 权重大小。</text>
+</svg>

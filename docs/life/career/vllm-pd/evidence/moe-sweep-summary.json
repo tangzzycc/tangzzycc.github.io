@@ -1,0 +1,444 @@
+{
+  "baseline_tok_s": 31.20280426426831,
+  "baseline_formal_rounds": 4,
+  "baseline_ttft_s": 13.308459335564294,
+  "baseline_p95_itl_ms": 890.5496602492349,
+  "baseline_after_vs_before_pct": -1.4944718045829641,
+  "configurations": [
+    {
+      "tag": "normal-after",
+      "mode": "normal",
+      "p_budget": null,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 30.967890347155812,
+      "seconds": 33.06846727700031,
+      "incoming_ttft_mean_s": 13.36855010731233,
+      "seed_ttft_mean_s": 0.35490820249742683,
+      "seed_itl_p50_ms": 481.27458449744154,
+      "seed_itl_p95_ms": 895.4340085037984,
+      "decode_steps_with_prefill_leases": 0,
+      "throughput_rounds": [
+        31.20624887906725,
+        30.729531815244375
+      ],
+      "throughput_min": 30.729531815244375,
+      "throughput_max": 31.20624887906725,
+      "peak_decode_batches": [
+        16,
+        16
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "gsm8k": {
+        "correct": 15,
+        "total": 16,
+        "length_finish": 0
+      },
+      "throughput_vs_normal_pct": -0.7528615541184114,
+      "token_parity_vs_normal_before": {
+        "exact": 32,
+        "total": 32
+      }
+    },
+    {
+      "tag": "normal-before",
+      "mode": "normal",
+      "p_budget": null,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 31.437718181380802,
+      "seconds": 32.57328826199955,
+      "incoming_ttft_mean_s": 13.248368563816257,
+      "seed_ttft_mean_s": 0.37340513912295137,
+      "seed_itl_p50_ms": 477.1547435011598,
+      "seed_itl_p95_ms": 885.6653119946714,
+      "decode_steps_with_prefill_leases": 0,
+      "throughput_rounds": [
+        31.267966126955045,
+        31.607470235806563
+      ],
+      "throughput_min": 31.267966126955045,
+      "throughput_max": 31.607470235806563,
+      "peak_decode_batches": [
+        16,
+        16
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": 0.7528615541184003,
+      "token_parity_vs_normal_before": {
+        "exact": 32,
+        "total": 32
+      }
+    },
+    {
+      "tag": "full-p128",
+      "mode": "full",
+      "p_budget": 128,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 15.62863344104558,
+      "seconds": 65.52077884049504,
+      "incoming_ttft_mean_s": 32.92467424831284,
+      "seed_ttft_mean_s": 0.4522383738121789,
+      "seed_itl_p50_ms": 139.03484900220064,
+      "seed_itl_p95_ms": 196.25363250816008,
+      "decode_steps_with_prefill_leases": 416,
+      "throughput_rounds": [
+        15.621142193086419,
+        15.63612468900474
+      ],
+      "throughput_min": 15.621142193086419,
+      "throughput_max": 15.63612468900474,
+      "peak_decode_batches": [
+        9,
+        9
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -49.91272800777522,
+      "token_parity_vs_normal_before": {
+        "exact": 24,
+        "total": 32
+      }
+    },
+    {
+      "tag": "full-p256",
+      "mode": "full",
+      "p_budget": 256,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 20.32305918595835,
+      "seconds": 50.386115174500446,
+      "incoming_ttft_mean_s": 23.73606321337502,
+      "seed_ttft_mean_s": 0.3493411860008564,
+      "seed_itl_p50_ms": 128.95718499930808,
+      "seed_itl_p95_ms": 158.50907200365327,
+      "decode_steps_with_prefill_leases": 312.5,
+      "throughput_rounds": [
+        20.322476457870817,
+        20.323641914045886
+      ],
+      "throughput_min": 20.322476457870817,
+      "throughput_max": 20.323641914045886,
+      "peak_decode_batches": [
+        9,
+        9
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -34.8678438840474,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "full-p512",
+      "mode": "full",
+      "p_budget": 512,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 24.815055684945516,
+      "seconds": 41.265271166506864,
+      "incoming_ttft_mean_s": 18.215442277126385,
+      "seed_ttft_mean_s": 0.34934665575383406,
+      "seed_itl_p50_ms": 131.5623000045889,
+      "seed_itl_p95_ms": 181.2736904976191,
+      "decode_steps_with_prefill_leases": 178,
+      "throughput_rounds": [
+        24.81611079355382,
+        24.814000576337214
+      ],
+      "throughput_min": 24.814000576337214,
+      "throughput_max": 24.81611079355382,
+      "peak_decode_batches": [
+        10,
+        10
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -20.471713135853243,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "full-p1024",
+      "mode": "full",
+      "p_budget": 1024,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 28.622448844634796,
+      "seconds": 35.77615019850782,
+      "incoming_ttft_mean_s": 15.012578241812662,
+      "seed_ttft_mean_s": 0.34988634875207936,
+      "seed_itl_p50_ms": 143.862511999032,
+      "seed_itl_p95_ms": 191.6207355025108,
+      "decode_steps_with_prefill_leases": 137.5,
+      "throughput_rounds": [
+        28.593757804681037,
+        28.65113988458856
+      ],
+      "throughput_min": 28.593757804681037,
+      "throughput_max": 28.65113988458856,
+      "peak_decode_batches": [
+        10,
+        10
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -8.269626658487194,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "full-p2048",
+      "mode": "full",
+      "p_budget": 2048,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 31.0987127409997,
+      "seconds": 32.92742603150691,
+      "incoming_ttft_mean_s": 14.054739937059821,
+      "seed_ttft_mean_s": 0.3495481463160104,
+      "seed_itl_p50_ms": 145.36879699880956,
+      "seed_itl_p95_ms": 194.242066492734,
+      "decode_steps_with_prefill_leases": 119,
+      "throughput_rounds": [
+        31.075644117409826,
+        31.121781364589577
+      ],
+      "throughput_min": 31.075644117409826,
+      "throughput_max": 31.121781364589577,
+      "peak_decode_batches": [
+        10,
+        10
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -0.3335966933837642,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "split25-p2048",
+      "mode": "split",
+      "p_budget": 2048,
+      "fraction": 0.25,
+      "formal_rounds": 2,
+      "tok_s": 12.613511287504863,
+      "seconds": 81.18278951650427,
+      "incoming_ttft_mean_s": 40.41047521937253,
+      "seed_ttft_mean_s": 0.427496503061775,
+      "seed_itl_p50_ms": 65.7363795035053,
+      "seed_itl_p95_ms": 82.46654799586395,
+      "decode_steps_with_prefill_leases": 436,
+      "throughput_rounds": [
+        12.611284386846314,
+        12.61573818816341
+      ],
+      "throughput_min": 12.611284386846314,
+      "throughput_max": 12.61573818816341,
+      "peak_decode_batches": [
+        8,
+        8
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -59.575712552383806,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "split50-p2048",
+      "mode": "split",
+      "p_budget": 2048,
+      "fraction": 0.5,
+      "formal_rounds": 2,
+      "tok_s": 19.870533719472498,
+      "seconds": 51.53359334500419,
+      "incoming_ttft_mean_s": 25.35672925162544,
+      "seed_ttft_mean_s": 0.3115489784413512,
+      "seed_itl_p50_ms": 63.12598649674328,
+      "seed_itl_p95_ms": 79.56235550227575,
+      "decode_steps_with_prefill_leases": 436,
+      "throughput_rounds": [
+        19.869253967805154,
+        19.871813471139845
+      ],
+      "throughput_min": 19.869253967805154,
+      "throughput_max": 19.871813471139845,
+      "peak_decode_batches": [
+        8,
+        8
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        null,
+        null
+      ],
+      "throughput_vs_normal_pct": -36.318115669407604,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    },
+    {
+      "tag": "auto25-p2048",
+      "mode": "auto",
+      "p_budget": 2048,
+      "fraction": 0,
+      "formal_rounds": 2,
+      "tok_s": 30.8257834871426,
+      "seconds": 33.21926587749476,
+      "incoming_ttft_mean_s": 14.198018214686272,
+      "seed_ttft_mean_s": 0.3517452987489378,
+      "seed_itl_p50_ms": 149.39028349181172,
+      "seed_itl_p95_ms": 210.39523350191303,
+      "decode_steps_with_prefill_leases": 116.5,
+      "throughput_rounds": [
+        30.921618832394365,
+        30.729948141890837
+      ],
+      "throughput_min": 30.729948141890837,
+      "throughput_max": 30.921618832394365,
+      "peak_decode_batches": [
+        10,
+        10
+      ],
+      "preemptions": 0,
+      "completed_requests": 32,
+      "output_tokens": 2048,
+      "arithmetic_correct": 16,
+      "producer_ipc_warning": false,
+      "done": true,
+      "formal_jit_warnings": 0,
+      "auto_policy": [
+        {
+          "switches": 2,
+          "fallbacks": 1,
+          "decode_samples": 181,
+          "active_fraction": 0.0,
+          "switch_seconds": 0.001293214998440817
+        },
+        {
+          "switches": 2,
+          "fallbacks": 1,
+          "decode_samples": 180,
+          "active_fraction": 0.0,
+          "switch_seconds": 0.002383750004810281
+        }
+      ],
+      "gsm8k": {
+        "correct": 15,
+        "total": 16,
+        "length_finish": 0
+      },
+      "throughput_vs_normal_pct": -1.2082913251404426,
+      "token_parity_vs_normal_before": {
+        "exact": 22,
+        "total": 32
+      }
+    }
+  ],
+  "total_formal_requests": 320,
+  "total_formal_tokens": 20480,
+  "all_success": true,
+  "gsm8k_auto_vs_normal_after": {
+    "normal_correct": 15,
+    "auto_correct": 15,
+    "total": 16,
+    "exact": 2,
+    "answers": 15,
+    "different_answer_indices": [
+      12
+    ]
+  }
+}

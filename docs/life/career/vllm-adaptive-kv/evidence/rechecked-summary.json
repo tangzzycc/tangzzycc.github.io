@@ -1,0 +1,74 @@
+{
+  "method": "Recomputed from byte-identical per-request JSON: pair on repeat/class/index; fixed 16-token outputs; throughput is mean of per-round 48/wall, not pooled requests/sum(wall).",
+  "groups": [
+    {
+      "group": "aggressive3",
+      "pairs": 144,
+      "selected": 24,
+      "selected_baseline_ttft_mean_ms": 6963.682731540757,
+      "selected_adaptive_ttft_mean_ms": 3583.4991957502402,
+      "request_throughput_round_mean_baseline": 5.001746874235984,
+      "request_throughput_round_mean_adaptive": 4.41475277993246,
+      "baseline_walls": [
+        9.678465402976144,
+        9.524208017042838,
+        9.588517609983683
+      ],
+      "adaptive_walls": [
+        10.899541830993257,
+        10.894897584978025,
+        10.823800820973702
+      ]
+    },
+    {
+      "group": "conservative3",
+      "pairs": 144,
+      "selected": 6,
+      "selected_baseline_ttft_mean_ms": 6847.6295080035925,
+      "selected_adaptive_ttft_mean_ms": 1374.6080250033021,
+      "request_throughput_round_mean_baseline": 5.001746874235984,
+      "request_throughput_round_mean_adaptive": 4.696947538388793,
+      "baseline_walls": [
+        9.678465402976144,
+        9.524208017042838,
+        9.588517609983683
+      ],
+      "adaptive_walls": [
+        10.12843498797156,
+        10.23204817000078,
+        10.299176539992914
+      ]
+    },
+    {
+      "group": "conservative5",
+      "pairs": 240,
+      "selected": 10,
+      "selected_baseline_ttft_mean_ms": 8088.134060992161,
+      "selected_adaptive_ttft_mean_ms": 1367.1802428958472,
+      "request_throughput_round_mean_baseline": 4.510496286365158,
+      "request_throughput_round_mean_adaptive": 4.7194542976062985,
+      "baseline_walls": [
+        11.304592318017967,
+        10.484423649031669,
+        10.363920166972093,
+        10.578588557022158,
+        10.527978601981886
+      ],
+      "adaptive_walls": [
+        10.317094404948875,
+        10.19447664701147,
+        10.183310886030085,
+        10.109893771004863,
+        10.052466008986812
+      ]
+    }
+  ],
+  "combined_conservative": {
+    "rounds": 8,
+    "baseline_request_throughput_round_mean": 4.694715256816718,
+    "adaptive_request_throughput_round_mean": 4.7110142628997345,
+    "baseline_wall_mean_s": 10.256336790378555,
+    "adaptive_wall_mean_s": 10.18961267699342,
+    "throughput_change_percent": 0.34717773478063485
+  }
+}

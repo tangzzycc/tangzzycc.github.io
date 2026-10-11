@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="640" viewBox="0 0 1440 640" role="img" aria-labelledby="title desc">
+<title id="title">请求调度与 GPU 输入：同一工作，三种表示</title><desc id="desc">示例：两条请求各推进 3 tokens；有效工作为 6 行，Graph 容量为 8 行。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="640" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">请求调度与 GPU 输入：同一工作，三种表示</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">V1 / MRV2</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">示例：两条请求各推进 3 tokens；有效工作为 6 行，Graph 容量为 8 行。</text>
+<rect x="45" y="125" width="310" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="200.0" y="165.5" font-size="25" fill="#2865a8" text-anchor="middle">Scheduler：决定推进量</text>
+<rect x="435" y="125" width="420" height="65" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="645.0" y="165.5" font-size="25" fill="#ac642e" text-anchor="middle">MRV2：准备输入与 metadata</text>
+<rect x="935" y="125" width="460" height="65" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1165.0" y="165.5" font-size="25" fill="#187264" text-anchor="middle">模型 / Backend：执行 GPU 运算</text>
+<path d="M355 157 L435 157" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="435,157 424.0,152.0 424.0,162.0" fill="#607187"/>
+<path d="M855 157 L935 157" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="935,157 924.0,152.0 924.0,162.0" fill="#607187"/>
+<text x="65" y="235" font-size="26" fill="#2865a8" text-anchor="start">A → 3 行，B → 3 行</text>
+<text x="455" y="235" font-size="26" fill="#ac642e" text-anchor="start">query_start_loc = [0, 3, 6]</text>
+<rect x="70" y="275" width="145" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="142.5" y="315.82" font-size="26" fill="#2865a8" text-anchor="middle">A · 行 0</text>
+<rect x="233" y="275" width="145" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="305.5" y="315.82" font-size="26" fill="#2865a8" text-anchor="middle">A · 行 1</text>
+<rect x="396" y="275" width="145" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="468.5" y="315.82" font-size="26" fill="#2865a8" text-anchor="middle">A · 行 2</text>
+<rect x="559" y="275" width="145" height="65" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="631.5" y="315.82" font-size="26" fill="#187264" text-anchor="middle">B · 行 3</text>
+<rect x="722" y="275" width="145" height="65" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="794.5" y="315.82" font-size="26" fill="#187264" text-anchor="middle">B · 行 4</text>
+<rect x="885" y="275" width="145" height="65" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="957.5" y="315.82" font-size="26" fill="#187264" text-anchor="middle">B · 行 5</text>
+<rect x="1048" y="275" width="145" height="65" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1120.5" y="315.82" font-size="26" fill="#607187" text-anchor="middle">pad · 行 6</text>
+<rect x="1211" y="275" width="145" height="65" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1283.5" y="315.82" font-size="26" fill="#607187" text-anchor="middle">pad · 行 7</text>
+<path d="M70 352 L70 360 L1027 360 L1027 352" fill="none" stroke="#7654a5" stroke-width="2"/>
+<text x="548.5" y="390" font-size="26" fill="#7654a5" text-anchor="middle">6 行有效 Query：属于真实请求</text>
+<path d="M1048 352 L1048 360 L1356 360 L1356 352" fill="none" stroke="#607187" stroke-width="2"/>
+<text x="1202.0" y="390" font-size="26" fill="#607187" text-anchor="middle">2 行 padding</text>
+<rect x="26" y="435" width="1388" height="165" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="473" font-size="28" fill="#7654a5" text-anchor="start">KVCacheManager 管理逻辑归属，GPU tensor 保存真实 K/V</text>
+<rect x="55" y="505" width="340" height="60" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="225.0" y="542.68" font-size="24" fill="#2865a8" text-anchor="middle">block IDs / 引用 / 分配</text>
+<rect x="535" y="505" width="360" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="715.0" y="542.68" font-size="24" fill="#ac642e" text-anchor="middle">block table：历史读取</text>
+<rect x="995" y="505" width="380" height="60" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1185.0" y="542.68" font-size="24" fill="#187264" text-anchor="middle">slot mapping：新 KV 写入</text>
+<path d="M395 535 L535 535" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="535,535 524.0,530.0 524.0,540.0" fill="#607187"/>
+</svg>

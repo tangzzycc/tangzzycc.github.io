@@ -1,0 +1,240 @@
+{
+  "phase": "adaptive",
+  "vllm_source": "/home/lcpu/06281370/vllm/vllm/__init__.py",
+  "model": "/home/lcpu/06281370/models/Qwen3.6-35B-A3B-FP8",
+  "bulk_prefixes": 4,
+  "bulk_prefix_len": 16384,
+  "latency_prefixes": 4,
+  "latency_prefix_len": 4096,
+  "output_len": 8,
+  "cpu_cache_bytes": 10737418240,
+  "gpu_cache_bytes": 4294967296,
+  "read_threads": 1,
+  "write_threads": 1,
+  "fs_cache_before": {
+    "files": 216,
+    "bytes": 4671406080
+  },
+  "fs_cache_after": {
+    "files": 216,
+    "bytes": 4671406080
+  },
+  "elapsed_seconds": 3.564278075005859,
+  "summary": {
+    "requests": 8,
+    "disk_hit_requests": 4,
+    "recomputed_requests": 4,
+    "cached_tokens_min": 0,
+    "cached_tokens_max": 16368,
+    "ttft_p50_ms": 2914.02804851532,
+    "ttft_p90_ms": 3472.1866130828857,
+    "ttft_p99_ms": 3489.813618659973,
+    "tpot_p50_ms": 78.04708199442497,
+    "tpot_p90_ms": 347.9682529744293,
+    "tpot_p99_ms": 347.9682529744293,
+    "output_tokens": 64,
+    "output_throughput_tokens_per_second": 17.955950308364983,
+    "by_class": {
+      "bulk": {
+        "requests": 4,
+        "disk_hit_requests": 4,
+        "recomputed_requests": 0,
+        "ttft_p50_ms": 3456.9783210754395,
+        "ttft_p90_ms": 3483.3783626556396,
+        "ttft_p99_ms": 3490.9327936172485,
+        "tpot_p50_ms": 10.442856699228287,
+        "tpot_p90_ms": 10.442856699228287,
+        "tpot_p99_ms": 10.442856699228287
+      },
+      "latency": {
+        "requests": 4,
+        "disk_hit_requests": 0,
+        "recomputed_requests": 4,
+        "ttft_p50_ms": 1446.9619989395142,
+        "ttft_p90_ms": 2256.1312437057495,
+        "ttft_p99_ms": 2377.8489661216736,
+        "tpot_p50_ms": 278.007634183658,
+        "tpot_p90_ms": 347.9682529744293,
+        "tpot_p99_ms": 347.9682529744293
+      }
+    }
+  },
+  "requests": [
+    {
+      "request_id": "0",
+      "prompt_tokens": 16385,
+      "request_class": "bulk",
+      "num_cached_tokens": 16368,
+      "ttft_ms": 3491.772174835205,
+      "tpot_ms": 10.442856699228287,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        17,
+        15,
+        17,
+        19,
+        95859,
+        15,
+        18
+      ]
+    },
+    {
+      "request_id": "1",
+      "prompt_tokens": 16385,
+      "request_class": "bulk",
+      "num_cached_tokens": 16368,
+      "ttft_ms": 3463.7928009033203,
+      "tpot_ms": 10.442856699228287,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        17,
+        15,
+        17,
+        18,
+        95859,
+        16,
+        96212
+      ]
+    },
+    {
+      "request_id": "2",
+      "prompt_tokens": 16385,
+      "request_class": "bulk",
+      "num_cached_tokens": 16368,
+      "ttft_ms": 3450.1638412475586,
+      "tpot_ms": 10.442856699228287,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        16,
+        13,
+        27416,
+        271,
+        1919,
+        5392,
+        17855
+      ]
+    },
+    {
+      "request_id": "3",
+      "prompt_tokens": 16385,
+      "request_class": "bulk",
+      "num_cached_tokens": 16368,
+      "ttft_ms": 3436.682939529419,
+      "tpot_ms": 10.442856699228287,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        16,
+        13,
+        27416,
+        271,
+        1919,
+        5392,
+        17855
+      ]
+    },
+    {
+      "request_id": "4",
+      "prompt_tokens": 4097,
+      "request_class": "latency",
+      "num_cached_tokens": 0,
+      "ttft_ms": 953.3572196960449,
+      "tpot_ms": 347.9682529744293,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        17,
+        15,
+        17,
+        19,
+        95859,
+        16,
+        96212
+      ]
+    },
+    {
+      "request_id": "5",
+      "prompt_tokens": 4097,
+      "request_class": "latency",
+      "num_cached_tokens": 0,
+      "ttft_ms": 952.925443649292,
+      "tpot_ms": 347.9682529744293,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        16,
+        13,
+        27416,
+        271,
+        1919,
+        5392,
+        17855
+      ]
+    },
+    {
+      "request_id": "6",
+      "prompt_tokens": 4097,
+      "request_class": "latency",
+      "num_cached_tokens": 0,
+      "ttft_ms": 1940.5667781829834,
+      "tpot_ms": 208.04701539288675,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        17,
+        15,
+        16,
+        24,
+        12,
+        15,
+        18
+      ]
+    },
+    {
+      "request_id": "7",
+      "prompt_tokens": 4097,
+      "request_class": "latency",
+      "num_cached_tokens": 0,
+      "ttft_ms": 2391.3731575012207,
+      "tpot_ms": 145.65130728962166,
+      "num_generation_tokens": 8,
+      "output_token_ids": [
+        220,
+        16,
+        13,
+        27416,
+        271,
+        760,
+        3788,
+        314
+      ]
+    }
+  ],
+  "adaptive_config": {
+    "spec_name": "TieringOffloadingSpec",
+    "cpu_bytes_to_use": 10737418240,
+    "secondary_tiers": [
+      {
+        "type": "fs",
+        "root_dir": "/home/lcpu/06281370/vllm/build/adaptive_kv_offload/archive/old_results_20260830/positive_gain_fs_20260830",
+        "n_read_threads": 1,
+        "n_write_threads": 1,
+        "locality": "LOCAL"
+      }
+    ],
+    "adaptive_load_enabled": true,
+    "adaptive_load_mode": "async_with_fallback",
+    "expected_baseline_ttft_ms": 417.5635143183172,
+    "adaptive_load_bandwidth_bytes_per_second": 35109908681.2698,
+    "adaptive_secondary_bandwidth_bytes_per_second": 6389819827.439215,
+    "adaptive_prefill_tokens_per_second": 9809.286155393203,
+    "adaptive_fixed_dma_overhead_ms": 0.05005357414588415,
+    "adaptive_secondary_fixed_overhead_ms": 0.39295289025176316,
+    "adaptive_safety_margin": 1.1214929710801225,
+    "adaptive_max_concurrent_fallbacks": 4,
+    "adaptive_max_fallback_tokens": 8192
+  }
+}

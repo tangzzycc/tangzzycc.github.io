@@ -1,0 +1,38 @@
+# CogAgent-18B Optimization Weekly Report / CogAgent-18B 优化周报
+
+**Week ending / 截止日期:** 2026-09-15  
+**Hardware / 测试硬件:** AMD Ryzen AI MAX+ 395, Radeon 8060S (`gfx1151`), single GPU
+
+## English
+
+### Progress This Week
+
+This week optimized CogAgent-18B inference. Compared with last week's AWQ W4A16 result, TTFT decreased from 1164.42 ms to 752.15 ms, an overall reduction of 35.41%.
+
+### Latest AWQ W4A16 Serve Result
+
+**Model:** `CogAgent-18B-AWQ-W4A16`  
+**Workload:** one 640×480 image plus 64 English alphabetic characters; greedy decoding with up to 64 output tokens and EOS enabled. Five warmup requests and 20 measured requests were run with `max-num-seqs=1`.
+
+| Test Target | TTFT (P50) | TPOT (P50) | Prefill (P50) | Decode (P50) | End-to-End Latency (P50) |
+|---|---:|---:|---:|---:|---:|
+| AWQ W4A16 | 752.15 ms | 27.625 ms/token | 369.61 tok/s | 36.20 tok/s | 2491.50 ms |
+
+All 20 requests produced 64 output tokens with identical text.
+
+## 中文
+
+### 本周进展
+
+本周完成 CogAgent-18B 推理优化。相比上周 AWQ W4A16 测试结果，TTFT 从 1164.42 ms 降至 752.15 ms，整体下降 35.41%。
+
+### 最新 AWQ W4A16 Serve 结果
+
+**模型：**`CogAgent-18B-AWQ-W4A16`  
+**测试规格：**输入 1 张 640×480 图片和 64 个英文字母；Greedy 解码，最多输出 64 token，正常启用 EOS。测试包含 5 次预热和 20 轮正式请求，`max-num-seqs=1`。
+
+| 测试对象 | TTFT（P50） | TPOT（P50） | Prefill（P50） | Decode（P50） | 端到端延迟（P50） |
+|---|---:|---:|---:|---:|---:|
+| AWQ W4A16 | 752.15 ms | 27.625 ms/token | 369.61 tok/s | 36.20 tok/s | 2491.50 ms |
+
+20 轮请求均输出 64 token，且生成文本完全一致。

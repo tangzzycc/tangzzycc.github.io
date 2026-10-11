@@ -1,0 +1,132 @@
+{
+  "run_start_estimate_ns": 266128441464906,
+  "run_end_estimate_ns": 266160810279608,
+  "requests": {
+    "long-0": {
+      "start_ns": 266128441560073,
+      "compute_start_estimate_ns": 266136910005255,
+      "first_token_ns": 266139053596979,
+      "end_ns": 266154186615275,
+      "cached_tokens": 15840
+    },
+    "long-1": {
+      "start_ns": 266128442627406,
+      "compute_start_estimate_ns": 266151477851595,
+      "first_token_ns": 266153668445741,
+      "end_ns": 266160810023815,
+      "cached_tokens": 15840
+    },
+    "medium-0": {
+      "start_ns": 266140442775058,
+      "compute_start_estimate_ns": 266140922920654,
+      "first_token_ns": 266148247888760,
+      "end_ns": 266158838643168,
+      "cached_tokens": 0
+    },
+    "medium-1": {
+      "start_ns": 266140443385037,
+      "compute_start_estimate_ns": 266144807858328,
+      "first_token_ns": 266151500872716,
+      "end_ns": 266160326003614,
+      "cached_tokens": 0
+    }
+  },
+  "loads": [
+    {
+      "start_ns": 266128463115092,
+      "end_ns": 266136910544966,
+      "num_files": 18,
+      "num_bytes": 389283840,
+      "thread": "vllm_kv_py_fs_l0",
+      "window_ms": 8447.429874,
+      "kernel_dispatches": 0,
+      "gpu_busy_union_ms": 0.0,
+      "gpu_busy_fraction": 0.0
+    },
+    {
+      "start_ns": 266136910628643,
+      "end_ns": 266145328974956,
+      "num_files": 18,
+      "num_bytes": 389283840,
+      "thread": "vllm_kv_py_fs_l0",
+      "window_ms": 8418.346313,
+      "kernel_dispatches": 52760,
+      "gpu_busy_union_ms": 4747.168096,
+      "gpu_busy_fraction": 0.5639074373394694
+    },
+    {
+      "start_ns": 266145329061483,
+      "end_ns": 266148461924877,
+      "num_files": 6,
+      "num_bytes": 129761280,
+      "thread": "vllm_kv_py_fs_l0",
+      "window_ms": 3132.863394,
+      "kernel_dispatches": 11851,
+      "gpu_busy_union_ms": 2366.090646,
+      "gpu_busy_fraction": 0.755248585218076
+    },
+    {
+      "start_ns": 266148461978665,
+      "end_ns": 266151594492118,
+      "num_files": 6,
+      "num_bytes": 129761280,
+      "thread": "vllm_kv_py_fs_l0",
+      "window_ms": 3132.513453,
+      "kernel_dispatches": 17361,
+      "gpu_busy_union_ms": 1957.345069,
+      "gpu_busy_fraction": 0.6248480967018532
+    }
+  ],
+  "recompute_load_intersections": [
+    {
+      "request": "medium-0",
+      "load_index": 1,
+      "intersection_start_ns": 266140922920654,
+      "intersection_end_ns": 266145328974956,
+      "window_ms": 4406.054302,
+      "kernel_dispatches": 20143,
+      "gpu_busy_union_ms": 3082.03661,
+      "gpu_busy_fraction": 0.6995003689811538
+    },
+    {
+      "request": "medium-0",
+      "load_index": 2,
+      "intersection_start_ns": 266145329061483,
+      "intersection_end_ns": 266148247888760,
+      "window_ms": 2918.827277,
+      "kernel_dispatches": 10779,
+      "gpu_busy_union_ms": 2219.7264,
+      "gpu_busy_fraction": 0.7604856983115004
+    },
+    {
+      "request": "medium-1",
+      "load_index": 1,
+      "intersection_start_ns": 266144807858328,
+      "intersection_end_ns": 266145328974956,
+      "window_ms": 521.116628,
+      "kernel_dispatches": 1582,
+      "gpu_busy_union_ms": 416.687774,
+      "gpu_busy_fraction": 0.7996055999963217
+    },
+    {
+      "request": "medium-1",
+      "load_index": 2,
+      "intersection_start_ns": 266145329061483,
+      "intersection_end_ns": 266148461924877,
+      "window_ms": 3132.863394,
+      "kernel_dispatches": 11851,
+      "gpu_busy_union_ms": 2366.090646,
+      "gpu_busy_fraction": 0.755248585218076
+    },
+    {
+      "request": "medium-1",
+      "load_index": 3,
+      "intersection_start_ns": 266148461978665,
+      "intersection_end_ns": 266151500872716,
+      "window_ms": 3038.894051,
+      "kernel_dispatches": 16772,
+      "gpu_busy_union_ms": 1899.517899,
+      "gpu_busy_fraction": 0.6250688135622666
+    }
+  ]
+}

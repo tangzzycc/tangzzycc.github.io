@@ -19,8 +19,27 @@ hide:
 开源贡献面试准备，每题包含简要回答与完整阐述：
 
 - [vLLM PR](开源贡献面试-vLLM-PR.md)
+- [vLLM 框架问答与连续追问](vllm-pr/index.md)
 - [FlashRT PR](开源贡献面试-FlashRT-PR.md)
 - [FlyDSL PR](开源贡献面试-FlyDSL-PR.md)
+
+vLLM P/D 解耦与调度优化项目复习：
+
+- [RAPID-Serve 论文与推理指标](vllm-pd/01-论文与推理指标.md)
+- [V1/MRV2 实现与设计取舍](vllm-pd/02-V1-MRV2实现与设计取舍.md)
+- [性能证据与面试问答](vllm-pd/03-性能证据与面试问答.md)
+
+vLLM ROCm 模型适配与优化项目复习：
+
+- [CogAgent 模型接入与量化推理](vllm-rocm/01-CogAgent模型接入与量化推理.md)
+- [LoRA 算子与优先级调度](vllm-rocm/02-LoRA算子与优先级调度.md)
+- [性能证据与面试问答](vllm-rocm/03-性能证据与面试问答.md)
+
+vLLM Adaptive KV Offload 推理服务优化项目复习：
+
+- [KV 分层缓存与重算成本](vllm-adaptive-kv/01-KV分层缓存与重算成本.md)
+- [调度接入与异步生命周期](vllm-adaptive-kv/02-调度接入与异步生命周期.md)
+- [性能证据与面试问答](vllm-adaptive-kv/03-性能证据与面试问答.md)
 
 </div>
 

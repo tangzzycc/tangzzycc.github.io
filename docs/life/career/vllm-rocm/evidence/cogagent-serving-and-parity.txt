@@ -1,0 +1,176 @@
+# vLLM CogAgent
+
+## 测试硬件
+
+AMD Ryzen AI MAX+ 395，AMD Radeon 8060S（Strix Halo，gfx1151），UMA 128G
+
+## 模型与量化
+
+- BF16 模型：`zai-org/cogagent-chat-hf`
+- AWQ 模型：`CogAgent-18B-AWQ-W4A16`
+- AWQ 量化方式：AMD Quark AWQ，W4A16
+- AWQ 推理算子：`RDNAHybridW4A16LinearKernel`
+- Tokenizer：`lmsys/vicuna-7b-v1.5`
+
+## Benchmark 设置
+
+- 测试方式：`vLLM Serve`，通过 OpenAI-compatible `/v1/chat/completions` 流式接口发送请求
+- 数据集：32 条未参与量化校准的 COCO 图文请求
+- Input：每条请求包含 1 张真实图片和对应的英文提示词
+- Output：Greedy 解码，最多 64 token，不使用 `ignore_eos`
+- 并发：`max-num-seqs=1`，32 条请求串行执行
+- Vision Attention：`TRITON_ATTN`
+- 编译：`torch.compile` mode 3，编译 Vision Encoder
+- HIP Graph：`FULL_DECODE_ONLY`
+- 正式测试前完成同规格请求预热、Triton JIT 编译和 HIP Graph Capture
+
+<details>
+<summary>AWQ W4A16 Serve 启动命令</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE \
+TORCH_BLAS_PREFER_HIPBLASLT=1 \
+TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1 \
+TRITON_HIP_USE_IN_THREAD_TRANSPOSE=0 \
+python offline_examples/cogagent_serve.py \
+  --model /home/tang/models/cogagent-chat-hf-AWQ-W4A16 \
+  --tokenizer /home/tang/models/vicuna-7b-v1.5-tokenizer \
+  --served-model-name cogagent-awq-best \
+  --host 127.0.0.1 \
+  --port 8001 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.90 \
+  --mm-encoder-attn-backend TRITON_ATTN \
+  --compile-mm-encoder
+```
+
+</details>
+
+<details>
+<summary>BF16 Serve 启动命令</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE \
+TORCH_BLAS_PREFER_HIPBLASLT=1 \
+TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1 \
+TRITON_HIP_USE_IN_THREAD_TRANSPOSE=0 \
+python offline_examples/cogagent_serve.py \
+  --model /home/tang/models/cogagent-chat-hf \
+  --tokenizer /home/tang/models/vicuna-7b-v1.5-tokenizer \
+  --served-model-name cogagent-bf16-best \
+  --host 127.0.0.1 \
+  --port 8001 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.90 \
+  --mm-encoder-attn-backend TRITON_ATTN \
+  --compile-mm-encoder
+```
+
+</details>
+
+<details>
+<summary>Serve Benchmark 命令</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+# AWQ W4A16
+python cogagent_quantization/evaluate_awq_precision.py \
+  --base-url http://127.0.0.1:8001/v1 \
+  --model cogagent-awq-best \
+  --data cogagent_quantization/data/holdout_32/calibration.jsonl \
+  --result-dir benchmark-results/cogagent-awq-serve-best-20260908 \
+  --candidate-output-name outputs.jsonl \
+  --max-samples 32 \
+  --max-tokens 64 \
+  --generate-only
+
+# BF16
+python cogagent_quantization/evaluate_awq_precision.py \
+  --base-url http://127.0.0.1:8001/v1 \
+  --model cogagent-bf16-best \
+  --data cogagent_quantization/data/holdout_32/calibration.jsonl \
+  --result-dir benchmark-results/cogagent-bf16-serve-best-20260908 \
+  --candidate-output-name outputs.jsonl \
+  --max-samples 32 \
+  --max-tokens 64 \
+  --generate-only
+```
+
+</details>
+
+## AWQ W4A16 Serve Benchmark
+
+模型权重占用 16.94 GiB，KV Cache 为 77.29 GiB，可容纳 88,854 token。
+
+| 指标 | P50 | P90 |
+|---|---:|---:|
+| TTFT | 806.57 ms | 815.97 ms |
+| TPOT | 27.392 ms/token | 27.425 ms/token |
+| Decode | 36.51 tok/s | 36.65 tok/s |
+| End-to-End Latency | 2528.39 ms | 2537.93 ms |
+
+| 测试结果 | 数值 |
+|---|---:|
+| 成功请求 | 32 / 32 |
+| 平均输出长度 | 55.5 token |
+| 达到 64-token 上限 | 18 / 32 |
+| 串行请求吞吐 | 0.4346 req/s |
+| 输出吞吐 | 24.118 tok/s |
+
+## BF16 Serve Benchmark
+
+模型权重占用 34.48 GiB，KV Cache 为 60.98 GiB，可容纳 70,108 token。
+
+| 指标 | P50 | P90 |
+|---|---:|---:|
+| TTFT | 797.97 ms | 824.77 ms |
+| TPOT | 66.326 ms/token | 66.345 ms/token |
+| Decode | 15.08 tok/s | 15.09 tok/s |
+| End-to-End Latency | 4856.67 ms | 4999.12 ms |
+
+| 测试结果 | 数值 |
+|---|---:|
+| 成功请求 | 32 / 32 |
+| 平均输出长度 | 55.125 token |
+| 达到 64-token 上限 | 13 / 32 |
+| 串行请求吞吐 | 0.2275 req/s |
+| 输出吞吐 | 12.539 tok/s |
+
+TPOT 按 `(End-to-End - TTFT) / (completion_tokens - 1)` 逐请求计算，Decode 按 `1000 / TPOT` 计算。指标包含 localhost HTTP、SSE、JSON 编解码和多模态请求处理开销，不包含模型加载、首次编译和 HIP Graph Capture。
+
+## BF16 与 Hugging Face 精度对齐
+
+使用同一组 32 条 COCO 图文请求，对比 Hugging Face BF16 与当前最佳 vLLM BF16 配置。两侧使用相同模型、Tokenizer、图片、Prompt 和 greedy 解码参数；vLLM 开启 `TRITON_ATTN`、Vision Encoder Compile 和 Decode HIP Graph。批量测试将两侧返回文本去除首尾空白后，使用同一 Tokenizer 重新编码并进行逐 Token 比较。
+
+| 指标 | 结果 |
+|---|---:|
+| 完全一致的生成 Token | 18 / 32（56.25%） |
+| Token 编辑相似度（Mean / Median） | 0.8904 / 1.0000 |
+| HF/vLLM 输出 Word F1（Mean） | 0.9335 |
+| 一致前缀 Token（Mean / Median） | 41.0 / 43.5 |
+| 一致前缀比例（Mean） | 77.10% |
+
+| COCO Caption 指标 | Hugging Face | vLLM | 差值（vLLM - HF） |
+|---|---:|---:|---:|
+| Word F1 | 0.2938 | 0.2901 | -0.0037 |
+| ROUGE-L | 0.2605 | 0.2610 | +0.0005 |
+
+Word F1 差值的 95% bootstrap CI 为 `[-0.0102, 0.0034]`，ROUGE-L 为 `[-0.0053, 0.0066]`，均包含 0，本轮没有检测到系统性的任务质量差异。
+
+对最早在第 4 个生成 Token 分叉的样本进一步比较 Top-20 logprob：HF 选择 `an`，vLLM 选择 `a`；HF 的 Top-1/Top-2 margin 为 0.125，vLLM 中两个候选的 logprob 完全相同。双方选择的 Token 均位于对方 Top-2，分叉前四步的 Top-20 候选集合完全重合。
+
+因此，当前 BF16 实现通过语义与任务指标对齐，但不能表述为所有请求均与 Hugging Face 逐 Token 完全一致。剩余分叉符合不同 Attention、Compile 和 HIP kernel 在 BF16 下的数值舍入差异。
+
+完整数据位于：
+
+- `benchmark-results/cogagent-awq-serve-best-20260908/`
+- `benchmark-results/cogagent-bf16-serve-best-20260908/`
+- `benchmark-results/cogagent-bf16-hf-parity-latest-20260908/`

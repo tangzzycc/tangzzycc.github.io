@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" role="img" aria-labelledby="title desc">
+<title id="title">性能归因：先看同配置增量，再看项目整体演进</title><desc id="desc">跨阶段历史对照不等于同输入配对 A/B；小 kernel 的倍率不能直接当 E2E 倍率。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="760" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">性能归因：先看同配置增量，再看项目整体演进</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">历史报告 · 非新测</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">跨阶段历史对照不等于同输入配对 A/B；小 kernel 的倍率不能直接当 E2E 倍率。</text>
+<rect x="26" y="120" width="1388" height="252" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">三种比较对象</text>
+<rect x="65" y="194" width="370" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="250.0" y="237.0" font-size="25" fill="#2865a8" text-anchor="middle">HF → vLLM BF16</text>
+<text x="250" y="316" font-size="26" fill="#2865a8" text-anchor="middle">引擎与执行路径</text>
+<rect x="485" y="194" width="370" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="670.0" y="237.0" font-size="25" fill="#ac642e" text-anchor="middle">vLLM BF16 → W4A16</text>
+<text x="670" y="316" font-size="26" fill="#ac642e" text-anchor="middle">权重量化与相应执行</text>
+<rect x="905" y="194" width="370" height="70" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1090.0" y="237.0" font-size="25" fill="#187264" text-anchor="middle">同 AWQ 局部 A/B</text>
+<text x="1090" y="316" font-size="26" fill="#187264" text-anchor="middle">指定阶段与 kernel</text>
+<rect x="26" y="398" width="1388" height="317" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="436" font-size="28" fill="#7654a5" text-anchor="start">阶段时间示意：优化哪一段，验证哪一个指标</text>
+<text x="65" y="504" font-size="26" fill="#ac642e" text-anchor="start">首 token 前</text>
+<rect x="250" y="455" width="390" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="445.0" y="498.96" font-size="28" fill="#ac642e" text-anchor="middle">视觉处理与编码</text>
+<rect x="655" y="455" width="275" height="70" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="792.5" y="498.32" font-size="26" fill="#7654a5" text-anchor="middle">Decoder Prefill</text>
+<text x="65" y="608" font-size="26" fill="#2865a8" text-anchor="start">首 token 后</text>
+<rect x="250" y="560" width="240" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="370.0" y="603.32" font-size="26" fill="#2865a8" text-anchor="middle">Decode step</text>
+<rect x="510" y="560" width="240" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="630.0" y="603.32" font-size="26" fill="#2865a8" text-anchor="middle">Decode step</text>
+<rect x="770" y="560" width="240" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="890.0" y="603.32" font-size="26" fill="#2865a8" text-anchor="middle">Decode step</text>
+<rect x="1030" y="560" width="240" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1150.0" y="603.32" font-size="26" fill="#2865a8" text-anchor="middle">Decode step</text>
+<text x="1080" y="503" font-size="29" fill="#ac642e" text-anchor="start">→ TTFT</text>
+<text x="1250" y="676" font-size="27" fill="#2865a8" text-anchor="end">→ ITL / TPOT</text>
+<text x="65" y="685" font-size="23" fill="#607187" text-anchor="start">EVA / Attention / Prefill tile 主要影响 TTFT；小 M W4A16 / LoRA 主要影响 Decode。</text>
+</svg>

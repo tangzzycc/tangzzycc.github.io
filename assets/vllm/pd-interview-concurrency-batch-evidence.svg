@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="740" viewBox="0 0 1440 740" role="img" aria-labelledby="title desc">
+<title id="title">并发 128 的收益：更快入场，提高实际 Decode batch 利用率</title><desc id="desc">Qwen3-0.6B / RDNA 3.5 / 输入 1K、输出 256 / 正式测量 256 个请求。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="740" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">并发 128 的收益：更快入场，提高实际 Decode batch 利用率</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">本地 InferenceX 客户端</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">Qwen3-0.6B / RDNA 3.5 / 输入 1K、输出 256 / 正式测量 256 个请求。</text>
+<rect x="26" y="115" width="1388" height="332" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="153" font-size="28" fill="#2865a8" text-anchor="start">客户端并发为 128；每轮实际 Decode batch 取决于调度与入场</text>
+<text x="55" y="221" font-size="25" fill="#2865a8" text-anchor="start">MRV2</text>
+<rect x="285" y="190" width="1024" height="52" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="285" y="190" width="816" height="52" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1335" y="224" font-size="28" fill="#2865a8" text-anchor="middle">102</text>
+<text x="55" y="317" font-size="25" fill="#187264" text-anchor="start">双进程 P2048</text>
+<rect x="285" y="286" width="1024" height="52" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="285" y="286" width="1024" height="52" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1335" y="320" font-size="28" fill="#187264" text-anchor="middle">128</text>
+<text x="720" y="406" font-size="25" fill="#2865a8" text-anchor="middle">最大纯 Decode batch：102 → 128；按执行轮次的均值：49 → 88。</text>
+<rect x="26" y="480" width="660" height="99" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="356.0" y="538.14" font-size="27" fill="#187264" text-anchor="middle">输出吞吐：183.4 → 223.2 tok/s（+21.7%）</text>
+<rect x="714" y="480" width="700" height="99" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1064.0" y="537.82" font-size="26" fill="#2865a8" text-anchor="middle">平均 TPOT：508.3 → 506.6 ms（基本不变）</text>
+<text x="720" y="628" font-size="26" fill="#172e46" text-anchor="middle">系统输出吞吐改善，但单请求的平均生成间隔几乎没有变化。</text>
+<text x="720" y="676" font-size="24" fill="#607187" text-anchor="middle">收益包含入场与 batch 利用率变化，不能解释成同 batch 的 kernel 加速。</text>
+<text x="720" y="720" font-size="23" fill="#607187" text-anchor="middle">单轮、有限请求窗口的探索结果；仍需较长时间的稳态测量。</text>
+</svg>

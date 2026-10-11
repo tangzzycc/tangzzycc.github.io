@@ -1,0 +1,372 @@
+# 11 · LoRA Benchmark 与 Mixed Serving 实测
+
+[返回目录](README.md) · 上一章：[RDNA LoRA Kernel](10-rdna-lora-kernel-design.md) · 下一章：[严格优先级抢占](12-strict-priority-preemption.md)
+
+## 读完这一章，你应该能回答
+
+- 单 LoRA benchmark 应固定哪些输入、输出和服务配置？
+- TTFT、TPOT、Prefill、Decode 与 E2E 分别说明什么？
+- Native 与 RDNA kernel 的单 LoRA 差距有多大？
+- `--max-loras 2` 的 mixed 执行和 `--max-loras 1` 的排队如何区分？
+- 为什么必须把排队时间与真实服务窗口拆开？
+
+> 深入阅读：Mixed-LoRA 的底层 token 分组见
+> [第 15 章](15-lora-kernel-metadata-and-shapes.md)，默认调度与严格抢占的逐状态变化见
+> [第 16 章](16-priority-scheduler-state-machine.md)。
+
+## 一句话心智模型
+
+> 单 LoRA 对照用来隔离 Kernel 收益；Multi-LoRA 时间线用来区分“同 batch 竞争”和“等待前一请求
+> 完成”。只有同时观察排队、重叠窗口、TTFT、TPOT 与 E2E，才能把调度影响和算子性能分开。
+
+## 1. 测试环境
+
+| 项目 | 配置 |
+|---|---|
+| CPU/APU | AMD Ryzen AI MAX+ 395 |
+| GPU | Radeon 8060S，gfx1151 |
+| 内存 | UMA 128 GB |
+| 基座模型 | Qwen3-VL-4B-Instruct-AWQ-4bit |
+| 图执行 | HIP Graph 开启 |
+| Prefix Cache | 关闭 |
+| 并发 | 单 LoRA 基准为 1；mixed 场景按实验设置 |
+
+统一 workload：
+
+- Input：1 张 256×256 px 图片 + 64 个英文字母，服务端 prompt 为 85 token；
+- Output：固定 64 token，并提示模型使用日文输出；
+- 单 LoRA：5 次预热、10 次正式请求；
+- RDNA 结果：每种配置运行 3 轮，再取三轮 P50 的中位数。
+
+## 2. 指标口径
+
+| 指标 | 含义 | 注意事项 |
+|---|---|---|
+| TTFT | 请求提交到首 token | 包含排队时不能直接代表 prefill 计算 |
+| TPOT | 首 token 后相邻输出 token 的平均时间 | 暂停也会进入客户端观察值 |
+| Prefill | `85 × 1000 / TTFT` 的首 token 折算吞吐 | TTFT 还含图像处理与视觉编码；仅在无明显排队时用于同配置对比 |
+| Decode | `1000 / TPOT` | 是单请求客户端有效吞吐，不等同 kernel TPS |
+| E2E | 提交请求到完整响应 | 同时包含排队、prefill、decode 和暂停 |
+
+所有表格使用 P50。调度实验还要记录 waiting、请求实际服务窗口和 decode overlap，否则一个总 TTFT
+会把“没被调度”和“prefill 很慢”混在一起。
+
+## 3. 单 LoRA Native 基准
+
+| 测试对象 | Rank | TTFT（P50） | TPOT（P50） | Prefill（P50） | Decode（P50） | E2E（P50） |
+|---|---:|---:|---:|---:|---:|---:|
+| Base | — | 79.57 ms | 13.754 ms/token | 1068.21 tok/s | 72.71 tok/s | 946.51 ms |
+| BirdAgent | 64 | 103.00 ms | 20.223 ms/token | 825.26 tok/s | 49.45 tok/s | 1376.46 ms |
+| vln-r2r-global | 64 | 100.48 ms | 20.156 ms/token | 845.97 tok/s | 49.61 tok/s | 1369.98 ms |
+| Ocelot | 64 | 101.30 ms | 20.221 ms/token | 839.08 tok/s | 49.45 tok/s | 1375.06 ms |
+| EditScore | 32 | 96.43 ms | 18.703 ms/token | 881.44 tok/s | 53.47 tok/s | 1274.87 ms |
+| HealthRecommendation | 16 | 97.19 ms | 18.023 ms/token | 874.61 tok/s | 55.49 tok/s | 1232.04 ms |
+| vision-connector | 16 | 97.06 ms | 18.049 ms/token | 875.75 tok/s | 55.40 tok/s | 1234.08 ms |
+| EO-Gym | 16 | 96.82 ms | 18.068 ms/token | 877.93 tok/s | 55.35 tok/s | 1235.32 ms |
+
+LoRA 权重相对 4B 基座很小，但 Native rank 64 decode 仍从 Base 的 72.71 tok/s 降到约 49.5 tok/s。
+瓶颈来自每层额外小 GEMM、launch、mapping 和访存，不由权重文件占比直接决定。
+
+## 4. RDNA 单 LoRA 基准
+
+| 测试对象 | Rank | TTFT（P50） | TPOT（P50） | Prefill（P50） | Decode（P50） | E2E（P50） |
+|---|---:|---:|---:|---:|---:|---:|
+| Ocelot | 64 | 86.84 ms | 16.153 ms/token | 978.77 tok/s | 61.91 tok/s | 1104.09 ms |
+| vln-r2r-global | 64 | 82.19 ms | 16.227 ms/token | 1034.23 tok/s | 61.62 tok/s | 1104.96 ms |
+| EditScore | 32 | 91.19 ms | 15.549 ms/token | 932.16 tok/s | 64.31 tok/s | 1070.83 ms |
+| EO-Gym | 16 | 90.67 ms | 15.239 ms/token | 937.51 tok/s | 65.62 tok/s | 1050.76 ms |
+
+相对同轮 Native：
+
+| 配对对象 | TTFT 变化 | TPOT 变化 | Decode 变化 | E2E 变化 |
+|---|---:|---:|---:|---:|
+| Rank 64（Ocelot） | -6.32% | -19.87% | +24.79% | -18.95% |
+| Rank 32（EditScore） | -6.02% | -16.70% | +20.05% | -15.88% |
+| Rank 16（EO-Gym） | -5.85% | -15.67% | +18.57% | -14.84% |
+
+这里的“同轮 Native”来自 `qwen3-vl-4b-rdna-lora-e2e-current` 中与 RDNA 成对执行的三轮基线，
+不是上一节覆盖全部 LoRA 的较早 Native 表，因此不能直接用两张可见表逐行反算百分比。配对基线
+的三轮 P50 中位数为：
+
+| 配对对象 | TTFT | TPOT | Decode | E2E |
+|---|---:|---:|---:|---:|
+| Rank 64（Ocelot） | 92.70 ms | 20.158 ms/token | 49.61 tok/s | 1362.25 ms |
+| Rank 32（EditScore） | 97.02 ms | 18.668 ms/token | 53.57 tok/s | 1272.91 ms |
+| Rank 16（EO-Gym） | 96.30 ms | 18.069 ms/token | 55.34 tok/s | 1233.82 ms |
+
+## 5. A + B 调度场景
+
+选择两个能够稳定生成合理日文输出的 rank 64 LoRA：
+
+| 请求 | LoRA | Priority | 行为 |
+|---|---|---:|---|
+| A | Ocelot | 10 | 先启动、低优先级、持续 decode |
+| B | vln-r2r-global | 0 | A 输出 4 个流式 chunk 后插入 |
+
+两者均固定输出 64 token。priority 数值越小越高，但本章先测 vLLM 默认调度，不启用自定义严格
+抢占。RDNA shrink/expand 均开启，每种配置运行 5 轮，表中为 P50。
+
+## 6. `--max-loras 2`：A 与 B mixed
+
+| 请求 | TTFT（P50） | TPOT（P50） | Prefill（P50） | Decode（P50） | E2E（P50） |
+|---|---:|---:|---:|---:|---:|
+| A（低优先级） | 83.31 ms | 18.419 ms/token | 1020.31 tok/s | 54.29 tok/s | 1244.15 ms |
+| B（高优先级） | 109.03 ms | 17.463 ms/token | 779.62 tok/s | 57.26 tok/s | 1209.22 ms |
+
+可观测时间线：
+
+```text
+A 首 token ── A 输出 ── B 提交 ── B 首 token ───── B 完成
+                          └──── A 与 B decode 重叠 1003.25 ms ────┘
+```
+
+B 首 token 前 A 又输出 2 个 chunk；B 输出期间 A 继续输出 42 个 chunk。5/5 轮中 B 都在 A 完成前
+开始，因此这是 mixed，不是 A→B 串行切换。
+
+相对各自 RDNA 单 LoRA 基准：
+
+| 请求 | TPOT | Decode | E2E |
+|---|---:|---:|---:|
+| A | +14.0% | -12.3% | +12.7% |
+| B | +7.6% | -7.1% | +9.4% |
+
+## 7. `--max-loras 1`：B 排队
+
+| 请求 | TTFT（P50） | TPOT（P50） | Prefill（P50） | Decode（P50） | E2E（P50） |
+|---|---:|---:|---:|---:|---:|
+| A（低优先级） | 89.36 ms | 16.695 ms/token | 951.26 tok/s | 59.90 tok/s | 1141.85 ms |
+| B（高优先级） | 1050.71 ms | 16.210 ms/token | — | 61.69 tok/s | 2072.01 ms |
+
+B 的 TTFT 主要是等待，不应被换算成 prefill 吞吐。拆分后更清楚：
+
+| 请求 | 排队等待 | 排队结束至首 token | Decode 阶段 | 实际服务窗口 | 总 E2E |
+|---|---:|---:|---:|---:|---:|
+| A | 0 ms | 89.36 ms | 1051.80 ms | 1141.85 ms | 1141.85 ms |
+| B | 1003.70 ms | 46.65 ms | 1021.23 ms | 1067.86 ms | 2072.01 ms |
+
+B 首 token 前 A 继续输出 44 个 chunk，A/B decode 重叠为 0 ms。高优先级 B 等 A 完成，说明在
+这组无额外资源压力的请求中，B 的到达没有触发对 running A 的主动抢占。
+
+## 8. 两种默认调度的直接对比
+
+| 配置 | B 启动方式 | B TTFT | A/B 重叠 | 单请求性能 |
+|---|---|---:|---:|---|
+| `max-loras=2` | 快速加入 mixed batch | 109.03 ms | 1003.25 ms | 共享 GPU 后下降 |
+| `max-loras=1` | 等 A 完成后运行 | 1050.71 ms | 0 ms | 计算阶段接近单 LoRA |
+
+因此不存在一个配置同时免费获得“B 立即开始”和“A、B 都保持单 LoRA TPS”。要改变这个权衡，
+需要真正暂停 A，并处理 A 的 KV 生命周期。
+
+## 9. 五 LoRA staged peak 实验
+
+3 轮 staged mixed workload 中，A/B/C 持续发请求，再加入有限次数的 D/E 请求。下表不是原始请求
+的 min–max，而是“每轮、每 adapter 先算 P50 → 三轮 round-P50 取中位数 → 5 个 adapter 取范围”。
+主归档结果为：
+
+| 路径 | 每个适配器 TPOT | Decode | E2E |
+|---|---:|---:|---:|
+| Native | 46.4–48.1 ms/token | 20.8–21.6 tok/s | 3.22–3.24 s |
+| RDNA | 35.6–37.6 ms/token | 26.6–28.1 tok/s | 2.52–2.55 s |
+
+`abcde_peak` 是请求启动时写入的 phase 标签，并不保证该 phase 内每条请求的完整生命周期都与其余
+四个 adapter 严格重叠；A/B/C 每轮样本数也会因阶段切换而不同。它适合说明 staged 高并发趋势，
+不能当作严格“五路全程重叠”的 microbenchmark。
+
+目录中还保留了第二次 RDNA 运行，原文件名为 `rdna-outlier-run.json`。当前没有预先定义的统计
+离群值规则，不能直接把整轮剔除，因此一并报告：TPOT `36.2–38.5 ms/token`、Decode
+`26.0–27.6 tok/s`、E2E `2.61–2.66 s`。两次 RDNA 结果方向一致，但该实验仍只有少量运行，适合
+做趋势证据，不应直接作为生产容量结论。
+
+## 10. 输出正确性要求
+
+性能成功不等于请求成功。每轮需要同时检查：
+
+1. HTTP 请求成功且精确生成 64 token；
+2. 输出符合日文要求并与图片内容相关；
+3. op 级结果在既定容差内与 reference/Native 对齐；端到端需先检查各后端自身重复稳定性；
+4. mixed 场景中每个请求使用正确 adapter，不能只检查长度；
+5. 记录异常终止、空输出和错误 adapter 响应。
+
+本组正式请求均成功生成 64 token，包含日文字符，人工抽查时与图片主题相关；自动脚本没有证明
+所有文本格式都干净，也没有证明 adapter 语义正确。独立 greedy 归档还存在同一后端重复运行不稳定，
+因此当前不能宣称 RDNA/Native 逐轮 token exact parity。
+
+## 11. 可复现命令
+
+<details>
+<summary>单 LoRA 的 vllm bench serve 命令</summary>
+
+先按下一折叠块的服务端命令启动 vLLM，并让 `--lora-modules` alias 与这里的 `--model` 一致；
+单 LoRA 测试可令 `MAX_LORAS=1`。
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+vllm bench serve \
+  --model lora-a-ocelot \
+  --tokenizer /home/tang/models/Qwen3-VL-4B-Instruct-AWQ-4bit \
+  --host 127.0.0.1 \
+  --port 8000 \
+  --backend openai-chat \
+  --endpoint /v1/chat/completions \
+  --dataset-name custom_image \
+  --dataset-path benchmark-data/qwen3-vl-4b-256x256-en64-ja64.jsonl \
+  --custom-output-len 64 \
+  --custom-ensure-client-side-data \
+  --enable-multimodal-chat \
+  --num-warmups 5 \
+  --num-prompts 10 \
+  --max-concurrency 1 \
+  --ignore-eos \
+  --temperature 0.0 \
+  --percentile-metrics ttft,tpot,e2el \
+  --metric-percentiles 50
+```
+
+`--model` 填服务端注册的 served model/LoRA 名称；它不是本地路径。本章正式 A+B 实验注册的是
+`lora-a-ocelot`、`lora-b-vln`，因此单 LoRA 复现也应填对应 alias。
+
+</details>
+
+<details>
+<summary>A + B mixed/串行测试命令</summary>
+
+终端 1 启动服务。另一组把 `MAX_LORAS` 改成 1；RDNA 环境变量必须作用于这个服务端进程：
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+export VLLM_ROCM_USE_RDNA_LORA_SHRINK=1
+export VLLM_ROCM_USE_RDNA_LORA_EXPAND=1
+
+MAX_LORAS=2
+
+vllm serve /home/tang/models/Qwen3-VL-4B-Instruct-AWQ-4bit \
+  --served-model-name qwen3-vl-4b-base \
+  --enable-lora \
+  --lora-modules \
+    lora-a-ocelot=/home/tang/models/Qwen3-VL-4B-LoRAs/Ocelot-1-VL \
+    lora-b-vln=/home/tang/models/Qwen3-VL-4B-LoRAs/Qwen3-VL-4B_lora_vln_r2r_global \
+  --max-loras "${MAX_LORAS}" \
+  --max-cpu-loras 2 \
+  --max-lora-rank 64 \
+  --max-num-seqs 2 \
+  --scheduling-policy priority \
+  --no-enable-prefix-caching \
+  --max-model-len 2048 \
+  --max-num-batched-tokens 2048 \
+  --gpu-memory-utilization 0.15 \
+  --limit-mm-per-prompt '{"image":1,"video":0}' \
+  --mm-processor-kwargs '{"max_pixels":262144}' \
+  --mm-processor-cache-gb 0 \
+  --mm-encoder-attn-backend TRITON_ATTN \
+  --host 127.0.0.1 \
+  --port 8000
+```
+
+终端 2 运行客户端：
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+MAX_LORAS=2
+
+python rocm-scripts/lora-priority-pair-bench.py \
+  --model-a lora-a-ocelot \
+  --model-b lora-b-vln \
+  --a-priority 10 \
+  --b-priority 0 \
+  --inject-after-a-chunks 4 \
+  --output-len 64 \
+  --rounds 5 \
+  --server-max-loras "${MAX_LORAS}" \
+  --dataset-path benchmark-data/qwen3-vl-4b-256x256-en64-ja64.jsonl \
+  --output "benchmark-results/qwen3-vl-4b-priority-rdna-default/max-loras-${MAX_LORAS}/result.json"
+```
+
+串行组只需在两个终端都把 `MAX_LORAS` 改成 1。
+
+</details>
+
+<details>
+<summary>五 LoRA staged workload 命令</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+python rocm-scripts/lora-mixed-5-bench.py \
+  --model-a lora-a-ocelot \
+  --model-b lora-b-vln \
+  --model-c lora-c-editscore \
+  --model-d lora-d-health \
+  --model-e lora-e-eogym \
+  --dataset-path benchmark-data/qwen3-vl-4b-256x256-en64-ja64.jsonl \
+  --output-len 64 \
+  --rounds 3 \
+  --stage-requests 5 \
+  --peak-requests 3 \
+  --output benchmark-results/qwen3-vl-4b-mixed-5-lora/recheck.json
+```
+
+服务端需注册上述 5 个 LoRA，并设置 `--max-loras 5`、`--max-cpu-loras 5`。测试 Native/RDNA 时
+只改变服务端是否开启两个 RDNA 环境变量，其他参数保持一致。
+
+</details>
+
+## 12. Benchmark 边界
+
+- P50 适合描述典型行为，生产评估还需要 P95/P99 和更长稳态流量。
+- `ignore-eos` 保证输出长度一致，但与真实用户提前结束的分布不同。
+- 单并发结果不能代表 mixed workload；mixed 结果也不能替代单 LoRA kernel 基准。
+- AWQ base 与 BF16 LoRA 的组合会改变瓶颈，不能把百分比直接外推到 BF16 base。
+- UMA 平台的“CPU/GPU 内存”物理共享，但 vLLM 的设备 buffer、KV 管理和迁移语义仍需区分。
+
+## 13. 90 秒面试回答
+
+> 我用固定 256×256 图片、85 token 服务端 prompt 和 64 token 日文输出测试 Qwen3-VL-4B
+> AWQ。单 LoRA 下，Native rank 64 decode 约 49.5 tok/s，gfx1151 RDNA kernel 提升到约
+> 61.6–61.9 tok/s。随后让低优先级 A 先运行，再插入高优先级 B。`max_loras=2` 时 B 的 TTFT
+> 约 109 ms，但 A/B mixed 使单请求 TPOT 变差；`max_loras=1` 时两者不重叠，B 约排队
+> 1004 ms，TTFT 达 1051 ms。这个实验说明高优先级到达本身不会主动抢占 running 请求，也说明
+> 调度测试必须把排队、真实计算窗口和并发重叠分开统计。
+
+## 14. 自测题
+
+<details>
+<summary>1. 为什么 B 的 1050.71 ms TTFT 不能计算 Prefill TPS？</summary>
+
+其中约 1003.70 ms 是等待 A 完成，不是 B 的 prefill 计算。用总 TTFT 换算会把调度排队误判成
+模型 prefill 很慢。
+
+</details>
+
+<details>
+<summary>2. <code>max-loras=2</code> 时 B 更快开始，为什么不能说性能全面更好？</summary>
+
+B 的 TTFT 改善，但 A 与 B 共享 GPU，二者 TPOT、Decode 和 E2E 相对各自单 LoRA 基准都下降。
+需要根据 TTFT SLO 与单请求吞吐之间的权衡判断。
+
+</details>
+
+<details>
+<summary>3. 五 LoRA 的三轮结果能否直接当生产容量？</summary>
+
+不能。它只能说明趋势；生产容量还需要长时间稳态、真实到达分布、P95/P99、错误率、显存余量和
+输出质量验证。
+
+</details>
+
+## 源码与脚本索引
+
+- `vLLM_LoRA.md`
+- `VLLM_BENCHMARK.md`
+- `rocm-scripts/lora-priority-pair-bench.py`
+- `rocm-scripts/lora-mixed-5-bench.py`
+- `rocm-scripts/lora-greedy-parity.py`
+- `benchmark-data/qwen3-vl-4b-256x256-en64-ja64.jsonl`
+
+[返回目录](README.md) · 上一章：[RDNA LoRA Kernel](10-rdna-lora-kernel-design.md) · 下一章：[严格优先级抢占](12-strict-priority-preemption.md)

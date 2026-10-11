@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="730" viewBox="0 0 1440 730" role="img" aria-labelledby="title desc">
+<title id="title">LoRA：共享基座，按 token 选择低秩增量</title><desc id="desc">M 是本次 token 行数；K/N 是输入/输出宽度；r 是 rank，通常远小于 K/N。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="730" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">LoRA：共享基座，按 token 选择低秩增量</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">LoRA · 5bdd3cc58d</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">M 是本次 token 行数；K/N 是输入/输出宽度；r 是 rank，通常远小于 K/N。</text>
+<rect x="26" y="122" width="1388" height="390" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="160" font-size="28" fill="#2865a8" text-anchor="start">同一份 X 分别进入基座与 LoRA 路径</text>
+<rect x="75" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="110" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="145" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="180" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="215" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="250" y="255" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="75" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="110" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="145" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="180" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="215" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="250" y="285" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="75" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="110" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="145" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="180" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="215" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="250" y="315" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="75" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="110" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="145" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="180" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="215" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<rect x="250" y="345" width="32" height="27" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="180" y="238" font-size="26" fill="#2865a8" text-anchor="middle">X [M,K]</text>
+<path d="M285 312 L340 312 L340 218 L415 218" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="415,218 404.0,213.0 404.0,223.0" fill="#2865a8"/>
+<path d="M285 312 L415 312" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="415,312 404.0,307.0 404.0,317.0" fill="#ac642e"/>
+<rect x="415" y="168" width="260" height="95" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="545.0" y="225.1" font-size="30" fill="#2865a8" text-anchor="middle">基座 XWᵀ</text>
+<rect x="415" y="285" width="260" height="95" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="545.0" y="340.82" font-size="26" fill="#ac642e" text-anchor="middle">Shrink：XAᵀ×scale</text>
+<text x="545" y="413" font-size="25" fill="#ac642e" text-anchor="middle">A [r,K]</text>
+<path d="M675 332 L745 332" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="745,332 734.0,327.0 734.0,337.0" fill="#ac642e"/>
+<rect x="750" y="275" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="790" y="275" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="750" y="303" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="790" y="303" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="750" y="331" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="790" y="331" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="750" y="359" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<rect x="790" y="359" width="37" height="25" rx="3" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="790" y="249" font-size="25" fill="#7654a5" text-anchor="middle">T [M,r]</text>
+<path d="M830 330 L900 330" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="900,330 889.0,325.0 889.0,335.0" fill="#7654a5"/>
+<rect x="900" y="285" width="230" height="95" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1015.0" y="341.14" font-size="27" fill="#187264" text-anchor="middle">Expand：TBᵀ</text>
+<text x="1015" y="413" font-size="25" fill="#187264" text-anchor="middle">B [N,r]</text>
+<path d="M1130 332 L1210 332" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="1210,332 1199.0,327.0 1199.0,337.0" fill="#187264"/>
+<rect x="1210" y="277" width="135" height="110" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1277.5" y="343.2" font-size="35" fill="#187264" text-anchor="middle">Y</text>
+<path d="M675 215 L1278 215 L1278 277" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="1278,277 1283.0,266.0 1273.0,266.0" fill="#2865a8"/>
+<text x="990" y="191" font-size="26" fill="#2865a8" text-anchor="middle">基座输出 + 增量</text>
+<text x="70" y="478" font-size="25" fill="#607187" text-anchor="start">Fused QKV 的各个 slice 分别计算；T 实际为 [S,M,r]。</text>
+<rect x="26" y="535" width="1388" height="155" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="573" font-size="28" fill="#7654a5" text-anchor="start">手算一个 token：x=[1,2,3]，r=2，scale=0.5</text>
+<text x="75" y="623" font-size="27" fill="#7654a5" text-anchor="start">XAᵀ = [4,5] → T=[2,2.5] → ΔY=[7,0.5] → [10,20]+ΔY=[17,20.5]</text>
+<text x="75" y="667" font-size="24" fill="#607187" text-anchor="start">同 token 的 A/B 由 adapter slot 决定；base token 的增量为零。</text>
+</svg>

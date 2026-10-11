@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="730" viewBox="0 0 1440 730" role="img" aria-labelledby="title desc">
+<title id="title">Worker ETA：空闲 slot 比总排队 bytes 更有解释力</title><desc id="desc">示例有 4 workers，前方仅两个 1.6 GB jobs，目标 job 为 0.4 GB。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="730" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">Worker ETA：空闲 slot 比总排队 bytes 更有解释力</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">理想化队列示意</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">示例有 4 workers，前方仅两个 1.6 GB jobs，目标 job 为 0.4 GB。</text>
+<rect x="26" y="120" width="1388" height="423" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">按前方 job 放入 backlog 最小的 worker slot</text>
+<text x="70" y="231" font-size="26" fill="#2865a8" text-anchor="start">Worker 0</text>
+<path d="M285 243 L1310 243" fill="none" stroke="#607187" stroke-width="2"/>
+<rect x="285" y="196" width="640" height="57" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="605.0" y="232.5" font-size="25" fill="#ac642e" text-anchor="middle">前方 Job · 1.6 GB</text>
+<text x="70" y="312" font-size="26" fill="#2865a8" text-anchor="start">Worker 1</text>
+<path d="M285 324 L1310 324" fill="none" stroke="#607187" stroke-width="2"/>
+<rect x="285" y="277" width="640" height="57" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="605.0" y="313.5" font-size="25" fill="#ac642e" text-anchor="middle">前方 Job · 1.6 GB</text>
+<text x="70" y="393" font-size="26" fill="#2865a8" text-anchor="start">Worker 2</text>
+<path d="M285 405 L1310 405" fill="none" stroke="#607187" stroke-width="2"/>
+<rect x="285" y="358" width="160" height="57" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="365.0" y="393.22" font-size="21" fill="#187264" text-anchor="middle">目标 0.4 GB</text>
+<text x="70" y="474" font-size="26" fill="#2865a8" text-anchor="start">Worker 3</text>
+<path d="M285 486 L1310 486" fill="none" stroke="#607187" stroke-width="2"/>
+<text x="335" y="472" font-size="26" fill="#607187" text-anchor="start">空闲</text>
+<rect x="26" y="570" width="1388" height="116" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="608" font-size="28" fill="#187264" text-anchor="start">这里目标可立即用空 slot；真实总带宽仍受 SSD 与并发竞争约束</text>
+<text x="720" y="650" font-size="27" fill="#187264" text-anchor="middle">串行估计 72 s；总字节均分 18 s；理想空 slot 只需自身约 8 s。</text>
+</svg>

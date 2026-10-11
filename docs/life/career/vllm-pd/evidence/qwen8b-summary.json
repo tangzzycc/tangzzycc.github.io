@@ -1,0 +1,75 @@
+{
+  "source_commit": "09dbc83d26",
+  "model": "Qwen3-8B",
+  "modes": {
+    "normal": {
+      "files": [
+        "run1-pb0-whole0-Qwen3-8B-mixed-normal-b32-chunk512-kv8-cu0.5.json",
+        "run2-pb0-whole0-Qwen3-8B-mixed-normal-b32-chunk512-kv8-cu0.5.json"
+      ],
+      "starts": 2,
+      "formal_rounds": 3,
+      "mean": {
+        "tok_s": 60.62005984064414,
+        "seconds": 67.568527870666,
+        "incoming_ttft_mean_s": 23.455947438917367,
+        "seed_ttft_mean_s": 0.30865227883320284,
+        "seed_itl_p50_ms": 460.9135539988832,
+        "seed_itl_p95_ms": 853.9038323360728,
+        "seed_itl_max_ms": 939.9855863351453,
+        "arrival_delay_max_s": 0.42684176433249377,
+        "max_decode_batch": 32
+      },
+      "round_tok_s": [
+        60.70896637234785,
+        60.64704747876686,
+        60.50416567081771
+      ],
+      "completed_requests": 96,
+      "completed_tokens": 12288,
+      "preemptions": 0
+    },
+    "full": {
+      "files": [
+        "run1-pb0-whole0-Qwen3-8B-mixed-full-b32-chunk512-kv8-cu0.5.json",
+        "run2-pb0-whole0-Qwen3-8B-mixed-full-b32-chunk512-kv8-cu0.5.json"
+      ],
+      "starts": 2,
+      "formal_rounds": 3,
+      "mean": {
+        "tok_s": 51.813381974061954,
+        "seconds": 79.05306646699803,
+        "incoming_ttft_mean_s": 32.09686559364096,
+        "seed_ttft_mean_s": 0.31772943214249,
+        "seed_itl_p50_ms": 317.46792800549883,
+        "seed_itl_p95_ms": 474.83799532831955,
+        "seed_itl_max_ms": 523.0590066688213,
+        "arrival_delay_max_s": 0.0014046906629422058,
+        "max_decode_batch": 26
+      },
+      "round_tok_s": [
+        51.8610242695991,
+        51.85961278827805,
+        51.719508864308715
+      ],
+      "completed_requests": 96,
+      "completed_tokens": 12288,
+      "preemptions": 0
+    }
+  },
+  "paired_change_pct": {
+    "tok_s": -14.527662773235239,
+    "incoming_ttft_mean_s": 36.83892188633941,
+    "seed_itl_p95_ms": -44.39209928016384
+  },
+  "matched_formal_output_parity": {
+    "equal": 96,
+    "total": 96
+  },
+  "gsm8k": {
+    "questions": 32,
+    "normal_correct": 18,
+    "paired_correct": 17,
+    "exact_token_finish_parity": 15
+  }
+}

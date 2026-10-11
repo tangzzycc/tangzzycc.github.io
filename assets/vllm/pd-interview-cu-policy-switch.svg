@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980" role="img" aria-labelledby="title desc">
+<title id="title">CU 资源调度：全 CU 共享 → 分区试探 → 延迟恶化回退</title><desc id="desc">设备报告 20 CUs，候选比例为 P50/D50；CU Mask 不隔离带宽和缓存。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="980" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">CU 资源调度：全 CU 共享 → 分区试探 → 延迟恶化回退</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">V1/MRV2 · 7a6515f374</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">设备报告 20 CUs，候选比例为 P50/D50；CU Mask 不隔离带宽和缓存。</text>
+<rect x="26" y="115" width="1388" height="290" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="153" font-size="28" fill="#187264" text-anchor="start">全 CU 共享与互补 CU Mask</text>
+<text x="60" y="218" font-size="25" fill="#172e46" text-anchor="start">全 CU：P</text>
+<rect x="215" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="240.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">0</text>
+<rect x="272" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="297.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">1</text>
+<rect x="329" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="354.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">2</text>
+<rect x="386" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="411.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">3</text>
+<rect x="443" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="468.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">4</text>
+<rect x="500" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="525.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">5</text>
+<rect x="557" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="582.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">6</text>
+<rect x="614" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="639.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">7</text>
+<rect x="671" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="696.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">8</text>
+<rect x="728" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="753.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">9</text>
+<rect x="785" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="810.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">10</text>
+<rect x="842" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="867.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">11</text>
+<rect x="899" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="924.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">12</text>
+<rect x="956" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="981.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">13</text>
+<rect x="1013" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1038.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">14</text>
+<rect x="1070" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1095.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">15</text>
+<rect x="1127" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1152.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">16</text>
+<rect x="1184" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1209.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">17</text>
+<rect x="1241" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1266.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">18</text>
+<rect x="1298" y="185" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1323.5" y="212.9" font-size="20" fill="#ac642e" text-anchor="middle">19</text>
+<text x="60" y="280" font-size="25" fill="#172e46" text-anchor="start">全 CU：D</text>
+<rect x="215" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="240.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">0</text>
+<rect x="272" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="297.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">1</text>
+<rect x="329" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="354.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">2</text>
+<rect x="386" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="411.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">3</text>
+<rect x="443" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="468.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">4</text>
+<rect x="500" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="525.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">5</text>
+<rect x="557" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="582.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">6</text>
+<rect x="614" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="639.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">7</text>
+<rect x="671" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="696.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">8</text>
+<rect x="728" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="753.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">9</text>
+<rect x="785" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="810.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">10</text>
+<rect x="842" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="867.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">11</text>
+<rect x="899" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="924.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">12</text>
+<rect x="956" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="981.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">13</text>
+<rect x="1013" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1038.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">14</text>
+<rect x="1070" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1095.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">15</text>
+<rect x="1127" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1152.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">16</text>
+<rect x="1184" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1209.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">17</text>
+<rect x="1241" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1266.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">18</text>
+<rect x="1298" y="247" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1323.5" y="274.9" font-size="20" fill="#2865a8" text-anchor="middle">19</text>
+<text x="60" y="342" font-size="25" fill="#172e46" text-anchor="start">互补分区</text>
+<rect x="215" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="240.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">0</text>
+<rect x="272" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="297.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">1</text>
+<rect x="329" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="354.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">2</text>
+<rect x="386" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="411.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">3</text>
+<rect x="443" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="468.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">4</text>
+<rect x="500" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="525.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">5</text>
+<rect x="557" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="582.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">6</text>
+<rect x="614" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="639.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">7</text>
+<rect x="671" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="696.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">8</text>
+<rect x="728" y="309" width="51" height="43" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="753.5" y="336.9" font-size="20" fill="#ac642e" text-anchor="middle">9</text>
+<rect x="785" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="810.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">10</text>
+<rect x="842" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="867.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">11</text>
+<rect x="899" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="924.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">12</text>
+<rect x="956" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="981.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">13</text>
+<rect x="1013" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1038.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">14</text>
+<rect x="1070" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1095.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">15</text>
+<rect x="1127" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1152.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">16</text>
+<rect x="1184" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1209.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">17</text>
+<rect x="1241" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1266.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">18</text>
+<rect x="1298" y="309" width="51" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1323.5" y="336.9" font-size="20" fill="#2865a8" text-anchor="middle">19</text>
+<text x="720" y="385" font-size="24" fill="#187264" text-anchor="middle">P mask = 0x003ff     D mask = 0xffc00     双方各 10 CUs</text>
+<rect x="26" y="426" width="1388" height="180" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="464" font-size="28" fill="#7654a5" text-anchor="start">在线试探：根据已完成的 Decode GPU 步时间判断</text>
+<rect x="65" y="491" width="345" height="60" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="237.5" y="528.36" font-size="23" fill="#607187" text-anchor="middle">持续 P/D 重叠负载</text>
+<path d="M410 521 L475 521" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="475,521 464.0,516.0 464.0,526.0" fill="#7654a5"/>
+<rect x="485" y="491" width="420" height="60" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="695.0" y="528.36" font-size="23" fill="#7654a5" text-anchor="middle">积累全 CU 基线 → 试探候选分区</text>
+<path d="M905 521 L969 521" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="969,521 958.0,516.0 958.0,526.0" fill="#7654a5"/>
+<rect x="980" y="491" width="390" height="60" rx="6" fill="#fbeeed" stroke="#b45650" stroke-width="1.5"/>
+<text x="1175.0" y="528.36" font-size="23" fill="#b45650" text-anchor="middle">Decode 变慢 → 退回全 CU</text>
+<text x="720" y="581" font-size="23" fill="#607187" text-anchor="middle">按 batch 分桶更新 EWMA；最少样本、保持时间与失败记录减少频繁切换。</text>
+<rect x="26" y="628" width="1388" height="275" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="666" font-size="28" fill="#2865a8" text-anchor="start">自动切换：复用已预热的 streams 与 Graphs</text>
+<text x="55" y="727" font-size="25" fill="#2865a8" text-anchor="start">旧 stream</text>
+<text x="55" y="815" font-size="25" fill="#187264" text-anchor="start">新 stream</text>
+<rect x="245" y="687" width="350" height="58" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="420.0" y="723.36" font-size="23" fill="#2865a8" text-anchor="middle">已提交的 Decode 批次</text>
+<circle cx="650" cy="717" r="7" fill="#7654a5"/>
+<path d="M595 717 L650 717" fill="none" stroke="#2865a8" stroke-width="2"/>
+<text x="755" y="726" font-size="22" fill="#7654a5" text-anchor="middle">记录 event</text>
+<path d="M650 728 L650 776" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="650,776 655.0,765.0 645.0,765.0" fill="#7654a5"/>
+<rect x="605" y="777" width="180" height="58" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="695.0" y="813.36" font-size="23" fill="#7654a5" text-anchor="middle">等待 event</text>
+<path d="M785 806 L859 806" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="859,806 848.0,801.0 848.0,811.0" fill="#187264"/>
+<rect x="870" y="777" width="495" height="58" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1117.5" y="813.04" font-size="22" fill="#187264" text-anchor="middle">后续批次使用新 stream 与匹配的 Graph</text>
+<text x="720" y="874" font-size="23" fill="#2865a8" text-anchor="middle">各角色通过 event 保持前后批次顺序；自动路径无需全局排空。</text>
+<text x="720" y="944" font-size="23" fill="#607187" text-anchor="middle">已提交工作保持原策略；P/D 两侧分别生效，过渡期不保证原子切换。</text>
+</svg>

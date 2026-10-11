@@ -106,7 +106,27 @@ nav:
   - 生活:
       - life/index.md
       - 秋招记录: life/career/index.md
+      - vLLM P/D 解耦与调度优化:
+          - RAPID-Serve 论文与推理指标: life/career/vllm-pd/01-论文与推理指标.md
+          - V1/MRV2 实现与设计取舍: life/career/vllm-pd/02-V1-MRV2实现与设计取舍.md
+          - 性能证据与面试问答: life/career/vllm-pd/03-性能证据与面试问答.md
+      - vLLM ROCm 模型适配与优化:
+          - CogAgent 模型接入与量化推理: life/career/vllm-rocm/01-CogAgent模型接入与量化推理.md
+          - LoRA 算子与优先级调度: life/career/vllm-rocm/02-LoRA算子与优先级调度.md
+          - 性能证据与面试问答: life/career/vllm-rocm/03-性能证据与面试问答.md
+      - vLLM Adaptive KV Offload 推理服务优化:
+          - KV 分层缓存与重算成本: life/career/vllm-adaptive-kv/01-KV分层缓存与重算成本.md
+          - 调度接入与异步生命周期: life/career/vllm-adaptive-kv/02-调度接入与异步生命周期.md
+          - 性能证据与面试问答: life/career/vllm-adaptive-kv/03-性能证据与面试问答.md
       - 开源贡献面试：vLLM PR: life/career/开源贡献面试-vLLM-PR.md
+      - vLLM 开源贡献框架追问:
+          - 问答导航与源码版本: life/career/vllm-pr/index.md
+          - 请求调度、MRV2 与 KV Cache: life/career/vllm-pr/01-请求调度-MRV2与KVCache.md
+          - Attention 与多模态执行: life/career/vllm-pr/02-Attention与多模态执行.md
+          - 投机解码与混合模型状态: life/career/vllm-pr/03-投机解码与混合模型状态.md
+          - 权重加载、量化与 Linear: life/career/vllm-pr/04-权重加载-量化与Linear.md
+          - MoE 路由与量化执行: life/career/vllm-pr/05-MoE路由与量化执行.md
+          - ROCm 算子与性能追问: life/career/vllm-pr/06-ROCm算子与性能追问.md
       - 开源贡献面试：FlashRT PR: life/career/开源贡献面试-FlashRT-PR.md
       - 开源贡献面试：FlyDSL PR: life/career/开源贡献面试-FlyDSL-PR.md
 

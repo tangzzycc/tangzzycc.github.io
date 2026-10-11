@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="630" viewBox="0 0 1440 630" role="img" aria-labelledby="title desc">
+<title id="title">ShortConv：可信 checkpoint 与临时 runtime 的边界</title><desc id="desc">L=3，每 channel 保存两个此前 B×X 值；a、d0、c 等标记输入来源，不是 token ID 数值。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="630" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">ShortConv：可信 checkpoint 与临时 runtime 的边界</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">Spec Decode</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">L=3，每 channel 保存两个此前 B×X 值；a、d0、c 等标记输入来源，不是 token ID 数值。</text>
+<rect x="40" y="135" width="300" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="190.0" y="175.82" font-size="26" fill="#2865a8" text-anchor="middle">旧 checkpoint：[u, v]</text>
+<rect x="500" y="135" width="460" height="65" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="730.0" y="176.46" font-size="28" fill="#ac642e" text-anchor="middle">有效重放：a → d0 → c</text>
+<path d="M340 168 L500 168" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="500,168 489.0,163.0 489.0,173.0" fill="#607187"/>
+<rect x="410" y="290" width="490" height="80" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="655.0" y="339.28" font-size="29" fill="#187264" text-anchor="middle">新 checkpoint：[a, d0]</text>
+<text x="655" y="405" font-size="25" fill="#187264" text-anchor="middle">尚未消费 correction c</text>
+<rect x="970" y="290" width="410" height="80" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1175.0" y="339.28" font-size="29" fill="#7654a5" text-anchor="middle">runtime：[d0, c]</text>
+<text x="1175" y="405" font-size="25" fill="#7654a5" text-anchor="middle">已经消费 c，可继续 draft</text>
+<path d="M680 200 L680 250 L655 250 L655 290" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="655,290 660.0,279.0 650.0,279.0" fill="#187264"/>
+<path d="M830 200 L830 250 L1175 250 L1175 290" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="1175,290 1180.0,279.0 1170.0,279.0" fill="#7654a5"/>
+<rect x="45" y="490" width="420" height="65" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="255.0" y="531.46" font-size="28" fill="#187264" text-anchor="middle">下一轮从 c 开始重放</text>
+<path d="M410 330 L255 330 L255 490" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="255,490 260.0,479.0 250.0,479.0" fill="#187264"/>
+<rect x="850" y="490" width="530" height="65" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1115.0" y="531.14" font-size="27" fill="#7654a5" text-anchor="middle">继续预测：[c, e0] → [e0, e1]</text>
+<path d="M1175 370 L1175 490" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="1175,490 1180.0,479.0 1170.0,479.0" fill="#7654a5"/>
+<text x="45" y="605" font-size="27" fill="#607187" text-anchor="start">runtime 可以被候选推进；checkpoint 只在新的可信边界更新。</text>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc">
+<title id="title">两套进程内 MRV2，共享一份物理存储</title><desc id="desc">D 管理请求与 KV blocks 的逻辑归属；P 创建物理权重和 KV，并导出 IPC 映射。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="960" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">两套进程内 MRV2，共享一份物理存储</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">V1/MRV2 · 7a6515f374</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">D 管理请求与 KV blocks 的逻辑归属；P 创建物理权重和 KV，并导出 IPC 映射。</text>
+<rect x="26" y="120" width="635" height="478" rx="6" fill="#fff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="52" y="160" font-size="29" fill="#2865a8" text-anchor="start">Decode 进程</text>
+<rect x="779" y="120" width="635" height="478" rx="6" fill="#fff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="805" y="160" font-size="29" fill="#ac642e" text-anchor="start">Prefill 进程</text>
+<rect x="65" y="192" width="550" height="59" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="340.0" y="229.18" font-size="24" fill="#2865a8" text-anchor="middle">EngineCore → PairedCoordinator</text>
+<rect x="65" y="275" width="550" height="59" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="340.0" y="312.18" font-size="24" fill="#2865a8" text-anchor="middle">DecodeScheduler / KVCacheManager</text>
+<rect x="65" y="358" width="550" height="59" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="340.0" y="395.18" font-size="24" fill="#7654a5" text-anchor="middle">P 租约 + D 在途引用保护</text>
+<rect x="65" y="474" width="550" height="77" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="340.0" y="520.18" font-size="24" fill="#2865a8" text-anchor="middle">MRV2 + 异步输出 + Decode Graph</text>
+<rect x="825" y="275" width="540" height="59" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1095.0" y="312.18" font-size="24" fill="#ac642e" text-anchor="middle">PrefillEngine：等待 / 在途队列</text>
+<rect x="825" y="358" width="540" height="59" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1095.0" y="395.18" font-size="24" fill="#ac642e" text-anchor="middle">独立的 Prefill Token Budget</text>
+<rect x="825" y="474" width="540" height="77" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1095.0" y="519.86" font-size="23" fill="#ac642e" text-anchor="middle">MRV2 + Eager Prefill + 完成事件</text>
+<path d="M615 304 L815 304" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="815,304 804.0,299.0 804.0,309.0" fill="#7654a5"/>
+<text x="720" y="264" font-size="20" fill="#7654a5" text-anchor="middle">工作与 block IDs</text>
+<path d="M825 315 L815 315 L815 440 L625 440 L625 315 L615 315" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="615,315 626.0,320.0 626.0,310.0" fill="#187264"/>
+<text x="720" y="466" font-size="20" fill="#187264" text-anchor="middle">完成与首 token</text>
+<rect x="26" y="660" width="1388" height="245" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="698" font-size="28" fill="#187264" text-anchor="start">GPU 物理存储：P 导出，D 映射</text>
+<rect x="80" y="730" width="530" height="85" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="345.0" y="780.18" font-size="24" fill="#187264" text-anchor="middle">共享的只读模型权重</text>
+<rect x="685" y="730" width="96" height="85" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="733.0" y="780.18" font-size="24" fill="#2865a8" text-anchor="middle">KV 0</text>
+<rect x="797" y="730" width="96" height="85" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="845.0" y="780.18" font-size="24" fill="#2865a8" text-anchor="middle">KV 1</text>
+<rect x="909" y="730" width="96" height="85" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="957.0" y="780.18" font-size="24" fill="#ac642e" text-anchor="middle">KV 2</text>
+<rect x="1021" y="730" width="96" height="85" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1069.0" y="780.18" font-size="24" fill="#ac642e" text-anchor="middle">KV 3</text>
+<rect x="1133" y="730" width="96" height="85" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1181.0" y="780.18" font-size="24" fill="#607187" text-anchor="middle">KV 4</text>
+<rect x="1245" y="730" width="96" height="85" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1293.0" y="780.18" font-size="24" fill="#607187" text-anchor="middle">KV 5</text>
+<path d="M340 551 L340 620 L250 620 L250 720" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="250,720 255.0,709.0 245.0,709.0" fill="#2865a8"/>
+<path d="M340 620 L760 620 L760 720" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="760,720 765.0,709.0 755.0,709.0" fill="#2865a8"/>
+<path d="M1095 551 L1095 645 L550 645 L550 720" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="550,720 555.0,709.0 545.0,709.0" fill="#ac642e"/>
+<path d="M1095 645 L1095 720" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="1095,720 1100.0,709.0 1090.0,709.0" fill="#ac642e"/>
+<text x="430" y="600" font-size="22" fill="#2865a8" text-anchor="start">D 映射权重与 KV</text>
+<text x="1110" y="628" font-size="22" fill="#ac642e" text-anchor="start">P 分配 / 导出</text>
+<text x="720" y="860" font-size="25" fill="#187264" text-anchor="middle">Block 元数据记录请求归属；GPU tensors 保存真实 K/V 数值。</text>
+<text x="720" y="940" font-size="25" fill="#607187" text-anchor="middle">可变 buffers、activations、Graph 与 runner 状态仍为进程私有。</text>
+</svg>

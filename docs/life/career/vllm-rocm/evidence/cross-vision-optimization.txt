@@ -1,0 +1,782 @@
+# CogAgent-18B Cross-Vision Triton 优化记录
+
+## 1. 范围与测试环境
+
+- GPU：AMD Radeon 8060S，RDNA 3.5，`gfx1151`
+- 模型：`zai-org/cogagent-chat-hf`
+- 量化模型：`CogAgent-18B-AWQ-W4A16`
+- 数据类型：视觉计算使用 BF16
+- Vision Attention Backend：`TRITON_ATTN`
+- Serve：Vision Encoder Torch Compile，Decoder `FULL_DECODE_ONLY` HIP Graph
+- 端到端数据：32 条不同的 COCO 图文请求，最多生成 64 token
+
+本记录包含三项连续优化：
+
+1. EVA RoPE 与 Q/K Layout 融合。
+2. Cross-Vision Attention Triton launch configuration 调优。
+3. Q/K/V 与 W1/W2 Projection 合并。
+
+## 2. Cross-Vision Attention 的实际 Shape
+
+主要测试 Shape 为：
+
+```text
+B=1, S=6401, H=16, D=64, BF16, non-causal
+```
+
+这里的 Cross-Vision Attention 指高分辨率 Cross-Vision Tower 内部的
+Self-Attention，不是 Decoder 对视觉特征执行的 Cross-Attention。
+
+### 2.1 Shape 来源
+
+Cross-Vision Tower 接收 `1120×1120` 图像，Patch Size 为 `14×14`：
+
+$$
+1120 / 14 = 80
+$$
+
+$$
+80 \times 80 = 6400\text{ Patch Tokens}
+$$
+
+在 Patch Token 前加入一个 CLS Token 后：
+
+$$
+S = 6400 + 1 = 6401
+$$
+
+Cross-Vision Hidden Size 为 1024，Head Dim 为 64：
+
+$$
+H = 1024 / 64 = 16
+$$
+
+因此 Q、K、V 的逻辑形状为：
+
+```text
+[B, S, H, D] = [1, 6401, 16, 64]
+```
+
+进入 Triton kernel 前会展平 batch 和序列维度：
+
+```text
+[B × S, H, D] = [6401, 16, 64]
+```
+
+Attention 的逻辑计算为：
+
+$$
+\operatorname{Attention}(Q,K,V)
+=
+\operatorname{Softmax}\left(\frac{QK^T}{\sqrt{64}}\right)V
+$$
+
+视觉 Token 之间允许双向关注，因此这里使用 `non-causal` Attention。
+Triton 使用分块计算和 online softmax，不会完整保存
+`[16,6401,6401]` 的 Attention Score。
+
+相关实现：
+
+- `vllm/transformers_utils/configs/cogagent.py`
+- `vllm/model_executor/models/cogagent_vision_encoder.py`
+- `vllm/model_executor/layers/attention/mm_encoder_attention.py`
+- `vllm/v1/attention/ops/vit_attn_wrappers.py`
+- `vllm/v1/attention/ops/triton_prefill_attention.py`
+
+## 3. EVA RoPE 与 Q/K Layout 融合
+
+### 3.1 原始计算路径
+
+原始实现分别处理 Q 和 K：
+
+```text
+Q/K [B,N,1024]
+  → reshape [B,N,16,64]
+  → permute [B,16,N,64]
+  → 分离 CLS Token 与图像 Token
+  → 对图像 Token 应用 RoPE
+  → 拼回 CLS Token
+  → dtype 转换
+  → permute 回 [B,N,16,64]
+```
+
+这条路径会产生多次 view、permute、切片、逐元素计算和 `cat`。其中
+Q、K 分开执行 RoPE，还会重复读取频率表并产生多个中间 Tensor。
+
+### 3.2 Triton 融合方式
+
+在 `cogagent_vision_encoder.py` 中增加 `_eva_rope_qk_kernel`，将以下操作
+合并到一次 Triton launch：
+
+- 同时读取 Q 和 K。
+- 根据 `head_dim=64` 将 Hidden 维映射到不同 Attention Head。
+- 对相邻偶数/奇数通道执行 GPT-J 风格旋转。
+- 同时完成 `q*cos + rotate(q)*sin` 和 `k*cos + rotate(k)*sin`。
+- CLS Token 使用 `cos=1`、`sin=0`，保持原值。
+- 直接写入 Attention 所需的 BHND backing layout。
+
+简化后的路径为：
+
+```text
+Q/K [B,N,1024]
+  → Fused RoPE + Q/K Layout Triton Kernel
+  → Q/K [B,N,16,64]，底层按 BHND 排布
+  → Attention
+```
+
+Kernel 使用一个 Triton Program 处理一个 `(batch, token)`，一次覆盖该
+Token 的 1024 个 Hidden 元素。`enable_fp_fusion=False` 用于保持与 Native
+路径相同的乘法和加法顺序，降低数值差异。
+
+其他平台以及不满足 Triton 使用条件的输入继续走 Native fallback。
+
+核心代码：
+
+- `_eva_rope_qk_kernel`
+- `_apply_eva_rope_qk_triton`
+- `_apply_eva_rope_qk_native`
+- `_apply_eva_rope_qk`
+
+均位于：
+
+```text
+vllm/model_executor/models/cogagent_vision_encoder.py
+```
+
+### 3.3 性能结果
+
+| 测试 | Native | Fused | 变化 |
+|---|---:|---:|---:|
+| 单层 RoPE + Layout，`[1,6401,16,64]` | 1.2023 ms | 0.2906 ms | **4.14×** |
+| AWQ Serve TTFT（P50） | 806.32 ms | 793.66 ms | **-1.57%** |
+| AWQ Serve E2E（P50） | 2533.98 ms | 2522.33 ms | -0.46% |
+
+该版本的 32/32 请求输出与 Native RoPE 路径完全一致。
+
+## 4. Cross-Vision Attention 配置调优
+
+### 4.1 原配置的问题
+
+对于 `D=64`，gfx1151 会先命中 CUDA-like capability 分支，最终使用：
+
+```text
+BLOCK_M=128
+BLOCK_N=128
+num_warps=8
+num_stages=1
+waves_per_eu=None
+```
+
+其中：
+
+- `BLOCK_M`：一个 Program 同时处理的 Query Token 数。
+- `BLOCK_N`：一次循环读取和计算的 Key/Value Token 数。
+- `num_warps`：一个 Program 使用的 warp 数量。
+- `num_stages`：Triton 软件流水线深度。
+- `waves_per_eu`：对每个 Execution Unit 驻留 wave 数的编译提示。
+
+原配置每次计算：
+
+```text
+Q[128,64] × Kᵀ[64,128] → Score[128,128]
+```
+
+对于 gfx1151 的 `D=64` Attention，这个 KV Tile 和 workgroup 偏大，带来
+较高的寄存器及执行资源压力。
+
+### 4.2 配置搜索
+
+围绕实际 Shape 扫描了：
+
+```text
+BLOCK_M       = 32 / 64 / 128 / 256
+BLOCK_N       = 16 / 32 / 64 / 128
+num_warps     = 2 / 4 / 8
+num_stages    = 1 / 2
+waves_per_eu  = None / 1 / 2 / 4 / 6 / 8
+```
+
+代表性结果：
+
+| BLOCK_M | BLOCK_N | Warps | Median |
+|---:|---:|---:|---:|
+| 128 | 128 | 8 | 9.817 ms |
+| 64 | 16 | 2 | 6.018 ms |
+| 64 | 64 | 4 | 6.052 ms |
+| 128 | 64 | 8 | 6.015 ms |
+| 128 | 32 | 4 | **5.618 ms** |
+
+最终配置为：
+
+```text
+BLOCK_M=128
+BLOCK_N=32
+num_warps=4
+num_stages=1
+waves_per_eu=None
+```
+
+新配置保留 128 个 Query Token 的复用粒度，同时把 KV Tile 从 128 缩小到
+32，并将 warps 从 8 降到 4。虽然遍历 K/V 的循环次数增加，但单次迭代的
+中间矩阵更小，寄存器压力更低，在 gfx1151 上获得了更好的 occupancy。
+
+`num_stages=2` 和显式 `waves_per_eu` 均未获得收益，因此继续使用一层流水
+并让编译器自动选择 occupancy。
+
+### 4.3 生产配置选择
+
+新增私有具名配置：
+
+```python
+class _TritonPrefillAttentionConfig(NamedTuple):
+    block_m: int
+    block_n: int
+    num_warps: int
+    num_stages: int = 1
+    waves_per_eu: int | None = None
+```
+
+专用配置只在以下条件全部满足时启用：
+
+```text
+gfx115x（覆盖 gfx1150 / gfx1151）
+BF16
+head_dim=64
+non-causal
+```
+
+不按 CogAgent 模型名匹配，其他拥有相同计算特征的视觉 Attention 也可以
+复用；CUDA、其他 ROCm 架构、FP32、其他 Head Dim 和 causal Attention
+继续使用原有通用 fallback。
+
+本轮没有修改 Attention 数学实现，只调整 kernel 的任务分块和线程组织。
+
+主要代码：
+
+```text
+vllm/v1/attention/ops/triton_prefill_attention.py
+```
+
+Benchmark 同步使用生产选择器，并补齐当前 `_fwd_kernel` 接口所需的
+`Sinks` 和 `USE_SINKS=False` 参数：
+
+```text
+vllm/benchmarks/vit_attention/bench.py
+```
+
+### 4.4 Kernel 性能
+
+正式结果取三轮交错测试的中位数：
+
+| 配置 | S=6401 Median | 相对性能 |
+|---|---:|---:|
+| 原配置：`128×128 / 8 warps` | 9.817 ms | 1.00× |
+| 新配置：`128×32 / 4 warps` | **5.618 ms** | **1.75×** |
+
+Kernel 延迟降低约 **42.8%**。在 `S=256/1024/4096/6401` 上均未观察到
+相对原配置的性能回退。
+
+### 4.5 端到端 Serve 结果
+
+每个模型均在独立 Serve 进程完成预热后，串行执行 32 条 COCO 请求。
+
+| 模型 | 优化前 TTFT P50 | 优化后 TTFT P50 | TTFT 变化 | 优化后 Decode |
+|---|---:|---:|---:|---:|
+| AWQ W4A16 | 785.96 ms | **755.90 ms** | **-3.82%** | 36.36 tok/s |
+| BF16 | 796.42 ms | **771.11 ms** | **-3.18%** | 15.02 tok/s |
+
+Decode 基本不变，符合该优化只作用于视觉编码阶段的预期。Kernel 级加速
+不会等比例转化为 TTFT，因为完整 TTFT 还包括图片预处理、Patch Embedding、
+QKV Projection、Vision MLP、Main Vision Tower 和 Decoder Prefill。
+
+### 4.6 gfx1151 Hardware Counter Profiling
+
+使用与当前 Python 环境匹配的 ROCm 10.1 `rocprofv3`，对当前配置和两组
+代表性配置分别采集 kernel trace 与硬件计数器。计数器需要拆成独立 pass，
+避免超过 gfx1151 单次可采集的硬件计数器数量。
+
+| 配置 | Kernel | VGPR | Workgroup | Occupancy | L2 Hit | Memory Busy |
+|---|---:|---:|---:|---:|---:|---:|
+| 旧配置 `128×128 / 8 warps` | 10.251 ms | 256 | 256 threads | 24.40% | 69.20% | 48.48% |
+| 当前配置 `128×32 / 4 warps` | **5.968 ms** | 248 | 128 threads | 29.70% | 21.54% | 46.98% |
+| 小 Tile `64×16 / 2 warps` | 6.471 ms | 224 | 64 threads | **35.33%** | 33.57% | 53.94% |
+
+Profiler 会增加一定开销，因此这里的绝对延迟高于普通 microbenchmark；
+配置之间的相对关系与普通测试一致。
+
+| 配置 | HBM/L2 Fetch | Write Traffic | Query Workgroups |
+|---|---:|---:|---:|
+| `128×128 / 8 warps` | 0.639 GiB | 35.40 MiB | 816 |
+| `128×32 / 4 warps` | 1.102 GiB | 12.46 MiB | 816 |
+| `64×16 / 2 warps` | 1.543 GiB | 12.39 MiB | 1616 |
+
+当前 kernel 使用 **248 VGPR、128 SGPR、0 LDS**。这说明：
+
+- 旧配置虽然 K/V Fetch 更少、L2 命中更高，但 8 warps 和 256 VGPR 带来
+  更低 occupancy，并且 `128×128` Score Tile 的计算与寄存器压力过大。
+- 小 Tile 把 occupancy 提升到 35.33%，但 Query Workgroup 数接近翻倍，
+  K/V Fetch 增加到 1.543 GiB，额外循环和访存抵消了收益。
+- 当前 `128×32 / 4 warps` 是寄存器压力、并行度和 K/V 流量之间更合理的
+  折中，但 29.70% occupancy 和 21.54% L2 命中率仍有优化空间。
+
+对当前 kernel 进一步采集的深层计数器如下：
+
+| 指标 | 中位数 |
+|---|---:|
+| GPU Busy | 100% |
+| Mean Occupancy per Active CU | 19.61% |
+| VALU Instructions | 107,059 |
+| SALU Instructions | 517 |
+| Scalar Fetch Instructions | 8 |
+| Wavefronts | 3,264 |
+| Write Unit Stalled | 0.017% |
+
+该 Shape 的两个矩阵乘理论计算量约为：
+
+$$
+4 \times B \times H \times S^2 \times D
+= 167.825\ \text{GFLOP}
+$$
+
+按普通 microbenchmark 的 `5.611 ms` 计算，有效吞吐约为
+`29.9 TFLOP/s`。GPU Busy 为 100%，但 Occupancy 较低、写回阻塞接近零，
+说明后续应优先降低 accumulator/online-softmax 的寄存器与计算开销，而不是
+优化输出写回。
+
+后续优先实验：
+
+1. 将 200 个完整 K/V Tile 与最后一个 Tail Tile 分开，完整循环移除
+   `pos_k < seqlen` 边界 mask。
+2. 调整 `(head, query block)` 的 program 排布，使相同 Head 的相邻 Query
+   Block 更可能连续执行，提高 K/V 的 L2 复用。
+3. 在保持 `BLOCK_M=128` 的前提下降低 online-softmax 与 accumulator 的
+   临时寄存器生命周期；不优先继续缩小 Tile，因为 `64×16` 已证明会显著
+   增加 K/V 读取量。
+
+完整数据位于：
+
+```text
+benchmark-results/cogagent-cross-vision-attention-profile-20260914/
+```
+
+### 4.7 后续 Kernel 消融与 Profiling
+
+在当前 `BM128/BN32/W4` 基线上继续验证了多组方向。所有结果均使用
+`B=1, S=6401, H=16, D=64, BF16, non-causal`，采用交错多轮测试。
+
+| 实验 | Kernel P50 | 相对当前实现 | 结论 |
+|---|---:|---:|---|
+| 当前实现 | 5.609 ms | 基线 | 保留 |
+| Query-block-first grid | 14.944 ms | +166.4% | 回退 |
+| 完整 KV Tile 无 mask 分支 | 6.127 ms | +9.23% | 回退 |
+| `matrix_instr_nonkdim=16, kpack=1` | 5.601 ms | -0.22% | 噪声范围 |
+| K/V load `.cg` | 5.609 ms | +0.52% | 无收益 |
+| K/V load `.ca` | 5.612 ms | +0.58% | 无收益 |
+| 独立 D64 non-causal kernel | 5.561 ms | -0.59% | 收益不足以引入重复实现 |
+| `tl.range(disable_licm=True)` | 5.808 ms | +3.2% | 回退 |
+| 禁止 accumulator multi-buffer | 5.620 ms | 约 0% | 无收益 |
+| AITER Flash Attention | 5.234 ms | -6.31% | 仅作为性能上界参考 |
+
+Query-block-first 的缓存指标看似改善，但整体执行反而恶化：
+
+| Grid 排布 | Occupancy | L2 Hit | Memory Busy | Fetch |
+|---|---:|---:|---:|---:|
+| 当前 `(B,H,Q-block)` | 29.80% | 21.83% | 47.64% | 1.16 GiB |
+| `(Q-block,H,B)` | 30.45% | 41.97% | 88.13% | 0.70 GiB |
+
+新的排布把同一 Head 的 Query blocks 集中执行，虽然提高了 K/V 缓存复用，
+但 Memory Unit 接近饱和，kernel 延迟和方差都明显上升。因此 gfx115x 上不能
+只按 L2 Hit 选择 grid 排布，现有排布能提供更均衡的 wave 调度。
+
+完整 KV Tile fast path 同样降低了访存和指令数量，但引入运行时分支后触发
+寄存器溢出：
+
+| 实现 | VGPR | Scratch/thread | Occupancy | L2 Hit | VALUInsts |
+|---|---:|---:|---:|---:|---:|
+| 当前 masked loop | 248 | 0 B | 29.67% | 22.38% | 107,059 |
+| 完整 Tile fast path | 256 | 40 B | 29.79% | 51.48% | 76,658 |
+
+虽然 fast path 将 VALU 指令减少约 28%，并显著提高 L2 Hit，但 `256 VGPR`
+触发 scratch spill，最终得不偿失。后续优化必须优先控制寄存器生命周期，
+不能在当前主 kernel 中继续增加运行时分支。
+
+重新扫描 Tile 后，当前配置仍是 17 组候选中的最快值。两个最接近的候选
+虽然降低了 VGPR，但增加了循环或 Query workgroup 开销：
+
+| 配置 | Kernel P50 | VGPR | Occupancy | L2 Hit | Fetch |
+|---|---:|---:|---:|---:|---:|
+| `BM128/BN32/W4` | **5.617 ms** | 248 | 29.81% | 22.66% | 1.15 GiB |
+| `BM128/BN16/W4` | 5.864 ms | 216 | **41.61%** | 54.55% | **0.61 GiB** |
+| `BM64/BN64/W4` | 5.883 ms | 232 | 36.39% | 54.68% | 0.85 GiB |
+
+这说明当前性能不由单一 occupancy 或带宽指标决定。`BN16` 虽显著降低
+寄存器与流量，但 online-softmax 循环次数翻倍；`BM64` 则使 Query
+workgroup 数翻倍。当前 `BM128/BN32/W4` 仍是两类开销之间的最佳折中。
+
+独立 D64 kernel 将完整 KV 循环与尾块分离，数值测试在
+`S=256/1024/6401` 均通过，最大绝对误差为 `4.88e-4`。但 profiler 显示它
+使用 256 VGPR 并产生 64 B/thread scratch，只获得 0.59% kernel 收益，未
+达到合入标准。`disable_licm` 同样将 VGPR 推到 256，说明编译器原有的循环
+不变量提升反而更适合当前 kernel。
+
+AITER Flash Attention 在 microbenchmark 中比当前 Triton 快 6.31%，但本轮
+不重新启用全局 AITER backend。与虚拟环境 ROCm 10.1 匹配的 profiler 缺少
+attach helper，而直接启动 profiler 会将注入库传递给 AITER 的 clang 子进程，
+触发 LLVM 重复注册；因此目前只有延迟和数值数据，没有可靠的 AITER hardware
+counter。下一阶段若继续自研 Triton kernel，应优先分析 online-softmax 循环与
+accumulator 的寄存器分配，而不是继续做 launch 参数或 cache hint 扫描。
+
+本轮原始数据位于：
+
+```text
+benchmark-results/cogagent-cross-vision-grid-order-20260914/
+benchmark-results/cogagent-cross-vision-unmasked-kv-20260914/
+benchmark-results/cogagent-cross-vision-codegen-20260914/
+benchmark-results/cogagent-cross-vision-kv-cache-20260914/
+benchmark-results/cogagent-cross-vision-tile-rescan-20260914/
+benchmark-results/cogagent-cross-vision-d64-fastpath-20260914/
+benchmark-results/cogagent-cross-vision-loop-codegen-20260914/
+benchmark-results/cogagent-cross-vision-backends-20260914/
+```
+
+### 4.8 分组 Query-block 排布实验
+
+完全按 Head 连续执行全部 Query blocks 虽能复用 K/V，但会将 Memory Busy
+推高到约 88%，并造成严重延迟回退。本轮测试折中排布：每个 Head 只连续执行
+`1/2/4/8/16` 个 Query blocks，再切换到下一个 Head。
+
+所有分组实现均与原 kernel 逐元素完全一致，`S=6401` 下最大绝对误差为 0。
+先执行五轮独立进程交错测试，再对候选项执行同进程、同一组 Q/K/V 的十轮
+A/B。后者结果如下：
+
+| Query-block group | Kernel P50 | 相对原排布 | 轮间范围 |
+|---:|---:|---:|---:|
+| 原排布 | 5.6112 ms | 基线 | 5.4591--5.7049 ms |
+| 1 | 5.6125 ms | +0.02% | 5.5830--5.6286 ms |
+| 4 | **5.5934 ms** | **-0.32%** | 5.5354--5.6018 ms |
+| 8 | 5.5974 ms | -0.25% | 5.5755--5.6204 ms |
+
+`group=2/16` 在前置五轮筛选中也未超过 `group=4`。硬件计数器说明分组确实
+改善了 K/V 局部性，但没有转化为同等幅度的执行时间收益：
+
+| Group | VGPR | Scratch | Occupancy | L2 Hit | Memory Busy | Fetch（相对基线） |
+|---:|---:|---:|---:|---:|---:|---:|
+| 原排布 | 248 | 0 B | 29.78% | 22.11% | 50.75% | 100.0% |
+| 1 | 248 | 0 B | 29.70% | 22.08% | 50.58% | 100.3% |
+| 4 | 248 | 0 B | 29.86% | 45.01% | 46.51% | 65.5% |
+| 8 | 248 | 0 B | 29.75% | 56.49% | 48.91% | 50.6% |
+
+`group=4` 将 L2 Hit 提升约 23 个百分点，并减少约 34.5% Fetch，但 kernel
+仅提升 0.32%；`group=8` 继续减少访存也没有继续加速。结合不变的 248 VGPR
+和约 30% Occupancy，可判断当前瓶颈并非单纯 K/V 带宽，而是 Attention
+计算、online-softmax 循环和寄存器受限共同作用。该收益不足以为通用 kernel
+引入额外索引逻辑，因此实验代码已移除，生产排布保持不变。
+
+原始 profiling 数据位于：
+
+```text
+benchmark-results/cogagent-cross-vision-grouped-order-20260914/
+```
+
+### 4.9 Q Tile 生命周期实验
+
+Triton GPU IR 显示，循环携带的主要状态为：
+
+```text
+m_i  [128] FP32
+l_i  [128] FP32
+acc  [128,64] FP32
+```
+
+同时 Q `[128,64]` 需要跨约 201 次 KV Tile 迭代使用。为验证 Q 的长生命周期
+是否造成额外 VGPR 压力，实验性地将 Q load 移入 KV 循环，尝试用重复读取换取
+更短的寄存器生命周期。
+
+编译结果表明 Triton 的 LICM 会把循环不变量 Q load 重新提升到循环外：原实现
+和实验实现均为 **242 个实际 VGPR、64 SGPR、0 Scratch、编译器 Occupancy 5**。
+同进程十轮测试分别为 `5.6234 ms` 和 `5.6168 ms`，差异仅 0.12%，属于噪声；
+输出逐元素完全一致。强制关闭 LICM 的实验此前已导致 256 VGPR 和性能回退，
+因此不再强制阻止编译器提升，实验代码已移除。
+
+这进一步说明，源码层简单移动 load 无法解决寄存器压力；后续若要明显降低
+VGPR，需要改变 accumulator/QK tile 的实际布局或算法，而不是调整语句位置。
+
+## 5. 正确性验证
+
+### 5.1 Attention 算子
+
+优化后的 Triton Attention 与 PyTorch SDPA 对比：
+
+| S | 最大绝对误差 | `rtol=1e-2, atol=1e-2` 通过比例 |
+|---:|---:|---:|
+| 256 | 0.001953125 | 100% |
+| 1024 | 0.000030518 | 100% |
+| 6401 | 0.000244141 | 100% |
+
+### 5.2 回归测试
+
+```text
+tests/kernels/core/test_cogagent_rope_qk.py
+tests/kernels/attention/test_triton_prefill_attention.py
+```
+
+Triton prefill attention 测试结果：
+
+```text
+21 passed
+```
+
+Ruff、格式检查和 `git diff --check` 均通过。
+
+改变 Attention Tile 会改变 BF16 的分块归约顺序，因此不能保证所有
+greedy 输出逐 Token 完全相同。32 条端到端请求全部成功，任务指标对比未
+发现系统性质量下降。
+
+## 6. 优化后 Profiling 与 BF16 GEMM 消融
+
+在 RoPE/Layout 融合和 Attention 配置调优全部开启后，重新执行 5 次预热
+和 5 次 profiling。Cross-Vision 单次前向为 **290.92 ms**，优化前记录为
+340.48 ms，降低约 **14.56%**。
+
+| 类别 | 单次耗时 | Leaf-kernel 占比 |
+|---|---:|---:|
+| Triton Attention | 139.17 ms | 47.85% |
+| BF16 GEMM | 122.90 ms | 42.26% |
+| Normalization / fused activation | 16.75 ms | 5.76% |
+| Fused EVA RoPE + Q/K layout | 6.47 ms | 2.23% |
+| 其他 | 5.54 ms | 1.90% |
+
+Attention 与 GEMM 已成为接近的两个主要热点。针对 Cross-Vision 的三组
+BF16 GEMM Shape，分别比较 hipBLASLt、rocBLAS 和现有 AITER Triton
+配置。每项预热 30 次、采样 100 次并取 GPU Event 中位数。
+
+Projection 按真实执行路径的三次带 bias `addmm` 和一次无 bias `mm`
+加权；MLP Up/Down 使用带 bias 路径。
+
+| Shape | hipBLASLt | rocBLAS | AITER Triton | 最优路径 |
+|---|---:|---:|---:|---|
+| Projection `6401x1024x1024` | **0.470 ms** | 0.503 ms | 0.694 ms | hipBLASLt |
+| MLP Up `6401x2730x1024` | **1.086 ms** | 1.579 ms | 2.077 ms | hipBLASLt |
+| MLP Down `6401x1024x2730` | 1.149 ms | **1.099 ms** | 26.912 ms | rocBLAS |
+
+当前继续全局使用 `TORCH_BLAS_PREFER_HIPBLASLT=1` 更合理。只有 MLP
+Down 在 rocBLAS 上领先约 4.3%，按 23 层估算仅节省约 1.14 ms，不足以
+支持引入复杂的逐算子后端切换。现有 AITER Triton 配置三组均未领先，尤其
+不适合 `K=2730` 的非整除 Shape。
+
+详细原始结果位于：
+
+```text
+benchmark-results/cogagent-awq-vision-op-profile-current-20260911/
+benchmark-results/cogagent-cross-vision-gemm-ablation-20260911/
+```
+
+## 7. QKV 与 Gate-Up Projection 合并实验
+
+Cross-Vision 每层原本分别执行三次 Q/K/V Projection，以及两次
+W1/W2 Projection。本轮使用 vLLM 已有并行 Linear 层进行合并：
+
+```text
+Q/K/V: 3 × [6401,1024] × [1024,1024]
+    → 1 × [6401,1024] × [1024,3072]
+
+W1/W2: 2 × [6401,1024] × [1024,2730]
+    → 1 × [6401,1024] × [1024,5460]
+```
+
+模型实现使用：
+
+- `QKVParallelLinear` 打包 Q/K/V 权重和 Q/V bias，K bias 保持为 0。
+- `MergedColumnParallelLinear` 打包 W1/W2 权重和 bias。
+- 权重加载分别使用 `q/k/v` 与 `0/1` shard id，保持原 Hugging Face
+  checkpoint 命名不变。
+
+核心修改位于：
+
+```text
+vllm/model_executor/models/cogagent_vision_encoder.py
+```
+
+### 7.1 GEMM 微基准
+
+测试使用真实 Shape、BF16、`TORCH_BLAS_PREFER_HIPBLASLT=1`，每轮预热
+30 次、采样 100 次；表中为三轮中位数。
+
+| 路径 | Separate | Merged | 延迟变化 |
+|---|---:|---:|---:|
+| QKV，Torch Compile | 1.3970 ms | **1.1587 ms** | **-17.06%** |
+| Gate-Up Projection | **2.3789 ms** | 2.4071 ms | +1.19% |
+| Gate-Up + SiLU/Multiply | 3.1770 ms | **2.7926 ms** | **-12.10%** |
+
+Gate-Up 的单个大 GEMM 没有独立领先，但合并输出让 Torch Compile 将
+split、SiLU、multiply 和后续 LayerNorm 形成更高效的整体图，因此完整
+Gate-Up 路径仍获得收益。
+
+合并后的 Q/K/V 是 stride 为 3072 的 view。单独验证表明，这一 stride
+变化不会拖慢后续 RoPE 和 Attention：
+
+| 下游路径 | Separate layout | Packed layout |
+|---|---:|---:|
+| EVA RoPE | 0.2876 ms | 0.2854 ms |
+| Triton Attention | 6.0646 ms | 6.0548 ms |
+
+### 7.2 模型级 Profiling
+
+在相同 AWQ W4A16 模型和同一张图片上进行 5 次预热、5 次 profiling：
+
+| 指标 | Unmerged | Merged | 变化 |
+|---|---:|---:|---:|
+| Cross-Vision 前向 | 290.57 ms | **283.09 ms** | **-2.57%** |
+| GEMM kernel | 124.19 ms | **113.79 ms** | **-8.37%** |
+| Attention kernel | 140.40 ms | 144.26 ms | +2.75% |
+
+GEMM 时间下降约 10.39 ms，最终 Cross-Vision 前向减少约 7.48 ms。
+Attention 的小幅反向波动属于相邻 profiling 的运行波动；微基准已确认
+packed QKV stride 本身没有造成 Attention 回退。
+
+### 7.3 Serve A/B
+
+使用同一 AWQ W4A16 模型、32 条 COCO 图文请求、greedy、最多 64 token。
+Merged 版本独立启动两轮 Serve：
+
+| 版本 | TTFT P50 | TPOT P50 | Decode | E2E P50 |
+|---|---:|---:|---:|---:|
+| Unmerged | 758.59 ms | 27.456 ms/token | 36.42 tok/s | 2439.07 ms |
+| Merged，Run 1 | 755.80 ms | 27.560 ms/token | 36.28 tok/s | 2470.20 ms |
+| Merged，Run 2 | **753.71 ms** | 27.393 ms/token | 36.51 tok/s | 2458.02 ms |
+
+两轮 Merged 的 TTFT 分别降低 **0.37%** 和 **0.64%**，中值改善约
+**0.51%**。该优化只影响 Cross-Vision Prefill，TPOT 和 Decode 的微小
+变化属于正常波动。不同 GEMM 分块会改变 BF16 累加顺序，32 条输出中
+24 条完全一致；Token 编辑相似度中位数为 1.0，参考 Caption Word F1
+差值为 -0.0010，95% CI 为 `[-0.0076, 0.0052]`，未检测到系统性质量下降。
+
+原始结果位于：
+
+```text
+benchmark-results/cogagent-cross-vision-merged-gemm-20260914/
+benchmark-results/cogagent-awq-vision-op-profile-unmerged-20260914/
+benchmark-results/cogagent-awq-vision-op-profile-merged-gemm-20260914/
+benchmark-results/cogagent-awq-merged-gemm-serve-20260914/
+benchmark-results/cogagent-awq-merged-gemm-serve-r2-20260914/
+```
+
+### 7.4 合并 Shape 的 Backend 与 Kernel 消融
+
+进一步针对合并后的两个真实 BF16 GEMM Shape 测试 hipBLASLt、rocBLAS
+和 AITER Triton。BLAS 数据来自三个独立进程，每项预热 30 次、采样
+100 次并取三轮中位数。Triton 先扫描 26 组配置，再将前两名与
+Torch Compile hipBLASLt 路径交错执行三轮复测。
+
+测试包含真实 bias，并保留 gfx11 权重 stride padding：
+
+| Shape | hipBLASLt | rocBLAS | rocBLAS 相对变化 | 最佳 AITER Triton |
+|---|---:|---:|---:|---:|
+| QKV `6401×3072×1024` | **1.190 ms** | 2.300 ms | +93.2% | 1.646 ms（+35.5%） |
+| Gate-Up `6401×5460×1024` | **2.163 ms** | 2.675 ms | +23.7% | 2.891 ms（+32.5%） |
+
+两个 Shape 的最佳 Triton 配置均为：
+
+```text
+BLOCK_M=128, BLOCK_N=64, BLOCK_K=64
+num_warps=8, num_stages=2
+GROUP_SIZE_M=1, waves_per_eu=1
+```
+
+所有候选配置均通过 BF16 容差校验，但没有超过 hipBLASLt。当前应继续
+使用 `TORCH_BLAS_PREFER_HIPBLASLT=1`，不为这两个 Shape 引入 AITER
+Triton dispatch。Gate-Up 的收益仍来自合并后完整计算图中的
+split、SiLU、multiply 和 LayerNorm 优化，而不是单独替换 GEMM backend。
+
+完整结果位于：
+
+```text
+benchmark-results/cogagent-cross-vision-merged-gemm-backend-ablation-20260914/
+```
+
+## 8. Benchmark 命令
+
+<details>
+<summary>QKV / Gate-Up Merged GEMM</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+
+TORCH_BLAS_PREFER_HIPBLASLT=1 \
+  .venv/bin/python \
+  cogagent_quantization/benchmark_cross_vision_merged_gemm.py \
+  --mode compile \
+  --warmup 30 \
+  --repeats 100
+```
+
+</details>
+
+<details>
+<summary>Merged GEMM Backend / Kernel Ablation</summary>
+
+```bash
+cd /home/tang/vllm_rocm
+
+PYTHONPATH=.venv/lib/python3.12/site-packages/_rocm_sdk_core/share/amd_smi \
+TORCH_BLAS_PREFER_HIPBLASLT=1 \
+  .venv/bin/python \
+  cogagent_quantization/benchmark_cross_vision_merged_gemm_backends.py \
+  --mode compare \
+  --compile \
+  --warmup 30 \
+  --repeats 100 \
+  --output /tmp/merged-gemm-compare.json
+```
+
+</details>
+
+<details>
+<summary>Cross-Vision Attention Kernel</summary>
+
+```bash
+cd /home/tang/vllm_rocm/vllm
+
+../.venv/bin/python benchmarks/vit_attention/bench.py \
+  --seq 6401 \
+  --heads 16 \
+  --head-dim 64 \
+  --dtype bf16 \
+  --backend TRITON_ATTN \
+  --warmup-ms 200 \
+  --rep-ms 600
+```
+
+</details>
+
+<details>
+<summary>Attention 正确性回归</summary>
+
+```bash
+cd /home/tang/vllm_rocm/vllm
+
+PYTHONPATH=../.venv/lib/python3.12/site-packages/_rocm_sdk_core/share/amd_smi \
+../.venv/bin/python -m pytest \
+  tests/kernels/attention/test_triton_prefill_attention.py -q
+```
+
+</details>
+
+## 9. 当前结论
+
+三类优化分别处理 Attention 及其前后的热点：
+
+```text
+Q/K Projection
+  → EVA RoPE + Q/K Layout 融合
+  → Cross-Vision Triton Attention 配置调优
+  → Attention Output Projection
+```
+
+- RoPE + Layout 单层加速 **4.14×**，AWQ TTFT 降低 **1.57%**。
+- Attention Kernel 加速 **1.75×**，AWQ TTFT 进一步降低 **3.82%**，
+  BF16 TTFT 降低 **3.18%**。
+- QKV/Gate-Up 合并使 Cross-Vision GEMM 时间降低 **8.37%**、完整前向
+  降低 **2.57%**，Serve TTFT 稳定降低约 **0.37%--0.64%**。
+- gfx1151 专用 Triton 优化保留通用 fallback；Projection 合并则直接复用
+  vLLM 已有的并行 Linear 层。

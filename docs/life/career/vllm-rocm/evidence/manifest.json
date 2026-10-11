@@ -1,0 +1,56 @@
+{
+  "source_snapshots": {
+    "cogagent": "f9ddabc759c66cdb76567d22d05683ea8d30cd37",
+    "lora": "5bdd3cc58d8985c2c2ebcb21377b3526335b5741"
+  },
+  "notes": [
+    "Historical report copies are byte-identical.",
+    "Some original ROCm per-request JSON directories referenced by reports are no longer present; report numbers are not upgraded to raw benchmark evidence.",
+    "47.4%, 5.28x and 76.1% compare a historical HF 32-request report to a later 20-repeat fixed-input AWQ report; workloads differ.",
+    "No new GPU benchmark was executed while writing these notes."
+  ],
+  "files": [
+    {
+      "file": "weekly-20260907.txt",
+      "source": "/home/tang/vllm_rocm/report/lora-cogagent-weekly-report-2026-09-07.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "dc2395dc1fd639535fba71283e275015368ff34646b53c22a209d854e19e4816",
+      "bytes": 4989
+    },
+    {
+      "file": "weekly-20260915.txt",
+      "source": "/home/tang/vllm_rocm/report/cogagent-weekly-report-2026-09-15.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "5c51c2266b36cc84b913ae0b8b1afd4fa9ade0b93c8c9577a4d46256790acbb8",
+      "bytes": 1717
+    },
+    {
+      "file": "cogagent-serving-and-parity.txt",
+      "source": "/home/tang/vllm_rocm/vLLM_CogAgent.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "c00c87248d26f704e5cee3ed32e7b1a2d581c045d78ff75e270ac41e557573bd",
+      "bytes": 6202
+    },
+    {
+      "file": "cross-vision-optimization.txt",
+      "source": "/home/tang/vllm_rocm/CROSS_VISION_TRITON_OPTIMIZATION.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "1e94f5308d04a89b2352a1f1ee65b36dee8f5d17633f12e549bb9af1719dc422",
+      "bytes": 27150
+    },
+    {
+      "file": "lora-serving-report.txt",
+      "source": "/home/tang/projects/infra-interview/cogagent_lora_feature/11-lora-benchmark-and-mixed-serving.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "166675002dee2ad9367cd4c6243b4397fa61654e2ae645fc8de8c5608b215167",
+      "bytes": 15796
+    },
+    {
+      "file": "w4a16-report.txt",
+      "source": "/home/tang/projects/infra-interview/cogagent_lora_feature/08-w4a16-kernel-tuning-and-results.md",
+      "kind": "unchanged historical report; secondary performance evidence",
+      "sha256": "6ef51eb6670ac05207da397f9a422b45087c9bd42e1a37d76303018f779e0409",
+      "bytes": 17457
+    }
+  ]
+}

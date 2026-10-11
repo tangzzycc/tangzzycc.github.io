@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="775" viewBox="0 0 1440 775" role="img" aria-labelledby="title desc">
+<title id="title">LOAD_READY：改变命中边界，固定一次路径选择</title><desc id="desc">local=1024，ready=2048，candidate=4096；candidate 从 local 之后计数。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="775" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">LOAD_READY：改变命中边界，固定一次路径选择</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">Adaptive KV · 76787da49d</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">local=1024，ready=2048，candidate=4096；candidate 从 local 之后计数。</text>
+<rect x="26" y="120" width="1388" height="281" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">按位置追踪同一个请求</text>
+<rect x="80" y="209" width="250" height="88" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="205.0" y="260.36" font-size="23" fill="#2865a8" text-anchor="middle">[0,1024) GPU 已有</text>
+<rect x="345" y="209" width="410" height="88" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="550.0" y="261.32" font-size="26" fill="#7654a5" text-anchor="middle">[1024,3072) CPU ready</text>
+<rect x="770" y="209" width="570" height="88" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1055.0" y="261.32" font-size="26" fill="#ac642e" text-anchor="middle">[3072,5120) Pending tail</text>
+<path d="M550 297 L550 335" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="550,335 555.0,324.0 545.0,324.0" fill="#7654a5"/>
+<text x="550" y="375" font-size="25" fill="#7654a5" text-anchor="middle">H2D 2048 tokens</text>
+<path d="M1055 297 L1055 335" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="1055,335 1060.0,324.0 1050.0,324.0" fill="#ac642e"/>
+<text x="1055" y="375" font-size="25" fill="#ac642e" text-anchor="middle">Prefill 重算 2048 tokens</text>
+<rect x="26" y="431" width="1388" height="293" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="469" font-size="28" fill="#187264" text-anchor="start">Sticky bypass：Chunked Prefill 多轮推进，不重新排原 load</text>
+<text x="80" y="527" font-size="26" fill="#187264" text-anchor="start">Computed position</text>
+<rect x="405" y="483" width="245" height="72" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="527.5" y="528.6" font-size="30" fill="#187264" text-anchor="middle">3072</text>
+<rect x="700" y="483" width="245" height="72" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="822.5" y="528.6" font-size="30" fill="#187264" text-anchor="middle">4096</text>
+<rect x="995" y="483" width="245" height="72" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1117.5" y="528.6" font-size="30" fill="#187264" text-anchor="middle">5120</text>
+<path d="M650 520 L700 520" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="700,520 689.0,515.0 689.0,525.0" fill="#187264"/>
+<path d="M945 520 L995 520" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="995,520 984.0,515.0 984.0,525.0" fill="#187264"/>
+<path d="M405 586 L405 594 L1240 594 L1240 586" fill="none" stroke="#187264" stroke-width="2"/>
+<text x="822.5" y="624" font-size="26" fill="#187264" text-anchor="middle">到达 bypass_until=5120 后清状态、释放 active 预算</text>
+<text x="720" y="696" font-size="25" fill="#607187" text-anchor="middle">Rolling-window 额度正常按时间过期；未开始重算的失败切换才 rollback。</text>
+</svg>

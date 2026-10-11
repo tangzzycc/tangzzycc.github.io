@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="790" viewBox="0 0 1440 790" role="img" aria-labelledby="title desc">
+<title id="title">小 M 直接索引，大 M 按 adapter 分组</title><desc id="desc">Metadata 保存原 token 行号；Prefill kernel gather 输入并写回原行，无需 Host 重排 X。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="790" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">小 M 直接索引，大 M 按 adapter 分组</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">LoRA · 5bdd3cc58d</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">Metadata 保存原 token 行号；Prefill kernel gather 输入并写回原行，无需 Host 重排 X。</text>
+<rect x="26" y="120" width="1388" height="262" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">Decode：每个真实 token 直接选择 A/B</text>
+<rect x="70" y="190" width="195" height="68" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="167.5" y="232.0" font-size="25" fill="#2865a8" text-anchor="middle">token 0</text>
+<rect x="70" y="288" width="195" height="58" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="167.5" y="324.68" font-size="24" fill="#ac642e" text-anchor="middle">adapter 0</text>
+<path d="M167 258 L167 288" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="167,288 172.0,277.0 162.0,277.0" fill="#2865a8"/>
+<rect x="325" y="190" width="195" height="68" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="422.5" y="232.0" font-size="25" fill="#2865a8" text-anchor="middle">token 1</text>
+<rect x="325" y="288" width="195" height="58" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="422.5" y="324.68" font-size="24" fill="#ac642e" text-anchor="middle">adapter 1</text>
+<path d="M422 258 L422 288" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="422,288 427.0,277.0 417.0,277.0" fill="#2865a8"/>
+<rect x="580" y="190" width="195" height="68" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="677.5" y="232.0" font-size="25" fill="#2865a8" text-anchor="middle">token 2</text>
+<rect x="580" y="288" width="195" height="58" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="677.5" y="324.68" font-size="24" fill="#ac642e" text-anchor="middle">adapter 0</text>
+<path d="M677 258 L677 288" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="677,288 682.0,277.0 672.0,277.0" fill="#2865a8"/>
+<rect x="835" y="190" width="195" height="68" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="932.5" y="232.0" font-size="25" fill="#2865a8" text-anchor="middle">token 3</text>
+<rect x="835" y="288" width="195" height="58" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="932.5" y="324.68" font-size="24" fill="#607187" text-anchor="middle">adapter base</text>
+<path d="M932 258 L932 288" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="932,288 937.0,277.0 927.0,277.0" fill="#2865a8"/>
+<rect x="1090" y="190" width="195" height="68" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1187.5" y="232.0" font-size="25" fill="#2865a8" text-anchor="middle">token 4</text>
+<rect x="1090" y="288" width="195" height="58" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1187.5" y="324.68" font-size="24" fill="#ac642e" text-anchor="middle">adapter 1</text>
+<path d="M1187 258 L1187 288" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="1187,288 1192.0,277.0 1182.0,277.0" fill="#2865a8"/>
+<rect x="26" y="408" width="1388" height="329" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="446" font-size="28" fill="#187264" text-anchor="start">Prefill：稳定分组后矩阵化读取，输出保持原顺序</text>
+<text x="70" y="494" font-size="25" fill="#172e46" text-anchor="start">原行号</text>
+<text x="70" y="560" font-size="25" fill="#172e46" text-anchor="start">Adapter</text>
+<rect x="245" y="455" width="155" height="60" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="322.5" y="493.64" font-size="27" fill="#607187" text-anchor="middle">3</text>
+<rect x="245" y="530" width="155" height="60" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="322.5" y="568.64" font-size="27" fill="#607187" text-anchor="middle">base</text>
+<rect x="445" y="455" width="155" height="60" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="522.5" y="493.64" font-size="27" fill="#2865a8" text-anchor="middle">0</text>
+<rect x="445" y="530" width="155" height="60" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="522.5" y="568.64" font-size="27" fill="#2865a8" text-anchor="middle">0</text>
+<rect x="645" y="455" width="155" height="60" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="722.5" y="493.64" font-size="27" fill="#2865a8" text-anchor="middle">2</text>
+<rect x="645" y="530" width="155" height="60" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="722.5" y="568.64" font-size="27" fill="#2865a8" text-anchor="middle">0</text>
+<rect x="845" y="455" width="155" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="922.5" y="493.64" font-size="27" fill="#ac642e" text-anchor="middle">1</text>
+<rect x="845" y="530" width="155" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="922.5" y="568.64" font-size="27" fill="#ac642e" text-anchor="middle">1</text>
+<rect x="1045" y="455" width="155" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1122.5" y="493.64" font-size="27" fill="#ac642e" text-anchor="middle">4</text>
+<rect x="1045" y="530" width="155" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1122.5" y="568.64" font-size="27" fill="#ac642e" text-anchor="middle">1</text>
+<path d="M245 609 L245 617 L400 617 L400 609" fill="none" stroke="#607187" stroke-width="2"/>
+<text x="322.5" y="647" font-size="24" fill="#607187" text-anchor="middle">base · 1 行</text>
+<path d="M445 609 L445 617 L800 617 L800 609" fill="none" stroke="#2865a8" stroke-width="2"/>
+<text x="622.5" y="647" font-size="24" fill="#2865a8" text-anchor="middle">adapter 0 · 2 行</text>
+<path d="M845 609 L845 617 L1200 617 L1200 609" fill="none" stroke="#ac642e" stroke-width="2"/>
+<text x="1022.5" y="647" font-size="24" fill="#ac642e" text-anchor="middle">adapter 1 · 2 行</text>
+<text x="720" y="710" font-size="26" fill="#187264" text-anchor="middle">starts=[0,1,3,5]；counts=[1,2,2]；按原 row index 写回。</text>
+</svg>

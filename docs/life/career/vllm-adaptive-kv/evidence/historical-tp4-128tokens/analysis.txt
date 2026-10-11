@@ -1,0 +1,64 @@
+# correctness-fixed 提交复测记录
+
+## 运行信息
+
+- 提交：`cb6a9a8f2 fix(kv-offload): harden adaptive fallback lifecycle`
+- 分支：`feature/adaptive-kv-recompute`
+- GPU：4 卡，`tensor_parallel_size=4`
+- 模型：`Qwen3.6-35B-A3B-FP8`
+- FlashInfer autotune：关闭
+- GPU KV cache：4 GiB；CPU KV cache：10 GiB
+- 二级存储：本地文件系统，读线程/写线程均为 1
+- 场景：4 个 16,385-token bulk 请求先到达，延迟 50 ms 后再到达 4 个
+  4,097-token latency 请求；每个请求生成 128 token。
+- adaptive 参数：`async_with_fallback`，磁盘带宽
+  `4,043,042,434 B/s`，最大并发 fallback 为 2，最大 fallback token 为 8,192。
+
+seed 阶段先用相同请求重算并写入文件系统，生成 177 个 KV 分片文件；随后
+baseline 和 adaptive 使用同一份文件系统缓存独立启动。
+
+## 结果
+
+| 指标 | baseline | adaptive | 变化 |
+| --- | ---: | ---: | ---: |
+| 整体 TTFT P50 | 2434.3 ms | 2834.7 ms | +16.45% |
+| 整体 TTFT P99 | 2916.6 ms | 3417.7 ms | +17.18% |
+| 整体 TPOT P50 | 17.80 ms | 17.49 ms | -1.78% |
+| 整体输出吞吐 | 212.0 tok/s | 198.9 tok/s | -6.17% |
+| 磁盘命中请求 | 8/8 | 4/8 | - |
+| 重算请求 | 0/8 | 4/8 | - |
+
+按请求类别：
+
+- bulk：adaptive 继续让 4/4 请求命中磁盘；TTFT P50 为 3387.9 ms，较
+  baseline 的 1996.9 ms 增加 69.65%，但 TPOT P50 从 21.79 ms 降到
+  13.59 ms（-37.66%）。
+- latency：adaptive 将 4/4 请求切换为重算；TTFT P50 从 2675.4 ms
+  降到 1423.8 ms（-46.78%），P99 从 2916.7 ms 降到 2266.9 ms
+  （-22.28%）。由于重算占用 prefill 资源，TPOT P50 从 15.97 ms
+  增至 28.02 ms。
+
+adaptive 日志明确记录了 4 个 latency 请求的决策，例如：
+`load 929.57 ms vs recompute 376.79 ms`，说明策略在磁盘加载代价高于重算
+代价时触发 fallback。四个 bulk 请求没有触发 fallback。
+
+## 正确性与回归检查
+
+- 8 个请求在 baseline/adaptive 中均完成，生成 token 数均为 128。
+- 两次运行的请求集合和 prompt 长度一致；并发推理下 token 序列不是完全
+  bitwise 稳定（部分请求输出序列不同），因此本次将完成状态、长度、缓存命中
+  分类和无异常退出作为端到端正确性判据，而不是跨进程逐 token 相等。
+- adaptive 进程无 assertion、ref-count、unknown-job 或 store/load 生命周期
+  错误；退出时仅出现 vLLM 多进程测试常见的 semaphore/shared-memory 清理警告。
+- 本地单测：分开运行的 6 个 KV offload/tiering 文件共 `149 passed`；合并运行
+  在 scheduler 测试期间因外部 HTTPS 连接长时间阻塞，已中断时累计
+  `155 passed, 14 warnings`，无失败。scheduler 文件共收集 124 项，但未取得
+  完整结束摘要，因此不将其宣称为全量通过。
+
+## 结论
+
+该提交在真实四卡、文件系统拥塞模拟下正确触发了 adaptive fallback，并显著
+降低了短 latency 请求的 TTFT（P50 -46.78%、P99 -22.28%）。代价是 bulk 请求
+TTFT 上升和整体吞吐下降，说明该策略的收益是延迟 SLO 优先场景下的请求级收益，
+不是无条件的总吞吐提升。当前结果也验证了 fallback 并发/令牌预算和生命周期修复
+没有引入可见正确性回归。

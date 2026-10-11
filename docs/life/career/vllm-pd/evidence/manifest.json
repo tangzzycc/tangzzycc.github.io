@@ -1,0 +1,82 @@
+{
+  "collected_on": "2026-10-11",
+  "source_directory": "/home/tang/projects/vllm/build/rapidserve_mrv2_20261010",
+  "description": "精选既有实验的汇总、环境、启动配置和图片；不包含完整日志、逐请求输出或原始 profiler kernel CSV。数值未重新测量。",
+  "files": {
+    "qwen06-small-summary.json": {
+      "source": "inferencex_qwen06/summary.json",
+      "bytes": 39251,
+      "sha256": "7dd1ced4a9855659c574ae4a93d5fa0b31898bc6342837ffeb5b4ed71d046b9e"
+    },
+    "qwen06-large-comparison.png": {
+      "source": "inferencex_qwen06/large_batch/comparison.png",
+      "bytes": 172294,
+      "sha256": "fc327e263c189e62337f015d036e9d04ec2eedb2a96b09c9f77f07c9be3bd2c8"
+    },
+    "qwen06-small-comparison.png": {
+      "source": "inferencex_qwen06/comparison.png",
+      "bytes": 192099,
+      "sha256": "efeccab9cd7e4430f42df843e2a43a43eee1a08596818a5dad980eabda4daa69"
+    },
+    "profiler-overlap.png": {
+      "source": "dual_process/marked-overlap.png",
+      "bytes": 38182,
+      "sha256": "b9232556d567187c994a5e6bb1a76d398db8eeccb74f1dc410453f1b4beec3a9"
+    },
+    "qwen06-large-runs.json": {
+      "source": "inferencex_qwen06/large_batch/r*_c*/run.json (combined)",
+      "bytes": 34210,
+      "sha256": "896089659a0066ab1efffc97badf8d5b61b7ad4996abe017c9f7d03ab03a3f15"
+    },
+    "qwen06-small-runs.json": {
+      "source": "inferencex_qwen06/r*_c*/run.json (combined)",
+      "bytes": 62998,
+      "sha256": "9f72862fbc70c87deb193b8099d9ab239a77233b6451794326a8a821858d9b6d"
+    },
+    "moe-whole-summary.json": {
+      "source": "moe/whole/summary.json",
+      "bytes": 10870,
+      "sha256": "b5bc2d856ad2d8b9714e5b72e54a24d7012a0cc23771b4b2179642553f257763"
+    },
+    "public-perf-8k.png": {
+      "source": "atom_pr860_review/perf-8k.png",
+      "bytes": 35904,
+      "sha256": "38e28d061596fb3d0ff2ccc2df1d16047394f28aabc22bbd9c1da75b6f006ab7"
+    },
+    "qwen06-large-summary.json": {
+      "source": "inferencex_qwen06/large_batch/summary.json",
+      "bytes": 38373,
+      "sha256": "3739ed3b3955a2b3195dc54102e5f1e37001f7c5e73b76a11d7966b81001ab28"
+    },
+    "qwen06-large-metadata.json": {
+      "source": "inferencex_qwen06/large_batch/metadata.json",
+      "bytes": 1456,
+      "sha256": "73c606eb185ce3815bcb8254378dc66d81276cda848fbcb01923f73027606436"
+    },
+    "qwen8b-summary.json": {
+      "source": "qwen3_8b/summary.json",
+      "bytes": 2158,
+      "sha256": "5b0bcd874a28907324788dfff5bc97e15bb5d171f379c8db78047608e2c8179b"
+    },
+    "moe-sweep-summary.json": {
+      "source": "moe/sweep/summary.json",
+      "bytes": 11944,
+      "sha256": "b95c1be95badab6936ea5f9463ff85e5a86c4b0dd3262ff01a62cd1af5f2e1af"
+    },
+    "public-perf-1k.png": {
+      "source": "atom_pr860_review/perf-1k.png",
+      "bytes": 36054,
+      "sha256": "68751dea7e8db0a07e5b68b59cc23261ef432e9bfab5bd64ff7fdd5ef08b40a8"
+    },
+    "profiler-overlap.json": {
+      "source": "dual_process/marked-overlap.json",
+      "bytes": 28383,
+      "sha256": "96ca30895e3d084164ac869524dbb865e3e5ec64a00d7d764b6b137a9926f09c"
+    },
+    "qwen06-small-metadata.json": {
+      "source": "inferencex_qwen06/metadata.json",
+      "bytes": 1847,
+      "sha256": "f605dd56fa3e5da1e98fc422a7ef430e382cff56bc42e40a3f9c36ccd3be79b9"
+    }
+  }
+}

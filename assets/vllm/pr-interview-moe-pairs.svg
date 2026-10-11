@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="700" viewBox="0 0 1440 700" role="img" aria-labelledby="title desc">
+<title id="title">MoE：排序的是 pair IDs，第二次 GEMM 使用 pair 行</title><desc id="desc">示例：2 tokens、Top-k=2；每个 token 选择 expert 0 和 expert 1，共 4 个有效 pairs。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="700" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">MoE：排序的是 pair IDs，第二次 GEMM 使用 pair 行</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">MoE / WNA16</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">示例：2 tokens、Top-k=2；每个 token 选择 expert 0 和 expert 1，共 4 个有效 pairs。</text>
+<rect x="45" y="135" width="300" height="70" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="195.0" y="178.64" font-size="27" fill="#2865a8" text-anchor="middle">原始输入 X：[T=2, H]</text>
+<rect x="450" y="135" width="920" height="70" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="910.0" y="178.96" font-size="28" fill="#ac642e" text-anchor="middle">pair 0/1 → token 0；pair 2/3 → token 1</text>
+<path d="M345 170 L450 170" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="450,170 439.0,165.0 439.0,175.0" fill="#607187"/>
+<rect x="65" y="265" width="545" height="60" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="337.5" y="303.64" font-size="27" fill="#ac642e" text-anchor="middle">expert 0：pairs [1, 3, pad, pad]</text>
+<rect x="795" y="265" width="545" height="60" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1067.5" y="303.64" font-size="27" fill="#187264" text-anchor="middle">expert 1：pairs [0, 2, pad, pad]</text>
+<rect x="45" y="395" width="470" height="80" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="280.0" y="443.64" font-size="27" fill="#2865a8" text-anchor="middle">w13：读 X[pair_id // 2]</text>
+<rect x="645" y="395" width="740" height="80" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="1015.0" y="443.64" font-size="27" fill="#7654a5" text-anchor="middle">激活后：[T×Top-k, I]，每 pair 独立一行</text>
+<path d="M515 435 L645 435" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="645,435 634.0,430.0 634.0,440.0" fill="#607187"/>
+<path d="M340 325 L280 395" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="280,395 290.95498811984214,389.9021342412616 283.3624220961892,383.3942205067019" fill="#ac642e"/>
+<path d="M1065 325 L1065 365 L500 365 L500 395" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="500,395 505.0,384.0 495.0,384.0" fill="#187264"/>
+<rect x="45" y="565" width="555" height="75" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="322.5" y="611.14" font-size="27" fill="#7654a5" text-anchor="middle">w2：读 intermediate[pair_id]</text>
+<rect x="805" y="565" width="580" height="75" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="1095.0" y="611.46" font-size="28" fill="#187264" text-anchor="middle">路由加权合并 → 输出 [T, H]</text>
+<path d="M645 435 L585 435 L585 565" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="585,565 590.0,554.0 580.0,554.0" fill="#7654a5"/>
+<path d="M600 602 L805 602" fill="none" stroke="#607187" stroke-width="2"/>
+<polygon points="805,602 794.0,597.0 794.0,607.0" fill="#607187"/>
+<text x="55" y="683" font-size="26" fill="#607187" text-anchor="start">w13 的 K=H，w2 的 K=I；channelwise 每次按当前 K 解析为单组。</text>
+</svg>

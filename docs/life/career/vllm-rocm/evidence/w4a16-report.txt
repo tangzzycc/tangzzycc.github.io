@@ -1,0 +1,464 @@
+# 08 · W4A16 Kernel 调优与最终结果
+
+[返回目录](README.md) · 上一章：[AWQ W4A16 量化](07-awq-w4a16-quantization.md) · 下一章：[LoRA Serving 基础](09-lora-serving-foundations.md)
+
+## 读完这一章，你应该能回答
+
+- RDNA Hybrid W4A16 为什么要把 decode 与 prefill 分成两条路径？
+- CogAgent 接入量化需要改模型代码的哪些位置？
+- gfx1151 Prefill 配置表如何避免污染未测 shape？
+- 2.42× Decode 加速究竟来自哪里？
+- Prefill kernel 调优在最终结果中只应归因于什么？
+
+> 深入阅读：若需要从 W4A16 数学、INT4 packing 一直追到配置表中的 `(M,N,K)`，先读
+> [第 14 章](14-awq-weight-layout-and-kernel-math.md)。
+
+## 1. 最终结果
+
+最终 benchmark 使用单卡 AMD Radeon 8060S（`gfx1151`）、32 条独立 COCO holdout、
+`max-num-seqs=1`、greedy、最多 64 token、`torch.compile` 与 HIP Graph
+`FULL_DECODE_ONLY`。
+
+| 指标（P50） | BF16 | Tuned AWQ W4A16 | 变化 |
+|---|---:|---:|---:|
+| TTFT | 1165.09 ms | 1164.42 ms | **-0.06%，基本持平** |
+| TPOT | 66.49 ms/token | 27.42 ms/token | **-58.76%** |
+| Decode TPS | 15.04 token/s | 36.47 token/s | **2.42×** |
+| End-to-End Latency | 5237.98 ms | 2883.99 ms | **-44.94%** |
+
+显存结果：
+
+| 指标 | BF16 | AWQ W4A16 | 变化 |
+|---|---:|---:|---:|
+| 模型加载显存 | 34.48 GiB | 16.94 GiB | -50.87% |
+| KV Cache 显存 | 60.96 GiB | 77.27 GiB | +26.75% |
+| KV Cache token 容量 | 70,090 | 88,836 | +26.75% |
+
+最重要的归因边界是：
+
+> **2.42× Decode 加速来自 W4A16 权重压缩及已有 HIP skinny decode 路径；本次 CogAgent
+> Prefill tile 调优只负责消除最初的 TTFT 回退，不能把 Decode 加速归因于 Prefill 调优。**
+
+## 2. 心智模型：同一个 Linear，两种 M 区间
+
+对 Linear GEMM：
+
+$$
+Y_{M\times N}=X_{M\times K}W^T_{K\times N}
+$$
+
+`M` 是本次送入 Linear 的 token 行数。Decode 通常只有很小的 `M`，Prefill 和视觉 encoder
+输出则可能有数百到数千行。两种场景的瓶颈不同：
+
+默认 `--w4a16-prefill-dequant=off` 时：
+
+```text
+M <= 5   -> HIP skinny GEMM, wvSplitK_int4_g
+M > 5    -> Triton fused-dequant W4A16 GEMM
+```
+
+若把 `--w4a16-prefill-dequant` 设为 `soft` 或 `hard`，并成功缓存 dense dequant 权重，`M > 5`
+还可能复用普通 unquantized GEMM dispatch。当前最终对比使用 `off`，因此后文 Prefill 调优针对
+Triton 路径。
+
+- Decode 更偏权重带宽受限，直接读取 INT4 packed weight 收益大。
+- Prefill 计算密度更高，tile 大小、workgroup 数和 K-group 边界更重要。
+- 两条路径共享一份 `[N, K//8]` skinny packed 权重，避免为 HIP 与 Triton 保存两套量化权重。
+
+因此“W4A16 更快”不能只用一个 kernel 解释；必须分别观察 TTFT 和 TPOT/Decode TPS。
+
+## 3. CogAgent 的量化接入保持在模型层边界内
+
+CogAgent W4A16 支持提交为
+[`1d57dc25b1`](https://github.com/tangzzycc/vllm/commit/1d57dc25b1e7de85ac804fd06773017b5b922d68)，
+主要修改下列文件：
+
+- [cogagent.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/vllm/model_executor/models/cogagent.py)
+- [rdna_hybrid_w4a16.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py)
+- [test_rdna_hybrid_w4a16.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/tests/kernels/quantization/test_rdna_hybrid_w4a16.py)
+
+模型侧只做标准 vLLM quantization plumbing：
+
+```python
+class CogAgentForCausalLM(nn.Module, SupportsMultiModal, SupportsQuant):
+    ...
+
+quant_config = vllm_config.quant_config
+
+self.layers = nn.ModuleList(
+    CogAgentDecoderLayer(
+        self.hf_config,
+        cache_config=cache_config,
+        quant_config=quant_config,
+        prefix=f"{prefix}.layers.{i}",
+    )
+    for i in range(self.hf_config.num_hidden_layers)
+)
+```
+
+`quant_config` 再传给 `QKVParallelLinear`、`ColumnParallelLinear`、
+`MergedColumnParallelLinear` 和 `RowParallelLinear`。AWQ 的合并 MLP 权重 loader 同时映射：
+
+```text
+weight / qweight / qzeros / scales
+```
+
+这让量化 checkpoint 复用 vLLM 现有 Linear quantization 接口，没有把 AWQ 分支扩散到 scheduler。
+
+## 4. Hybrid kernel 的真实 dispatch
+
+生产实现把 kernel 注册为 opaque custom op，使 `torch.compile` 不把 Python 分支捕获进图：
+
+```python
+if M <= MAX_SKINNY_BATCH_SIZE:
+    return ops.wvSplitK_int4_g(
+        w_q, x_2d, w_s, cu_count, group_size, w_zp, bias
+    )
+
+if w_dequant is not None:
+    return rocm_unquantized_gemm_impl(x_2d, w_dequant, bias)
+
+return triton_w4a16_skinny_fmt_gemm(
+    x_2d,
+    w_q_i32,
+    w_s,
+    group_size,
+    packed_scale_zp=packed_scale_zp,
+)
+```
+
+当前 kernel 的合法性约束包括：
+
+- ROCm `gfx11/gfx12`；
+- activation 为 FP16 或 BF16；
+- UINT4/UINT4B8 权重；
+- group size 为 32、64 或 128；
+- 不支持 `g_idx` reorder；
+- `K` 必须同时满足 16 和 group size 的整除要求。
+
+本次 CogAgent checkpoint 实际使用 BF16 activation、非对称 UINT4 与 group size 128。
+
+## 5. 为什么 Prefill 需要单独调优
+
+初始 W4A16 已显著改善 Decode，但 AWQ TTFT 相对 BF16 曾回退约 4.95%。原因不是 INT4 一定让
+Prefill 变慢，而是通用 gfx11 BF16 tile 对 CogAgent 的若干真实 shape 不够合适。
+
+调优覆盖的主要形状：
+
+```text
+language-expert token rows: M=22
+vision-expert token rows:   M=257
+完整 decoder / cross-attention query 与 output: M≈279
+Decoder cross-attention K/V projection: M=6400
+
+N,K:
+12288,4096   QKV-like
+4096,4096    output-like
+22016,4096   gate/up-like
+4096,11008   down-like
+1024,4096    cross-attention query-like
+4096,1024    cross-attention output-like
+2048,1024    cross-attention K/V projection-like
+```
+
+调参变量为：
+
+```text
+BLOCK_M, BLOCK_N, BLOCK_K, num_warps
+```
+
+`BLOCK_K` 不能跨越 quant group，否则同一 tile 会错误复用 scale/zero point。
+
+## 6. 调优方法与配置表边界
+
+脚本为每个 shape 做 coarse search，再对前 5 个候选和 baseline 交错重复测量。packed weight 的
+rotating buffer 以 512 MiB 为目标，并限制为 2～32 份；实际容量随 shape 变化。这样可以降低权重
+常驻 cache 造成的虚假收益；最终还比较 tuned 与 baseline 输出：
+
+```python
+torch.testing.assert_close(
+    tuned_output,
+    baseline_output,
+    rtol=0.03,
+    atol=0.03,
+)
+```
+
+配置没有按“CogAgent 模型名”硬编码，而是按 `(N, K, group_size)` 和工程设定的 `M` 区间匹配：
+
+```python
+_GFX1151_BF16_PREFILL_CONFIGS = {
+    (12288, 4096, 128): (
+        _W4A16PrefillConfig(192, 512, _W4A16TileConfig(64, 128, 64, 4)),
+    ),
+    (2048, 1024, 128): (
+        _W4A16PrefillConfig(1024, 8192, _W4A16TileConfig(64, 256, 64, 8)),
+    ),
+}
+```
+
+未命中精确 `(N,K,group_size)` 或配置的 `M` 区间时，继续走原通用 fallback。当前归档 search
+覆盖 11 个中心 shape；区间边界属于基于这些结果的工程外推，合入长期版本前仍应补邻近 `M` 回归。
+相同 shape 的其他模型可以复用配置，同时避免按模型名 dispatch。
+
+## 7. Kernel microbenchmark
+
+测试使用 cold/rotating packed weight，表中的“调优后”是 shape search 找到的最优候选延迟：
+
+| M | N | K | Baseline | 搜索最优 | 候选加速 |
+|---:|---:|---:|---:|---:|---:|
+| 22 | 12288 | 4096 | 0.2987 ms | 0.2987 ms | 1.00× |
+| 22 | 4096 | 4096 | 0.1145 ms | 0.1133 ms | 1.01× |
+| 22 | 22016 | 4096 | 0.4947 ms | 0.4765 ms | 1.04× |
+| 22 | 4096 | 11008 | 0.2705 ms | 0.2705 ms | 1.00× |
+| 257 | 12288 | 4096 | 1.7061 ms | 1.1822 ms | 1.44× |
+| 257 | 4096 | 4096 | 0.5386 ms | 0.4583 ms | 1.18× |
+| 257 | 22016 | 4096 | 2.6416 ms | 2.0529 ms | 1.29× |
+| 257 | 4096 | 11008 | 1.1290 ms | 1.0962 ms | 1.03× |
+| 279 | 1024 | 4096 | 0.1980 ms | 0.1794 ms | 1.10× |
+| 279 | 4096 | 1024 | 0.1583 ms | 0.1295 ms | 1.22× |
+| 6400 | 2048 | 1024 | 4.6769 ms | 1.5901 ms | 2.94× |
+
+其中 `(M,N,K)=(22,4096,4096)` 与 `(22,22016,4096)` 的 search-best 尚未进入当前生产配置表；
+这两个 shape 实际仍使用 baseline `0.1145/0.4947 ms`。因此 `7.8476 ms、1.56×` 是搜索候选目录的
+聚合值；按当前已落地配置替换这两项后约为 `7.8670 ms、1.554×`。两者都是 kernel catalog 求和，
+不能直接解释为整个请求加速相同比例。
+
+## 8. Prefill 调优的增量 E2E 证据
+
+同一 AWQ 模型在调优前后执行 32 条请求：
+
+| 指标（P50） | 调优前 AWQ | 调优后 AWQ | 变化 |
+|---|---:|---:|---:|
+| TTFT | 1239.21 ms | 1159.55 ms | **-6.43%** |
+| TPOT | 27.51 ms/token | 27.53 ms/token | +0.09% |
+| End-to-End | 2965.57 ms | 2883.19 ms | -2.78% |
+
+32 条 greedy 输出与调优前 AWQ byte-for-byte 一致。TPOT 基本不变，直接说明这次配置表优化作用于
+Prefill/TTFT，而不是 Decode。
+
+还可以用另一个角度验证：
+
+```text
+未调优 AWQ vs BF16: TTFT +4.95%
+最终 tuned AWQ vs BF16: TTFT -0.06%
+```
+
+所以合理结论是“Prefill 调优消除了 AWQ 的 TTFT 回退”。
+
+## 9. 最终 BF16 对比如何归因
+
+最终数据来自独立的 32-request rerun，因此与上一节增量验证的绝对毫秒值略有差异。
+
+| 结果 | 主要来源 | 不能错误归因给 |
+|---|---|---|
+| TTFT 基本持平 | gfx1151 BF16 W4A16 Prefill tile 调优 | HIP skinny decode |
+| Decode TPS 2.42× | INT4 权重流量下降 + 已有 HIP skinny decode kernel | 本次 Prefill 配置表 |
+| E2E -44.94% | Decode 占请求主体时的综合收益 | 任意一个单独 microbenchmark |
+| 模型显存 -50.87% | Decoder 权重从 BF16 压到 INT4，部分模块仍 BF16 | KV Cache 优化 |
+| KV token 容量 +26.75% | 权重释放显存后，vLLM 可分配更多 KV Cache | KV dtype 改变 |
+
+TPOT 的计算口径为：
+
+$$
+TPOT = \frac{E2E-TTFT}{output\_tokens-1}, \quad output\_tokens>1
+$$
+
+$$
+Decode\ TPS = \frac{1000}{TPOT_{ms}}
+$$
+
+`completion_tokens <= 1` 的请求会被 TPOT/Decode 汇总排除。这里包含少量 HTTP streaming 与客户端
+计时开销，不是纯 GPU kernel latency。
+
+## 10. 复现与测试
+
+运行 shape search：
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+python cogagent_quantization/tune_rdna_w4a16_prefill.py \
+  --output benchmark-results/cogagent-awq-w4a16-prefill-tuning/search.json
+```
+
+只搜索一个 shape 可使用 `--shape-index`，适合先做 smoke test：
+
+```bash
+python cogagent_quantization/tune_rdna_w4a16_prefill.py \
+  --shape-index 4 \
+  --output /tmp/cogagent-w4a16-shape-4.json
+```
+
+Kernel 正确性与 dispatch 测试：
+
+```bash
+cd /home/tang/vllm_rocm/vllm
+../.venv/bin/python -m pytest -q \
+  tests/kernels/quantization/test_rdna_hybrid_w4a16.py
+```
+
+<details>
+<summary>完整重建 32 条 BF16 / W4A16 P50 对比</summary>
+
+两组服务一次只启动一个，先完成多模态 warmup，再运行 32 条 holdout。BF16 服务示例：
+
+```bash
+cd /home/tang/vllm_rocm
+source .venv/bin/activate
+
+export FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE
+export TORCH_BLAS_PREFER_HIPBLASLT=1
+export TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
+export TRITON_HIP_USE_IN_THREAD_TRANSPOSE=0
+
+vllm serve /home/tang/models/cogagent-chat-hf \
+  --served-model-name cogagent-bf16 \
+  --tokenizer /home/tang/models/vicuna-7b-v1.5-tokenizer \
+  --trust-remote-code \
+  --dtype bfloat16 \
+  --max-model-len 2048 \
+  --max-num-seqs 1 \
+  --attention-backend TRITON_ATTN \
+  --mm-encoder-attn-backend TORCH_SDPA \
+  --no-enable-prefix-caching \
+  --limit-mm-per-prompt '{"image":1}' \
+  --host 127.0.0.1 \
+  --port 8000
+```
+
+预热并保存 BF16 baseline：
+
+```bash
+python offline_examples/cogagent_serve_client.py \
+  --model cogagent-bf16 \
+  --warmup-tokens 0 \
+  --max-tokens 8
+
+python cogagent_quantization/evaluate_awq_precision.py \
+  --model cogagent-bf16 \
+  --data cogagent_quantization/data/holdout_32/calibration.jsonl \
+  --candidate-output-name bf16_outputs.jsonl \
+  --result-dir benchmark-results/cogagent-bf16-vs-w4a16-recheck-new \
+  --max-samples 32 \
+  --max-tokens 64 \
+  --generate-only
+```
+
+停止 BF16 服务后，用相同参数启动 W4A16；只替换模型与 served name，并显式保持本章的 Prefill
+路径：
+
+```bash
+vllm serve /home/tang/models/cogagent-chat-hf-AWQ-W4A16-recheck \
+  --served-model-name cogagent-awq \
+  --tokenizer /home/tang/models/vicuna-7b-v1.5-tokenizer \
+  --trust-remote-code \
+  --dtype bfloat16 \
+  --max-model-len 2048 \
+  --max-num-seqs 1 \
+  --attention-backend TRITON_ATTN \
+  --mm-encoder-attn-backend TORCH_SDPA \
+  --w4a16-prefill-dequant off \
+  --no-enable-prefix-caching \
+  --limit-mm-per-prompt '{"image":1}' \
+  --host 127.0.0.1 \
+  --port 8000
+
+python offline_examples/cogagent_serve_client.py \
+  --model cogagent-awq \
+  --warmup-tokens 0 \
+  --max-tokens 8
+
+python cogagent_quantization/evaluate_awq_precision.py \
+  --model cogagent-awq \
+  --data cogagent_quantization/data/holdout_32/calibration.jsonl \
+  --baseline-outputs benchmark-results/cogagent-bf16-vs-w4a16-recheck-new/bf16_outputs.jsonl \
+  --candidate-output-name w4a16_outputs.jsonl \
+  --result-dir benchmark-results/cogagent-bf16-vs-w4a16-recheck-new \
+  --max-samples 32 \
+  --max-tokens 64
+```
+
+`--warmup-tokens 0` 表示每次 client 命令只发送一条 8-token 多模态 smoke/warmup 请求；默认值 8
+会额外再发送一条内部 warmup。该请求不保证与 32 条 holdout 具有完全相同的 token shape。
+
+第二个 `vllm serve` 复用前面导出的四个 ROCm 环境变量。`-recheck` 模型目录应来自第 07 章的新
+量化运行，`-recheck-new` 结果目录也必须在开始前不存在；评测脚本会复用已有 JSONL，不能用旧
+目录验证新代码。服务日志应确认 `torch.compile`、
+`FULL_DECODE_ONLY` 和 `RDNAHybridW4A16LinearKernel`，否则结果不属于本章配置。
+
+</details>
+
+目标 ROCm 环境的完整参数化测试应覆盖 93 个 case；若当前进程未被识别为 ROCm，pytest 会在
+module level 显示 `1 skipped`，不能把它当作通过。最终 commit 为：
+
+```text
+1d57dc25b1 feat(rocm): support and tune CogAgent W4A16 inference
+```
+
+## 11. 证据边界
+
+当前可以说：
+
+- 在单卡 `gfx1151`、32 条 holdout、并发 1 的当前 workload 中，W4A16 Decode TPS 是 BF16 的
+  2.42×，E2E P50 降低 44.94%；
+- shape-aware Prefill 配置将同一 AWQ workload 的 TTFT P50 降低 6.43%，并消除了相对 BF16 的
+  TTFT 回退；
+- 调优前后 32 条 AWQ greedy 输出完全一致；源码已补齐 93-case kernel 测试矩阵，但本次复查因
+  platform probe 未识别为 ROCm 而整模块显示 `1 skipped`，这次执行不能记为测试通过。
+- 显存与 KV 容量数字来自已保存的结果 README；若要作为可独立复现的强证据，还应归档对应的
+  BF16/W4A16 服务启动日志。
+
+当前不能说：
+
+- 所有 prompt 长度、batch size 和并发下都能获得 2.42×；
+- Prefill tile 调优带来了 2.42× Decode 加速；
+- microbenchmark 的 1.56× 可直接换算成请求 E2E 1.56×；
+- P50 结果代表 P95/P99、吞吐饱和点或多用户稳定性；
+- 32 条输出一致能替代更大规模任务质量评估；
+- 32 条自然 EOS 的 BF16/W4A16 TPOT 与 E2E 是完全相同 decode 轨迹的纯性能对照。
+
+## 12. 自测题
+
+<details>
+<summary>1. 为什么 Decode 适合 HIP skinny，而 Prefill 适合 Triton GEMM？</summary>
+
+Decode 的 `M` 很小，更受权重读取和小矩阵利用率限制；HIP skinny kernel 针对这种形状。Prefill
+的 `M` 更大，需要通过 `BLOCK_M/N/K` 和 workgroup 数提高计算与访存利用率。
+
+</details>
+
+<details>
+<summary>2. 如何证明 Prefill 调优没有制造 Decode 加速？</summary>
+
+同一 AWQ 模型调优前后 TPOT 为 27.51 与 27.53 ms/token，基本不变；变化集中在 TTFT
+1239.21 -> 1159.55 ms。2.42× 是最终 W4A16 相对 BF16 的 Decode 对比，不是调优前后对比。
+
+</details>
+
+<details>
+<summary>3. 为什么配置表要按 shape，而不是按模型名？</summary>
+
+kernel 性能由 `M/N/K`、dtype、group size 和硬件决定。其他模型只要产生相同 shape 就可以复用；
+按模型名判断既不通用，也会掩盖未测 shape 应回退通用配置的边界。
+
+</details>
+
+## 源码与证据索引
+
+下列 vLLM 源码指向
+[`gfx11/cogagent-18b-support`](https://github.com/tangzzycc/vllm/tree/gfx11/cogagent-18b-support)
+分支；调优脚本与 benchmark 结果仍为本地归档。
+
+- [rdna_hybrid_w4a16.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py)
+- [cogagent.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/vllm/model_executor/models/cogagent.py)
+- [test_rdna_hybrid_w4a16.py](https://github.com/tangzzycc/vllm/blob/gfx11/cogagent-18b-support/tests/kernels/quantization/test_rdna_hybrid_w4a16.py)
+- `cogagent_quantization/tune_rdna_w4a16_prefill.py`
+- `benchmark-results/cogagent-awq-w4a16-prefill-tuning/search.json`
+- `benchmark-results/cogagent-awq-w4a16-prefill-tuning/README.md`
+- `benchmark-results/cogagent-awq-w4a16-prefill-tuning/e2e/summary.json`
+- `benchmark-results/cogagent-bf16-vs-w4a16-final/summary.json`
+- `benchmark-results/cogagent-bf16-vs-w4a16-final/README.md`
+
+[返回目录](README.md) · 上一章：[AWQ W4A16 量化](07-awq-w4a16-quantization.md) · 下一章：[LoRA Serving 基础](09-lora-serving-foundations.md)

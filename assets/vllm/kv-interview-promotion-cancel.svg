@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="850" viewBox="0 0 1440 850" role="img" aria-labelledby="title desc">
+<title id="title">取消只作用于仍安全可终止的工作</title><desc id="desc">一个 job 可含多个 keys 与 tasks；当前 waiter 退出不等于整份共享工作无人需要。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="850" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">取消只作用于仍安全可终止的工作</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">Adaptive KV · 76787da49d</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">一个 job 可含多个 keys 与 tasks；当前 waiter 退出不等于整份共享工作无人需要。</text>
+<rect x="26" y="120" width="1388" height="316" rx="6" fill="#ffffff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#ac642e" text-anchor="start">同一个 job 的 tasks 从队列进入执行</text>
+<text x="75" y="209" font-size="27" fill="#ac642e" text-anchor="start">Job 42</text>
+<text x="75" y="290" font-size="27" fill="#ac642e" text-anchor="start">Load queue</text>
+<text x="75" y="371" font-size="27" fill="#2865a8" text-anchor="start">Worker</text>
+<rect x="320" y="242" width="205" height="64" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="422.5" y="282.64" font-size="27" fill="#607187" text-anchor="middle">已出队</text>
+<rect x="555" y="242" width="205" height="64" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="657.5" y="282.64" font-size="27" fill="#ac642e" text-anchor="middle">task 1</text>
+<rect x="790" y="242" width="205" height="64" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="892.5" y="282.64" font-size="27" fill="#ac642e" text-anchor="middle">task 2</text>
+<rect x="1025" y="242" width="205" height="64" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1127.5" y="282.64" font-size="27" fill="#ac642e" text-anchor="middle">task 3</text>
+<rect x="320" y="331" width="205" height="64" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="422.5" y="371.0" font-size="25" fill="#2865a8" text-anchor="middle">已领取 task 0</text>
+<path d="M423 306 L423 331" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="423,331 428.0,320.0 418.0,320.0" fill="#2865a8"/>
+<text x="670" y="377" font-size="27" fill="#b45650" text-anchor="start">只剩部分 tasks → 无法完整取消该 job</text>
+<rect x="26" y="466" width="1388" height="345" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="504" font-size="28" fill="#187264" text-anchor="start">三种退出方式</text>
+<rect x="65" y="528" width="530" height="59" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="330.0" y="565.18" font-size="24" fill="#187264" text-anchor="middle">未提交 / 全部 queued，且无人等待</text>
+<path d="M595 560 L660 560" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="660,560 649.0,555.0 649.0,565.0" fill="#187264"/>
+<text x="690" y="568" font-size="24" fill="#187264" text-anchor="start">省略提交 / 完整取消，释放未完成 CPU 写入</text>
+<rect x="65" y="613" width="530" height="59" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="330.0" y="650.18" font-size="24" fill="#7654a5" text-anchor="middle">共享 job 仍有其他 waiter</text>
+<path d="M595 645 L660 645" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="660,645 649.0,640.0 649.0,650.0" fill="#7654a5"/>
+<text x="690" y="653" font-size="24" fill="#7654a5" text-anchor="start">仅 detach 当前请求，I/O 继续服务其他人</text>
+<rect x="65" y="698" width="530" height="59" rx="6" fill="#fbeeed" stroke="#b45650" stroke-width="1.5"/>
+<text x="330.0" y="735.18" font-size="24" fill="#b45650" text-anchor="middle">无人共享，但 job 已运行</text>
+<path d="M595 730 L660 730" fill="none" stroke="#b45650" stroke-width="2"/>
+<polygon points="660,730 649.0,725.0 649.0,735.0" fill="#b45650"/>
+<text x="690" y="738" font-size="24" fill="#b45650" text-anchor="start">恢复 waiter，rollback 预算，继续 load</text>
+</svg>

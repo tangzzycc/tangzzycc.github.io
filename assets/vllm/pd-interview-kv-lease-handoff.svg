@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1030" viewBox="0 0 1440 1030" role="img" aria-labelledby="title desc">
+<title id="title">请求 B：分配 KV → Prefill 写入 → Decode 交接</title><desc id="desc">简化示例：Prompt 为 40 tokens，block size 为 16，P budget 为 16，租约为 s1 / 9 / B。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="1030" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">请求 B：分配 KV → Prefill 写入 → Decode 交接</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">V1/MRV2 · 7a6515f374</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">简化示例：Prompt 为 40 tokens，block size 为 16，P budget 为 16，租约为 s1 / 9 / B。</text>
+<rect x="26" y="120" width="1388" height="140" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">1. D 为完整上下文保留 KV blocks，并建立 P 租约</text>
+<rect x="290" y="177" width="210" height="55" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="395.0" y="212.18" font-size="24" fill="#2865a8" text-anchor="middle">Block 7</text>
+<rect x="530" y="177" width="210" height="55" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="635.0" y="212.18" font-size="24" fill="#2865a8" text-anchor="middle">Block 12</text>
+<rect x="770" y="177" width="210" height="55" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="875.0" y="212.18" font-size="24" fill="#2865a8" text-anchor="middle">Block 19</text>
+<text x="55" y="212" font-size="24" fill="#2865a8" text-anchor="start">B 的 block table</text>
+<text x="1165" y="210" font-size="26" fill="#7654a5" text-anchor="middle">租约 s1 / 9</text>
+<rect x="26" y="282" width="1388" height="315" rx="6" fill="#ffffff" stroke="#ac642e" stroke-width="1.5"/>
+<text x="50" y="320" font-size="28" fill="#ac642e" text-anchor="start">2. P 分三次写入已分配的同一组 blocks</text>
+<text x="53" y="382" font-size="24" fill="#ac642e" text-anchor="start">片段 1</text>
+<rect x="220" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="267" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="314" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="361" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="408" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="455" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="502" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="549" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="596" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="643" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="690" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="737" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="784" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="831" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="878" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="925" y="351" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1000" y="381" font-size="23" fill="#ac642e" text-anchor="start">Block 7：位置 0–15</text>
+<text x="53" y="457" font-size="24" fill="#ac642e" text-anchor="start">片段 2</text>
+<rect x="220" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="267" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="314" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="361" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="408" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="455" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="502" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="549" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="596" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="643" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="690" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="737" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="784" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="831" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="878" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="925" y="426" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1000" y="456" font-size="23" fill="#ac642e" text-anchor="start">Block 12：位置 16–31</text>
+<text x="53" y="532" font-size="24" fill="#ac642e" text-anchor="start">片段 3</text>
+<rect x="220" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="267" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="314" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="361" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="408" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="455" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="502" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="549" y="501" width="43" height="43" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="596" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="643" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="690" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="737" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="784" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="831" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="878" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="925" y="501" width="43" height="43" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1000" y="531" font-size="23" fill="#ac642e" text-anchor="start">Block 19：位置 32–39</text>
+<text x="720" y="571" font-size="24" fill="#7654a5" text-anchor="middle">位置 34 → block 19 的 offset 2 → 示例 slot 306</text>
+<rect x="26" y="619" width="1388" height="120" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="657" font-size="28" fill="#7654a5" text-anchor="start">3. GPU 与输出回拷完成后通知 D，再解除 P 租约</text>
+<rect x="65" y="675" width="430" height="43" rx="6" fill="#f0edfa" stroke="#7654a5" stroke-width="1.5"/>
+<text x="280.0" y="703.54" font-size="22" fill="#7654a5" text-anchor="middle">GPU event 与输出回拷均完成</text>
+<path d="M495 696 L564 696" fill="none" stroke="#7654a5" stroke-width="2"/>
+<polygon points="564,696 553.0,691.0 553.0,701.0" fill="#7654a5"/>
+<rect x="575" y="675" width="335" height="43" rx="6" fill="#e8f5f1" stroke="#187264" stroke-width="1.5"/>
+<text x="742.5" y="703.54" font-size="22" fill="#187264" text-anchor="middle">完成 s1 / 9，返回首 token</text>
+<path d="M910 696 L979 696" fill="none" stroke="#187264" stroke-width="2"/>
+<polygon points="979,696 968.0,691.0 968.0,701.0" fill="#187264"/>
+<rect x="990" y="675" width="385" height="43" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1182.5" y="703.54" font-size="22" fill="#2865a8" text-anchor="middle">D 核对当前租约身份</text>
+<rect x="26" y="761" width="1388" height="192" rx="6" fill="#ffffff" stroke="#187264" stroke-width="1.5"/>
+<text x="50" y="799" font-size="28" fill="#187264" text-anchor="start">4. 首次 Decode 输入第一个输出 token，再采样第二个 token</text>
+<text x="55" y="864" font-size="24" fill="#187264" text-anchor="start">Block 19</text>
+<rect x="220" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="267" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="314" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="361" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="408" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="455" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="502" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="549" y="832" width="43" height="50" rx="3" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<rect x="596" y="832" width="43" height="50" rx="3" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="617.5" y="866" font-size="21" fill="#2865a8" text-anchor="middle">40</text>
+<rect x="643" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="690" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="737" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="784" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="831" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="878" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="925" y="832" width="43" height="50" rx="3" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="1040" y="862" font-size="23" fill="#2865a8" text-anchor="start">位置 40 → slot 312</text>
+<text x="720" y="927" font-size="24" fill="#187264" text-anchor="middle">Prompt KV 已由 P 写入；第一个输出 token 的 KV 在 D 中计算。</text>
+<text x="720" y="998" font-size="24" fill="#b45650" text-anchor="middle">取消时仍保留 blocks，直到 P 租约与 D 在途引用全部结束，才能回收。</text>
+</svg>

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="800" viewBox="0 0 1440 800" role="img" aria-labelledby="title desc">
+<title id="title">一张图片，两种视觉用途，三种长度</title><desc id="desc">小视觉 embedding 进入 Decoder；高分辨率 states 进入逐层 Cross-attention。</desc>
+<style>@font-face{font-family:"LXGW WenKai GB Screen";src:url("../fonts/LXGWWenKaiGBScreen.ttf")}text{font-family:"LXGW WenKai GB Screen","DejaVu Sans",sans-serif}</style>
+<rect width="1440" height="800" fill="#fbfcfe"/>
+<text x="26" y="44" font-size="34" fill="#172e46" text-anchor="start">一张图片，两种视觉用途，三种长度</text>
+<text x="1414" y="40" font-size="17" fill="#607187" text-anchor="end">CogAgent · f9ddabc759</text>
+<text x="26" y="83" font-size="23" fill="#607187" text-anchor="start">小视觉 embedding 进入 Decoder；高分辨率 states 进入逐层 Cross-attention。</text>
+<rect x="26" y="120" width="1388" height="300" rx="6" fill="#ffffff" stroke="#2865a8" stroke-width="1.5"/>
+<text x="50" y="158" font-size="28" fill="#2865a8" text-anchor="start">两条视觉路径</text>
+<rect x="65" y="220" width="170" height="125" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<text x="150.0" y="291.14" font-size="27" fill="#607187" text-anchor="middle">同一张图片</text>
+<path d="M235 250 L300 250 L300 210 L350 210" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="350,210 339.0,205.0 339.0,215.0" fill="#2865a8"/>
+<path d="M235 290 L300 290 L300 345 L350 345" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="350,345 339.0,340.0 339.0,350.0" fill="#ac642e"/>
+<rect x="350" y="160" width="275" height="90" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="487.5" y="212.36" font-size="23" fill="#2865a8" text-anchor="middle">224×224 · 256 patches</text>
+<rect x="350" y="300" width="275" height="90" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="487.5" y="351.08" font-size="19" fill="#ac642e" text-anchor="middle">1120×1120 · 6400 patches</text>
+<path d="M625 205 L695 205" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="695,205 684.0,200.0 684.0,210.0" fill="#2865a8"/>
+<path d="M625 345 L695 345" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="695,345 684.0,340.0 684.0,350.0" fill="#ac642e"/>
+<rect x="695" y="165" width="315" height="80" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="852.5" y="211.72" font-size="21" fill="#2865a8" text-anchor="middle">258×4096 · BOI/patch/EOI</text>
+<rect x="695" y="300" width="315" height="80" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="852.5" y="347.68" font-size="24" fill="#ac642e" text-anchor="middle">6400×1024 · 移除 CLS</text>
+<text x="695" y="404" font-size="22" fill="#607187" text-anchor="start">塔内 Attention 有 6401 tokens，Decoder source 为 6400。</text>
+<path d="M1010 205 L1085 205" fill="none" stroke="#2865a8" stroke-width="2"/>
+<polygon points="1085,205 1074.0,200.0 1074.0,210.0" fill="#2865a8"/>
+<path d="M1010 345 L1085 345" fill="none" stroke="#ac642e" stroke-width="2"/>
+<polygon points="1085,345 1074.0,340.0 1074.0,350.0" fill="#ac642e"/>
+<rect x="1085" y="170" width="265" height="75" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="1217.5" y="215.5" font-size="25" fill="#2865a8" text-anchor="middle">Decoder 输入替换</text>
+<rect x="1085" y="305" width="265" height="75" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="1217.5" y="350.5" font-size="25" fill="#ac642e" text-anchor="middle">每层 Cross KV 投影</text>
+<rect x="26" y="442" width="1388" height="316" rx="6" fill="#ffffff" stroke="#7654a5" stroke-width="1.5"/>
+<text x="50" y="480" font-size="28" fill="#7654a5" text-anchor="start">Encoder cache 容器：6658×4096</text>
+<rect x="240" y="525" width="650" height="65" rx="6" fill="#e8f1fb" stroke="#2865a8" stroke-width="1.5"/>
+<text x="565" y="566" font-size="25" fill="#2865a8" text-anchor="middle">前 258 行：4096 列有效 embedding</text>
+<rect x="240" y="594" width="650" height="100" rx="6" fill="#f5f7fa" stroke="#607187" stroke-width="1.5"/>
+<rect x="240" y="594" width="163" height="100" rx="6" fill="#fff1e5" stroke="#ac642e" stroke-width="1.5"/>
+<text x="317" y="639" font-size="24" fill="#ac642e" text-anchor="middle">1024</text>
+<text x="317" y="669" font-size="23" fill="#ac642e" text-anchor="middle">有效列</text>
+<text x="647" y="650" font-size="24" fill="#607187" text-anchor="middle">后 6400 行：其余 3072 列补零</text>
+<text x="950" y="564" font-size="27" fill="#2865a8" text-anchor="start">258：输入位置</text>
+<text x="950" y="627" font-size="27" fill="#ac642e" text-anchor="start">6400：Cross KV 长度</text>
+<text x="950" y="690" font-size="27" fill="#7654a5" text-anchor="start">6658：编码与缓存预算</text>
+<text x="52" y="732" font-size="23" fill="#607187" text-anchor="start">容器 shape 不等于 Decoder 的视觉 token 数；图中高度不按长度比例。</text>
+</svg>

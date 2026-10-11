@@ -1,0 +1,104 @@
+# LoRA and CogAgent Benchmark Weekly Report / LoRA 与 CogAgent Benchmark 周报
+
+**Week ending / 截止日期:** 2026-09-07  
+**Hardware / 测试硬件:** AMD Ryzen AI MAX+ 395, Radeon 8060S (`gfx1151`), single GPU
+
+## English
+
+### 1. LoRA Benchmark
+
+**Models:** Base `cyankiwi/Qwen3-VL-4B-Instruct-AWQ-4bit`; LoRA A `bravesoftware/Ocelot-1-VL`; LoRA B `Lelouchrx/Qwen3-VL-4B_lora_vln_r2r_global`.
+
+**Workload:** one 256×256 image + 64 English letters; 64 Japanese output tokens; HIP Graph enabled. Tests were performed on X100.
+
+Both adapters are Rank 64.
+
+| Test Target | TTFT (P50) | Decode (P50) | End-to-End (P50) |
+|---|---:|---:|---:|
+| Base | 79.57 ms | 72.71 tok/s | 946.51 ms |
+| Base + LoRA A | 86.84 ms | 61.91 tok/s | 1104.09 ms |
+| Base + LoRA B | 82.19 ms | 61.62 tok/s | 1104.96 ms |
+
+The RDNA LoRA kernel improved Rank-64 Decode by 24.79% and reduced end-to-end latency by 18.95% versus Native.
+
+For multi-LoRA testing, vLLM supports parallel execution, which allows the later B request to start quickly but shares GPU resources. Serial execution made B wait about 996 ms. Therefore, a strict-priority WIP scheduler was implemented, reducing B TTFT from 1047.61 ms to 96.37 ms and end-to-end latency from 2065.05 ms to 1153.58 ms. A resumed after preemption without recompute.
+
+The tests above were also completed on P100.
+
+### 2. CogAgent-18B Benchmark
+
+**Models:** BF16 `zai-org/cogagent-chat-hf`; W4A16 `CogAgent-18B-AWQ-W4A16` (AMD Quark).
+
+Implemented CogAgent-18B inference in vLLM and quantized it to AWQ W4A16 with AMD Quark.
+
+**Workload:** 32 COCO holdout requests; one image + one English prompt; internal vision inputs 224×224 and 1120×1120; greedy output up to 64 tokens with EOS enabled. Tests were performed on X100.
+
+#### Hugging Face Transformers BF16 vs vLLM BF16
+
+| Metric (P50) | HF BF16 | vLLM BF16 | vLLM Change |
+|---|---:|---:|---:|
+| TTFT | 1430.39 ms | 1165.09 ms | -18.55% |
+| TPOT | 146.08 ms/token | 66.49 ms/token | -54.49% |
+| Decode Throughput | 6.85 tok/s | 15.04 tok/s | 2.20× |
+| End-to-End Latency | 10421.16 ms | 5237.98 ms | -49.74% |
+
+#### vLLM BF16 vs AWQ W4A16
+
+| Metric (P50) | vLLM BF16 | AWQ W4A16 | W4A16 Change |
+|---|---:|---:|---:|
+| TTFT | 1165.09 ms | 1164.42 ms | -0.06% |
+| TPOT | 66.49 ms/token | 27.42 ms/token | -58.76% |
+| Decode Throughput | 15.04 tok/s | 36.47 tok/s | 2.42× |
+| End-to-End Latency | 5237.98 ms | 2883.99 ms | -44.94% |
+
+W4A16 kept TTFT nearly unchanged, improved Decode to 2.42×, and reduced end-to-end latency by 44.94%. Prefill tuning further reduced TTFT by 6.43%, with all 32 outputs unchanged.
+
+## 中文
+
+### 1. LoRA Benchmark
+
+**模型：**Base `cyankiwi/Qwen3-VL-4B-Instruct-AWQ-4bit`；LoRA A `bravesoftware/Ocelot-1-VL`；LoRA B `Lelouchrx/Qwen3-VL-4B_lora_vln_r2r_global`。
+
+**测试规格：**1 张 256×256 图片 + 64 个英文字母；输出 64 token 日文；开启 HIP Graph，测试在X100上完成。
+
+两个 LoRA 均为 Rank 64。
+
+| 测试对象 | TTFT（P50） | Decode（P50） | 端到端延迟（P50） |
+|---|---:|---:|---:|
+| Base | 79.57 ms | 72.71 tok/s | 946.51 ms |
+| Base + LoRA A | 86.84 ms | 61.91 tok/s | 1104.09 ms |
+| Base + LoRA B | 82.19 ms | 61.62 tok/s | 1104.96 ms |
+
+RDNA LoRA Kernel 使 Rank 64 Decode 相较 Native 提升 24.79%，端到端延迟降低 18.95%。
+
+对于多 LoRA的测试，vllm可以支持并行执行可让后到的 B 快速开始，但会共享 GPU 资源；串行执行使 B 等待约 996 ms。因此实现了严格优先级 WIP 调度策略 可以支持将 B 的 TTFT 从 1047.61 ms 降至 96.37 ms，端到端延迟从 2065.05 ms 降至 1153.58 ms，A 可在抢占结束后继续执行且未触发 recompute。
+
+另外，完成了上述测试在P100上的测试
+
+### 2. CogAgent-18B Benchmark
+
+**模型：**BF16 `zai-org/cogagent-chat-hf`；W4A16 `CogAgent-18B-AWQ-W4A16`（AMD Quark）。
+
+完成 CogAgent-18B 的 vLLM 推理支持，并使用 AMD Quark 量化为 AWQ W4A16。
+
+**测试规格：**32 条 COCO holdout 请求；输入 1 张图片和 1 条英文提示词，内部视觉尺寸为 224×224 和 1120×1120；greedy 输出最多 64 token，允许 EOS 提前结束，测试在X100上完成。
+
+#### Hugging Face transformer BF16 与 vLLM BF16
+
+| 指标（P50） | HF BF16 | vLLM BF16 | vLLM 变化 |
+|---|---:|---:|---:|
+| TTFT | 1430.39 ms | 1165.09 ms | -18.55% |
+| TPOT | 146.08 ms/token | 66.49 ms/token | -54.49% |
+| Decode 吞吐 | 6.85 tok/s | 15.04 tok/s | 2.20× |
+| 端到端延迟 | 10421.16 ms | 5237.98 ms | -49.74% |
+
+#### vLLM BF16 与 AWQ W4A16
+
+| 指标（P50） | vLLM BF16 | AWQ W4A16 | W4A16 变化 |
+|---|---:|---:|---:|
+| TTFT | 1165.09 ms | 1164.42 ms | -0.06% |
+| TPOT | 66.49 ms/token | 27.42 ms/token | -58.76% |
+| Decode 吞吐 | 15.04 tok/s | 36.47 tok/s | 2.42× |
+| 端到端延迟 | 5237.98 ms | 2883.99 ms | -44.94% |
+
+W4A16 的 TTFT 基本不变，Decode 提升至 2.42×，端到端延迟降低 44.94%。Prefill 调优进一步使 TTFT 降低 6.43%，32 条输出保持一致。
