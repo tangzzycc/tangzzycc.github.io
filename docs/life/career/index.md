@@ -16,6 +16,12 @@ hide:
 
 记录投递、笔试、测评与面试进展。
 
+开源贡献面试准备，每题包含简要回答与完整阐述：
+
+- [vLLM PR](开源贡献面试-vLLM-PR.md)
+- [FlashRT PR](开源贡献面试-FlashRT-PR.md)
+- [FlyDSL PR](开源贡献面试-FlyDSL-PR.md)
+
 </div>
 
 <details class="index-details career-companies" markdown="1">

@@ -106,6 +106,9 @@ nav:
   - 生活:
       - life/index.md
       - 秋招记录: life/career/index.md
+      - 开源贡献面试：vLLM PR: life/career/开源贡献面试-vLLM-PR.md
+      - 开源贡献面试：FlashRT PR: life/career/开源贡献面试-FlashRT-PR.md
+      - 开源贡献面试：FlyDSL PR: life/career/开源贡献面试-FlyDSL-PR.md
 
 theme:
   name: material
