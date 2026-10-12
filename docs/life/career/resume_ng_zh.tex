@@ -145,30 +145,36 @@
 {2026.7 — 至今}
 
 \begin{itemize}
-  \item \textbf{vLLM ROCm 多模态与 LoRA 优化}：扩展 vLLM 对
-  CogAgent-18B 的多模态推理支持；面向 AMD RDNA 3.5 架构 GPU 优化 LoRA 算子。
+  \item \textbf{vLLM P/D 解耦与调度优化}：基于 vLLM V1/MRV2
+  构建 P/D 双进程并行推理架构，通过执行解耦与动态资源调度，优化
+  生成延迟与 GPU 资源利用率。
   \begin{itemize}
-      \item \textbf{CogAgent-18B 模型支持与 AWQ W4A16 推理优化}：针对
-      CogAgent-18B 双视觉编码及视觉特征逐层注入语言模型的结构，完成其在
-      vLLM V1 中的端到端推理支持，适配 Torch Compile 与 HIP Graph，并完成
-      与 Hugging Face BF16 的精度对齐；完成 AWQ W4A16 推理支持，并基于
-      ROCm Profiler 工具进行性能分析调优。相较最初的 Hugging Face BF16
-      Eager 推理，TTFT 降低 \textbf{47.4\%}、Decode 吞吐提升
-      \textbf{5.28$\times$}、端到端延迟降低 \textbf{76.1\%}。
-    
-    \item \textbf{LoRA 算子优化}：面向 AMD RDNA架构下小 Batch 多 LoRA 推理，实现并调优
-    Shrink/Expand Triton 算子，使 Decode 吞吐提升
-    \textbf{18.6\%$\sim$24.8\%}、端到端延迟最高降低
-    \textbf{19.0\%}。
-
-    \item 参与 vLLM 社区 ROCm 相关 Issue 的排查，并通过 PR 提交修复与优化。
+    \item 通过双进程实现 Prefill 与 Decode 独立调度、并行执行，缓解长
+    Prefill 对 Decode 的阻塞；通过 IPC 共享模型权重与 KV Cache，避免
+    传统 P/D 分离的跨设备 KV 传输，缓解两侧显存利用不均；使用 rocprofv3
+    分析 GPU 时间线，验证 P/D 执行重叠。
+    \item 沿用 Decode 的 HIP Graph 与异步调度，独立配置 Prefill Token
+    Budget；基于 ROCm CU Mask，结合 P/D 负载与 Decode 延迟动态切换
+    全 CU 共享与分区执行，优化资源争用与固定分区带来的闲置。
+    \item 基于 InferenceX 进行性能测试：单卡 RDNA GPU / Qwen3-8B 吞吐最高
+    提升 \textbf{21.7\%}，P95 ITL 降幅达 \textbf{44.6\%}；在
+    8$\times$MI355X / DeepSeek-V3 上，相较传统 4P/4D 部署，吞吐平均
+    达到 \textbf{1.5 倍}，满足延迟 SLO 的有效吞吐平均达到 \textbf{4.7 倍}。
   \end{itemize}
 
-  \item \textbf{FastFlowLM LoRA 推理支持}：面向 Gemma4-E 系列，
-  扩展 FastFlowLM NPU 推理框架，实现 PEFT Adapter
-  权重转换、硬件友好布局重排及元数据生成、运行时加载管理及 Prefill/Decode AIE 算子适配；实现
-  Adapter 与 Base Q4NX 权重的解耦加载和计算，并支持多种常见 LoRA Rank 配置。
-
+  \item \textbf{vLLM ROCm 模型适配与优化}：在 AMD RDNA 3.5 GPU 上支持
+  CogAgent-18B 多模态与 AWQ 量化推理，并优化 LoRA 推理性能。
+  \begin{itemize}
+    \item 适配 CogAgent-18B 双视觉编码及视觉特征逐层注入结构，完成
+    vLLM V1 端到端推理、Torch Compile/HIP Graph 适配与 Hugging Face
+    BF16 精度对齐。
+    \item 支持 AWQ W4A16 推理，结合 ROCm Profiler 优化执行路径；相较
+    最初的 Hugging Face BF16 Eager 基线，TTFT 降低 \textbf{47.4\%}，
+    Decode 吞吐提升 \textbf{5.28$\times$}，端到端延迟降低 \textbf{76.1\%}。
+    \item 面向小 Batch 多 LoRA 推理，实现并调优 LoRA Shrink/Expand
+    Triton 算子，使 Decode 吞吐提升 \textbf{18.6\%$\sim$24.8\%}，
+    端到端延迟最高降低 \textbf{19.0\%}。
+  \end{itemize}
 \end{itemize}
 
 
@@ -189,17 +195,17 @@
     修正 Channelwise GPTQ MoE fallback、W4A16 算子分发及 Attention 滑动窗口边界，
     优化 Qwen MoE 共享专家门控的单输出 GEMM 路径。
     （PR \ResumeUrl{https://github.com/vllm-project/vllm/pull/53283}{\#53283}、
-    \ResumeUrl{https://github.com/vllm-project/vllm/pull/59550}{\#59550} 已合并；
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/59550}{\#59550} 、
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/52619}{\#52619} 已合并；
     \ResumeUrl{https://github.com/vllm-project/vllm/pull/52637}{\#52637}、
-    \ResumeUrl{https://github.com/vllm-project/vllm/pull/58513}{\#58513}、
-    \ResumeUrl{https://github.com/vllm-project/vllm/pull/52619}{\#52619} 进行中）
+    \ResumeUrl{https://github.com/vllm-project/vllm/pull/58513}{\#58513} 进行中）
 
     \item \textbf{LFM2.5 投机解码}：修复 MRV2 中 LFM2.5 草稿模型跨轮 ShortConv
     历史污染问题，恢复有效卷积历史，并修正 Chunked Prefill 的下一 token 输入。
     （PR \ResumeUrl{https://github.com/vllm-project/vllm/pull/59600}{\#59600} 进行中）
   \end{itemize}
 
-  \item \textbf{FlashRT}：支持 AMD RDNA架构 $\pi$0.5 BF16 推理与优化。
+  \item \textbf{FlashRT}：支持 AMD RDNA架构 $\pi$0.5 VLA模型 BF16 推理与优化。
   （PR \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/213}{\#213}、
   \ResumeUrl{https://github.com/flashrt-project/FlashRT/pull/215}{\#215} 已合并）
   \begin{itemize}
