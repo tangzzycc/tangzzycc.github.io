@@ -26,7 +26,7 @@ hide:
 
 ### [AI Infra 面试基础](fundamentals/index.md)
 
-从 GPU 内存与 GEMM，到计算图、模型结构和 vLLM 推理执行。先口述主线，再按追问回查机制与源码。
+根据面试记录整理 GPU与算子优化、推理优化、模型结构，先口述回答，再回查具体分析。
 
 <span class="index-card-arrow" aria-hidden="true">↗</span>
 

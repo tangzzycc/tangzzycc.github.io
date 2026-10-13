@@ -1,0 +1,49 @@
+/* 项目面试笔记：限制行宽，以留白和细分隔线组织展开式正文。 */
+.md-typeset .interview-notes {
+  max-width: 56em;
+  margin-inline: auto;
+}
+
+.md-typeset .interview-notes > h2 {
+  margin-top: 2.4em;
+  font-weight: 600;
+}
+
+.md-typeset .interview-notes > h3 {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.md-typeset .interview-notes > p {
+  line-height: 1.85;
+}
+
+/* 口述中的短标签保留在正文内，不扩展侧栏的问题目录。 */
+.md-typeset .interview-notes > p:has(> strong:only-child) {
+  margin-top: 1.6em;
+  margin-bottom: 0.45em;
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset .interview-notes li {
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+.md-typeset .interview-notes > .interview-source {
+  font-size: 0.88em;
+  color: var(--md-default-fg-color--light);
+  line-height: 1.65;
+}
+
+.md-typeset .interview-notes table {
+  line-height: 1.65;
+}
+
+.md-typeset .interview-notes td,
+.md-typeset .interview-notes th {
+  padding: 0.7em 0.85em;
+}

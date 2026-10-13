@@ -8,10 +8,10 @@ title: "项目与开源贡献"
 
 | 项目 | 复习重点 | 入口 |
 | --- | --- | --- |
-| vLLM ROCm 模型适配与优化 | CogAgent 接入、量化推理、LoRA 算子与优先级调度 | [项目导航](vllm-rocm/index.md) |
-| vLLM P/D 解耦与调度优化 | RAPID-Serve、V1/MRV2、资源共享与性能取舍 | [项目导航](vllm-pd/index.md) |
+| vLLM ROCm 模型适配与优化 | CogAgent 接入、量化推理、LoRA 算子与优先级调度 | [面试问答](vllm-rocm/面试问题与回答.md) · [项目导航](vllm-rocm/index.md) |
+| vLLM P/D 解耦与调度优化 | RAPID-Serve、V1/MRV2、资源共享与性能取舍 | [面试问答](vllm-pd/面试问题与回答.md) · [项目导航](vllm-pd/index.md) |
 | Adaptive KV Offload | 分层缓存、重算成本、异步生命周期 | [项目导航](vllm-adaptive-kv/index.md) |
-| 开源贡献 | vLLM、FlashRT、FlyDSL 的 PR 与连续追问 | [贡献导航](open-source/index.md) |
+| 开源贡献 | vLLM、FlashRT、FlyDSL 的 PR 与连续追问 | [vLLM 面试问答](open-source/vLLM-面试问题与回答.md) · [FlashRT 面试问答](open-source/FlashRT-面试问题与回答.md) · [贡献导航](open-source/index.md) |
 
 ## 从基础知识进入项目案例
 

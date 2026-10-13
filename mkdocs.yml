@@ -112,34 +112,63 @@ nav:
               - GPU与算子优化:
                   - life/career/fundamentals/gpu-kernels/index.md
                   - 具体分析:
-                      - CUDA 与 HIP 内存层次: life/career/fundamentals/gpu-kernels/analysis/01-内存层次.md
-                      - MI355X 硬件参数: life/career/fundamentals/gpu-kernels/analysis/02-MI355X硬件参数.md
-                      - GEMM 实现与优化: life/career/fundamentals/gpu-kernels/analysis/03-GEMM实现与优化.md
-                      - FlyDSL 与 CuTe: life/career/fundamentals/gpu-kernels/analysis/04-GPU-DSL.md
+                      - 量化与稀疏: life/career/fundamentals/gpu-kernels/analysis/01-量化与稀疏.md
+                      - CUDA 存储与访存: life/career/fundamentals/gpu-kernels/analysis/02-CUDA存储与访存.md
+                      - Kernel 流水线与矩阵计算: life/career/fundamentals/gpu-kernels/analysis/03-Kernel流水线与矩阵计算.md
+                      - Kernel 性能分析: life/career/fundamentals/gpu-kernels/analysis/04-Kernel性能分析.md
+                      - 硬件指标与互联: life/career/fundamentals/gpu-kernels/analysis/05-硬件指标与互联.md
+                      - Ampere、Hopper 与 Blackwell: life/career/fundamentals/gpu-kernels/analysis/06-Ampere-Hopper与Blackwell.md
+                      - W4A4 与稀疏元数据: life/career/fundamentals/gpu-kernels/analysis/07-W4A4与稀疏元数据.md
+                      - Safe Softmax 与 Warp 归约: life/career/fundamentals/gpu-kernels/analysis/08-SafeSoftmax与Warp归约.md
+                      - SpMM 与稀疏格式: life/career/fundamentals/gpu-kernels/analysis/09-SpMM与稀疏格式.md
+                      - FlashAttention 与 Grouped GEMM: life/career/fundamentals/gpu-kernels/analysis/10-FlashAttention与GroupedGEMM.md
+                      - GEMM、缓存与 Reduction: life/career/fundamentals/gpu-kernels/analysis/11-GEMM缓存与Reduction.md
+                      - Intel 与 NVIDIA GPU: life/career/fundamentals/gpu-kernels/analysis/12-Intel与NVIDIA架构.md
+                      - 直方图选择与数值归约: life/career/fundamentals/gpu-kernels/analysis/13-直方图选择与数值归约.md
+                      - GEMM 切分与 Persistent 调度: life/career/fundamentals/gpu-kernels/analysis/14-GEMM切分与Persistent调度.md
               - 推理优化:
                   - life/career/fundamentals/inference/index.md
                   - 具体分析:
-                      - CUDA Graph 与 torch.compile: life/career/fundamentals/inference/analysis/01-Graph与Compile.md
-                      - life/career/fundamentals/inference/analysis/index.md
-                      - 请求调度、MRV2 与 KV Cache: life/career/fundamentals/inference/analysis/02-请求调度-MRV2与KVCache.md
-                      - Attention 与多模态执行: life/career/fundamentals/inference/analysis/03-Attention与多模态执行.md
-                      - 投机解码与混合模型状态: life/career/fundamentals/inference/analysis/04-投机解码与混合模型状态.md
-                      - 权重加载、量化与 Linear: life/career/fundamentals/inference/analysis/05-权重加载-量化与Linear.md
-                      - MoE 路由与量化执行: life/career/fundamentals/inference/analysis/06-MoE路由与量化执行.md
-                      - ROCm 算子与性能追问: life/career/fundamentals/inference/analysis/07-ROCm算子与性能追问.md
+                      - 端侧推理: life/career/fundamentals/inference/analysis/01-端侧推理.md
+                      - Prefill 与 Decode: life/career/fundamentals/inference/analysis/02-Prefill与Decode.md
+                      - 推理框架请求流程: life/career/fundamentals/inference/analysis/03-推理框架请求流程.md
+                      - KV Cache: life/career/fundamentals/inference/analysis/04-KVCache.md
+                      - P/D 分离: life/career/fundamentals/inference/analysis/05-PD分离.md
+                      - Serving 调度: life/career/fundamentals/inference/analysis/06-Serving调度.md
+                      - Tensor Parallel: life/career/fundamentals/inference/analysis/07-TensorParallel.md
+                      - 集合通信与成本: life/career/fundamentals/inference/analysis/08-集合通信与成本.md
+                      - DP 与 Pipeline Parallel: life/career/fundamentals/inference/analysis/09-DP与PipelineParallel.md
+                      - Context Parallel: life/career/fundamentals/inference/analysis/10-ContextParallel.md
+                      - Expert Parallel 与负载均衡: life/career/fundamentals/inference/analysis/11-ExpertParallel与负载均衡.md
+                      - 缓存层级与部署配置: life/career/fundamentals/inference/analysis/12-缓存层级与部署配置.md
+                      - Cache-aware 路由与共享: life/career/fundamentals/inference/analysis/13-CacheAware路由与共享.md
+                      - 框架选择与并行部署: life/career/fundamentals/inference/analysis/14-框架选择与并行部署.md
+                      - 芯片适配与执行优化: life/career/fundamentals/inference/analysis/15-芯片适配与执行优化.md
+                      - DP Attention 与 TBO: life/career/fundamentals/inference/analysis/16-DPAttention与TBO.md
+                      - 投机推理与验证: life/career/fundamentals/inference/analysis/17-投机推理与验证.md
+                      - 组批与收益验证: life/career/fundamentals/inference/analysis/18-组批与收益验证.md
+                      - 异构调度与跨帧缓冲: life/career/fundamentals/inference/analysis/19-异构调度与跨帧缓冲.md
+                      - Radix Cache 与分层恢复: life/career/fundamentals/inference/analysis/20-RadixCache与分层恢复.md
+                      - 推理仿真与性能模型: life/career/fundamentals/inference/analysis/21-推理仿真与性能模型.md
+                      - 配置搜索与吞吐延迟: life/career/fundamentals/inference/analysis/22-配置搜索与吞吐延迟.md
               - 模型结构:
                   - life/career/fundamentals/models/index.md
                   - 具体分析:
-                      - DeepSeek-V3: life/career/fundamentals/models/analysis/01-DeepSeek-V3.md
+                      - MHA、GQA 与 MLA: life/career/fundamentals/models/analysis/01-MHA-GQA与MLA.md
+                      - MoE 与路由: life/career/fundamentals/models/analysis/02-MoE与路由.md
+                      - 稀疏、压缩与线性 Attention: life/career/fundamentals/models/analysis/03-稀疏压缩与线性Attention.md
+                      - MTP 与半自回归: life/career/fundamentals/models/analysis/04-MTP与半自回归.md
           - 项目与开源贡献:
               - life/career/projects/index.md
               - vLLM ROCm 模型适配与优化:
                   - life/career/projects/vllm-rocm/index.md
+                  - 面试问题与回答: life/career/projects/vllm-rocm/面试问题与回答.md
                   - CogAgent 模型接入与量化推理: life/career/projects/vllm-rocm/01-CogAgent模型接入与量化推理.md
                   - LoRA 算子与优先级调度: life/career/projects/vllm-rocm/02-LoRA算子与优先级调度.md
                   - 性能证据与面试问答: life/career/projects/vllm-rocm/03-性能证据与面试问答.md
               - vLLM P/D 解耦与调度优化:
                   - life/career/projects/vllm-pd/index.md
+                  - 面试问题与回答: life/career/projects/vllm-pd/面试问题与回答.md
                   - RAPID-Serve 论文与推理指标: life/career/projects/vllm-pd/01-论文与推理指标.md
                   - V1/MRV2 实现与设计取舍: life/career/projects/vllm-pd/02-V1-MRV2实现与设计取舍.md
                   - 性能证据与面试问答: life/career/projects/vllm-pd/03-性能证据与面试问答.md
@@ -150,7 +179,9 @@ nav:
                   - 性能证据与面试问答: life/career/projects/vllm-adaptive-kv/03-性能证据与面试问答.md
               - 开源贡献:
                   - life/career/projects/open-source/index.md
+                  - vLLM 面试问题与回答: life/career/projects/open-source/vLLM-面试问题与回答.md
                   - vLLM PR: life/career/projects/open-source/vLLM-PR.md
+                  - FlashRT 面试问题与回答: life/career/projects/open-source/FlashRT-面试问题与回答.md
                   - FlashRT PR: life/career/projects/open-source/FlashRT-PR.md
                   - FlyDSL PR: life/career/projects/open-source/FlyDSL-PR.md
                   - FlyDSL RoPE 修复口述: life/career/projects/open-source/FlyDSL-RoPE修复.md
@@ -229,6 +260,8 @@ extra_css:
   - stylesheets/pr-tracking.css?v=4
   - stylesheets/notebook-theme.css?v=4
   - stylesheets/home.css?v=2
+  - stylesheets/interview-notes.css?v=1
+  - stylesheets/study-notes.css?v=2
 
 extra_javascript:
   - javascripts/header-search.js
