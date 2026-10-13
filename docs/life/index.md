@@ -24,9 +24,9 @@ hide:
 
 <p class="index-card-label">求职</p>
 
-### [秋招记录](career/index.md)
+### [求职与面试准备](career/index.md)
 
-投递、笔试、测评与面试进展，集中整理求职过程。
+AI Infra 基础复习、项目面试材料、简历与秋招进度。
 
 <span class="index-card-arrow" aria-hidden="true">↗</span>
 

@@ -21,7 +21,7 @@ NO_MKDOCS_2_WARNING=1 .venv/bin/mkdocs serve
 - `docs/handcoding/`：动手编程练习，目前包含 LeetGPU
 - `docs/pr-tracking/`：tangzzycc 的 Open 与 Merged PR 追踪
 - `docs/open-source/`：旧 PR 索引与重复 Kernel 文档归档（不参与站点构建）
-- `docs/life/`：生活记录，其中 `career/` 保存秋招进度
+- `docs/life/`：生活记录，其中 `career/` 整理 AI Infra 面试基础、项目材料、简历与秋招进度
 - `assets/`：站点 Logo、笔记图片和本地字体
 - `mkdocs.yml`：导航与站点配置
 

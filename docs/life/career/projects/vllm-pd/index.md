@@ -1,0 +1,15 @@
+---
+title: "vLLM P/D 解耦与调度优化"
+---
+
+# vLLM P/D 解耦与调度优化
+
+沿 Prefill/Decode 的干扰问题，复习论文思路、V1/MRV2 实现与实际性能取舍。
+
+1. [论文与推理指标](01-论文与推理指标.md)：Prefill/Decode 的资源特点、P/D 部署方式、TTFT/ITL 与 goodput。
+2. [实现与设计取舍](02-V1-MRV2实现与设计取舍.md)：进程、共享 KV、调度、Graph 与资源管理。
+3. [性能证据与面试问答](03-性能证据与面试问答.md)：负载、归因、可追溯数字和项目口述。
+
+原有实验汇总、配置与图片保存在 [evidence 清单](evidence/manifest.json)所列的本地归档中。
+
+[返回项目导航](../index.md)
