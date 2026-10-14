@@ -19,7 +19,7 @@ hide:
 
 </details>
 
-<section class="index-record-panel" markdown="1">
+<section class="index-record-panel career-interview-progress" markdown="1">
 
 ## 面试推进汇总
 

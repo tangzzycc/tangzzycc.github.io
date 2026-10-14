@@ -1,10 +1,8 @@
-/* 基础问答与原理笔记：留白组织正文，绿/蓝/红只强调结论、机制和边界。 */
+/* 基础问答与原理笔记：宽度沿用全站自适应布局，留白与颜色突出重点。 */
 .md-typeset .study-notes {
   --study-green: #167347;
   --study-blue: #2458ac;
   --study-red: #b43d3d;
-  max-width: 44em;
-  margin-inline: auto;
 }
 
 [data-md-color-scheme="slate"] .md-typeset .study-notes {

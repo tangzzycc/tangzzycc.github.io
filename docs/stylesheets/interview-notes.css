@@ -1,9 +1,4 @@
-/* 项目面试笔记：限制行宽，以留白和细分隔线组织展开式正文。 */
-.md-typeset .interview-notes {
-  max-width: 56em;
-  margin-inline: auto;
-}
-
+/* 项目面试笔记：宽度沿用全站自适应布局，以留白和细分隔线组织正文。 */
 .md-typeset .interview-notes > h2 {
   margin-top: 2.4em;
   font-weight: 600;

@@ -259,9 +259,9 @@ extra_css:
   - stylesheets/extra.css?v=18
   - stylesheets/pr-tracking.css?v=4
   - stylesheets/notebook-theme.css?v=4
-  - stylesheets/home.css?v=2
-  - stylesheets/interview-notes.css?v=1
-  - stylesheets/study-notes.css?v=2
+  - stylesheets/home.css?v=3
+  - stylesheets/interview-notes.css?v=2
+  - stylesheets/study-notes.css?v=3
 
 extra_javascript:
   - javascripts/header-search.js

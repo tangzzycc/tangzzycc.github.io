@@ -186,6 +186,11 @@
   margin-top: 0;
 }
 
+/* 面试推进汇总：一级实心圆点，第二级空心圆点。 */
+.md-typeset .career-interview-progress > ul > li > ul {
+  list-style-type: circle;
+}
+
 .notebook-index a:focus-visible {
   outline: 2px solid var(--md-default-fg-color--light);
   outline-offset: 4px;
