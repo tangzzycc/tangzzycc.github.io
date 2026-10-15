@@ -1,0 +1,110 @@
+% !TeX TS-program = xelatex
+% Standalone, one-page A4 resume. Compile with XeLaTeX or Tectonic.
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=12mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,urlcolor=linkblue]{hyperref}
+
+\definecolor{linkblue}{HTML}{225A85}
+\hypersetup{pdftitle={Jiapeng Tang - AI Infrastructure Resume},pdfauthor={Jiapeng Tang}}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{1em}
+\titleformat{\section}{\large\bfseries}{}{0pt}{}[\titlerule]
+\titlespacing*{\section}{0pt}{6pt}{4pt}
+\setlist[itemize]{leftmargin=12pt,label=\textbullet,topsep=2pt,itemsep=1.5pt,parsep=0pt,partopsep=0pt}
+
+\newcommand{\entry}[2]{\par\noindent\textbf{#1}\hfill\mbox{#2}\par}
+\newcommand{\pr}[2]{\href{https://github.com/#1/pull/#2}{\##2}}
+
+\begin{document}
+\fontsize{10.5pt}{12pt}\selectfont
+\begin{center}
+  {\LARGE\bfseries Jiapeng Tang}\\[3pt]
+  AI Infrastructure \textbar{} LLM Inference \& GPU Kernel Optimization\\[2pt]
+  +86 158-0628-1370 \textbar{}
+  \href{mailto:3081129260@qq.com}{3081129260@qq.com} \textbar{}
+  \href{https://github.com/tangzzycc}{github.com/tangzzycc}
+\end{center}
+\vspace{-7pt}
+
+\section{Education}
+\entry{Xi'an Jiaotong University --- Master's in Software Engineering}{Sep 2024 -- Jun 2027 (expected)}
+GPA: \textbf{3.82/4.0}; multiple academic scholarships; CET-6.\par
+Research: on-device LLM deployment,
+mixed-precision inference, and NPU kernel optimization on Qualcomm Snapdragon.
+\entry{China University of Petroleum (East China)}{Sep 2020 -- Jun 2024}
+Bachelor's in Software Engineering.
+
+\section{Experience}
+\entry{AMD\hspace{1em}Physical AI Intern}{Jul 2026 -- Present}
+\textbf{vLLM ROCm Model Integration and Optimization}
+\begin{itemize}
+  \item Integrated CogAgent-18B multimodal inference into vLLM V1 on AMD RDNA 3.5 GPUs.
+  Adapted dual vision encoders and per-layer visual cross-attention, enabled \texttt{torch.compile} and HIP Graph,
+  and aligned BF16 outputs with Hugging Face.
+  \item Enabled AWQ W4A16 inference and profiled the execution path with ROCm Profiler.
+  Compared with the initial Hugging Face BF16 eager baseline, reduced TTFT by \textbf{47.4\%}, achieved
+  \textbf{5.28$\times$ Decode throughput}, and reduced end-to-end latency by \textbf{76.1\%}.
+  \item Implemented and tuned Triton LoRA Shrink/Expand kernels for small-batch multi-LoRA inference,
+  increasing Decode throughput by \textbf{18.6--24.8\%} and reducing end-to-end latency by up to \textbf{19.0\%}.
+  \item Optimized ROCm/RDNA GEMM and W4A16 kernel dispatch and fixed sliding-window Attention boundaries.
+  Merged vLLM PRs: \pr{vllm-project/vllm}{53283}, \pr{vllm-project/vllm}{52619}, \pr{vllm-project/vllm}{59550}.
+\end{itemize}
+\textbf{FastFlowLM LoRA Inference Support}
+\begin{itemize}
+  \item Extended FastFlowLM's NPU inference framework with LoRA support for Gemma4-E models.
+  Implemented PEFT adapter weight conversion, hardware-friendly layout transformations, and metadata generation
+  to prepare adapters for NPU execution.
+  \item Implemented runtime adapter loading and adapted Prefill/Decode AIE kernels for LoRA computation.
+  Decoupled adapter loading and computation from base Q4NX weights and supported multiple common LoRA ranks.
+\end{itemize}
+
+\textbf{On-device Inference Framework Research}
+\begin{itemize}
+  \item Studied the architecture, inference workflows, and deployment pipelines of GenieX (Qualcomm QAIRT/QNN)
+  and NVIDIA TensorRT-Edge-LLM for on-device LLM inference.
+\end{itemize}
+
+\section{Projects}
+\entry{vLLM Adaptive KV Offload\hspace{1em}Independent Developer}{Jun 2026 -- Jul 2026}
+\begin{itemize}
+  \item Addressed high TTFT for short and medium requests that hit external KV cache but still wait in storage
+  queues. Implemented a Load-vs-Recompute policy in vLLM V1 that compares estimated KV load and re-Prefill
+  completion costs and dynamically selects cache reuse or recomputation per request.
+  \item Used GPU profiling and I/O traces to analyze KV promotion, H2D transfers, and GPU Prefill timelines,
+  identifying storage queuing and compute contention. Improved concurrent load/recompute scheduling and added
+  recompute admission control and queued-I/O cancellation to reduce redundant transfers and extra Prefill work.
+  \item Benchmarked Qwen3.6-35B-A3B-FP8 on 4$\times$RTX 5090 (TP4) under a storage-bound mixed workload.
+  For policy-selected 4K latency-sensitive requests, reduced TTFT P50/P99 by \textbf{54.7\%/36.4\%};
+  overall throughput slightly exceeded the baseline.
+\end{itemize}
+\entry{Qualcomm Snapdragon LLM Optimization\hspace{1em}Research Group Project}{Jan 2026 -- Apr 2026}
+\begin{itemize}
+  \item Deployed Qwen3-1.7B GPTQ W4A16 on Snapdragon 8 Gen 3 and the SA8797 automotive platform through
+  ExecuTorch/QNN. Adapted quantization and graph compilation to import offline GPTQ weights and replace
+  Linear layers, bypassing default online PTQ calibration to avoid requantizing the weights.
+  \item Implemented a custom HVX lookup-table Linear operator, integrating GPTQ weight unpacking, tiled
+  layout transformations, and activation lookup-table computation into the QNN backend. Combined projection
+  fusion, MHA2SHA graph optimization, and 8-bit KV cache to reduce scheduling and memory overhead,
+  improving Decode throughput by approximately \textbf{15\%} on Snapdragon 8 Gen 3.
+  \item Extended the ExecuTorch/QNN runtime for Qwen3.5 hybrid Attention. Redesigned model state interfaces
+  and Prefill/Decode state transfer to unify KV cache and linear-Attention state management; adapted model export,
+  QNN graph compilation, and the device runner to enable end-to-end Qwen3.5-0.8B FP16 inference.
+\end{itemize}
+
+\section{Technical Skills}
+\begin{itemize}
+  \item \textbf{Programming \& Engineering:} C/C++, Python; Linux development and debugging; CMake, Docker,
+  Git; AI coding tools including Codex.
+  \item \textbf{Inference \& Deployment:} vLLM, ExecuTorch/QNN; Continuous Batching, PagedAttention,
+  quantization, speculative decoding; on-device deployment on Qualcomm and AMD platforms.
+  \item \textbf{Kernels \& Profiling:} CUDA, HIP, Triton; GPU architecture and memory, kernel fusion and custom
+  operators; performance analysis with Nsight Compute/Systems and ROCm Profiler.
+\end{itemize}
+\end{document}

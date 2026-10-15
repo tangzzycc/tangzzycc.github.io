@@ -4,7 +4,8 @@ title: "简历与项目材料"
 
 # 简历与项目材料
 
-[中文简历 LaTeX 源码](resume_ng_zh.tex)使用 XeLaTeX 编译。
+- [中文简历 LaTeX 源码](resume_ng_zh.tex)，使用 XeLaTeX 编译。
+- [英文简历 PDF](resume_ng_en.pdf)（A4 一页）与 [LaTeX 源码](resume_ng_en.tex)。英文版可独立使用 XeLaTeX 或 Tectonic 编译。
 
 | 简历内容 | 对应复习材料 |
 | --- | --- |
