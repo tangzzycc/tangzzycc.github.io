@@ -14,11 +14,23 @@ hide:
 
 # AI Infra
 
-围绕大模型推理基础设施整理学习方向。当前的具体笔记主要在 vLLM、GPU Kernel 与开源实践中，下面按主题进入。
+围绕大模型推理基础设施整理学习方向。从并行部署、推理框架到 GPU 算子，沿计算、通信与资源分配理解系统。
 
 </div>
 
 <div class="index-grid" markdown="1">
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">分布式推理</p>
+
+### [推理并行策略](推理并行策略.md)
+
+TP、PP、DP、EP、DP Attention、SP、CP：参数与数据怎样切分，在哪里通信，以及如何组合。正文按机制配局部图，[完整流程图附件](推理并行策略-完整流程图.md)收录七张高清长图。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
 
 <section class="index-card" markdown="1">
 

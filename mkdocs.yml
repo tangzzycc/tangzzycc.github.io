@@ -21,6 +21,8 @@ nav:
   - Tang's Notebook: index.md
   - AI Infra:
       - 学习索引: ai-infra/index.md
+      - 推理并行策略: ai-infra/推理并行策略.md
+      - 完整流程图附件: ai-infra/推理并行策略-完整流程图.md
   - vLLM 笔记:
       - vllm/index.md
       - 基础篇:
@@ -154,6 +156,7 @@ nav:
               - 模型结构:
                   - life/career/fundamentals/models/index.md
                   - 具体分析:
+                      - Image、Patch、ViT 与 LLM: life/career/fundamentals/models/analysis/05-Image-Patch-ViT与LLM.md
                       - MHA、GQA 与 MLA: life/career/fundamentals/models/analysis/01-MHA-GQA与MLA.md
                       - MoE 与路由: life/career/fundamentals/models/analysis/02-MoE与路由.md
                       - 稀疏、压缩与线性 Attention: life/career/fundamentals/models/analysis/03-稀疏压缩与线性Attention.md

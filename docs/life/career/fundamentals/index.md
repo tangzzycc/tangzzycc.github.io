@@ -36,10 +36,10 @@ title: "AI Infra 面试基础"
 
 ## 模型结构
 
-[进入问答总文件](models/index.md) · 13 道题，5 个主题。
+[进入问答总文件](models/index.md) · 14 道题，6 个主题。
 
-先比较 **MHA/GQA/MLA 的缓存表示**，再理解线性 Attention 与混合模型的状态；MoE 要讲清逻辑路由与物理放置，MTP 要区分候选与最终提交 token。DSA、CSA/HCA 等具体变体作为最后一组补充。
+先看 **图像怎样经过 Patch Embedding、ViT 和 connector 接入 LLM**，再比较 MHA/GQA/MLA 的缓存表示与混合状态；MoE 要讲清逻辑路由与物理放置，MTP 要区分候选与最终提交 token。DSA、CSA/HCA 等具体变体作为最后一组补充。
 
-详细分析入口：[Attention 与缓存](models/analysis/01-MHA-GQA与MLA.md)、[线性与稀疏 Attention](models/analysis/03-稀疏压缩与线性Attention.md)、[MoE](models/analysis/02-MoE与路由.md)、[MTP](models/analysis/04-MTP与半自回归.md)。
+详细分析入口：[图像、ViT 与 LLM](models/analysis/05-Image-Patch-ViT与LLM.md)、[Attention 与缓存](models/analysis/01-MHA-GQA与MLA.md)、[线性与稀疏 Attention](models/analysis/03-稀疏压缩与线性Attention.md)、[MoE](models/analysis/02-MoE与路由.md)、[MTP](models/analysis/04-MTP与半自回归.md)。
 
 [项目与开源贡献](../projects/index.md) · [返回求职与面试准备](../index.md)

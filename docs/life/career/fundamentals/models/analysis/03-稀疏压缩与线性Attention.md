@@ -6,7 +6,7 @@ title: "稀疏、压缩与线性 Attention：DSA、CSA、HCA、KDA"
 
 <div class="study-notes study-analysis" markdown="1">
 
-来源：提供的「算能科技二面」记录；对应模型结构[第 2、5～6、12～13 题](../index.md#q7)。模型术语根据官方技术报告与模型卡核对，查阅日期 2026-10-13。
+来源：提供的「算能科技二面」记录；对应模型结构[第 3、6～7、13～14 题](../index.md#q7)。模型术语根据官方技术报告与模型卡核对，查阅日期 2026-10-13。
 
 ## 1. 先判断改变了哪个维度 {#compression-axis}
 
@@ -20,7 +20,7 @@ title: "稀疏、压缩与线性 Attention：DSA、CSA、HCA、KDA"
 
 这些是架构维度的比较。FlashAttention 的执行分块与 online softmax 保持既定 dense Attention 语义；稀疏选取、压缩或递归状态通常需要模型设计与训练配合。
 
-返回面试题：[02](../index.md#q7)
+返回面试题：[03](../index.md#q7)
 {.study-source}
 
 ## 2. DSA：先索引，再访问主 KV {#sparse-indexer}
@@ -37,7 +37,7 @@ DeepSeek-V3.2 的 Lightning Indexer 生成较轻的匹配表示，为可见历�
 
 模型训练需要让轻量 Indexer 选出对主 Attention 有价值的位置；推理不能任意用一个近似分数替换训练约定。选择集合还必须因果有效、mask 正确，索引表与物理 KV 页映射一致。
 
-返回面试题：[12](../index.md#q8)
+返回面试题：[13](../index.md#q8)
 {.study-source}
 
 ## 3. CSA/HCA：压缩的是序列条目 {#sequence-compression}
@@ -58,7 +58,7 @@ MLA 减少每位置的特征载荷，CSA/HCA 减少序列条目数量，讨论�
 
 对 CSA，可见集合是局部历史加选出的压缩条目；HCA 对更强压缩的全部可见条目计算主 Attention。Cache 容量、主访问量和 Indexer 工作是三个独立计数，compression ratio 只描述其中一部分。跨层压缩率和状态不同，P/D 或 prefix reuse 需交接原始窗口、压缩 KV 和必要索引/未完成聚合状态。
 
-返回面试题：[13](../index.md#q9)
+返回面试题：[14](../index.md#q9)
 {.study-source}
 
 ## 4. KDA：用纠错式递归状态累计历史 {#delta-state}
@@ -108,7 +108,7 @@ $$
 
 Decode 的状态更新/读取主要约 `O(d_kd_v)` 每 head，不随历史 S 增长；Prefill 仍需处理全部 token，并包含局部投影、门和分块计算。资料：[Kimi Linear §2–3](https://arxiv.org/html/2510.26692v1#S3)。
 
-返回面试题：[05](../index.md#q10)
+返回面试题：[06](../index.md#q10)
 {.study-source}
 
 ## 5. 混合模型仍有多种缓存 {#hybrid-state}
@@ -127,7 +127,7 @@ MLA 层保留逐位置 latent/KV，KDA 层保留推进到某个前缀后的固�
 
 资料：[DeepSeek-V3.2](https://arxiv.org/html/2512.02556v1)、[DeepSeek-V4 §2.3](https://arxiv.org/html/2606.19348v1#S2.SS3)、[DeepSeek-V4 官方模型卡](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro)、[Kimi Linear 官方说明](https://github.com/MoonshotAI/Kimi-Linear)、[Kimi Linear Technical Report](https://arxiv.org/html/2510.26692v1)。已有分析：[稀疏 Attention 的索引与执行](<../../../../../vllm/进阶篇/稀疏Attention：选择性访问与高效计算.md>)。
 
-返回面试题：[06](../index.md#q11)
+返回面试题：[07](../index.md#q11)
 {.study-source}
 
 </div>

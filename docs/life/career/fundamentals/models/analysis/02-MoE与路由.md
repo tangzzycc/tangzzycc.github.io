@@ -6,7 +6,7 @@ title: "MoE：总参数、激活参数、路由与均衡"
 
 <div class="study-notes study-analysis" markdown="1">
 
-来源：提供的「算能科技二面」记录；对应模型结构[第 7～9 题](../index.md#q4)。跨卡执行与专家放置见[Expert Parallel](../../inference/analysis/11-ExpertParallel与负载均衡.md)。
+来源：提供的「算能科技二面」记录；对应模型结构[第 8～10 题](../index.md#q4)。跨卡执行与专家放置见[Expert Parallel](../../inference/analysis/11-ExpertParallel与负载均衡.md)。
 
 ## 1. 参数容量与实际工作不同 {#total-active}
 
@@ -22,7 +22,7 @@ title: "MoE：总参数、激活参数、路由与均衡"
 
 因此小 batch Decode 会读少量热点专家，大 Prefill 可能形成很多专家小矩阵；每个专家的实际 Mₑ 与布局、通信和 tile 效率共同决定时间。MoE 不能用 `激活参数/总参数` 直接预测显存需求或推理加速比。
 
-返回面试题：[07](../index.md#q4)
+返回面试题：[08](../index.md#q4)
 {.study-source}
 
 ## 2. Router 决定模型使用哪些专家 {#router-topk}
@@ -41,7 +41,7 @@ Router 根据隐藏状态 x 计算专家得分 r，可用 softmax、sigmoid 或�
 
 选择逻辑专家决定模型函数，分配到哪个相同参数物理副本决定执行位置。Serving 负载均衡应区分这两个层次，不能为低负载随意把 token 改送另一个专家。
 
-返回面试题：[08](../index.md#q5)
+返回面试题：[09](../index.md#q5)
 {.study-source}
 
 ## 3. 为什么要训练均衡？ {#training-balance}
@@ -61,7 +61,7 @@ Router 根据隐藏状态 x 计算专家得分 r，可用 softmax、sigmoid 或�
 
 负载反馈 bias 则可按窗口增减各专家选择倾向，不一定通过该辅助损失梯度改变 Router；某些模型对选择与组合分数分别处理，仍可能有额外序列级均衡目标。训练的长期均衡不能保证某个小 Decode batch 平衡，实际设备上还要测专家放置、短期 token 分布与通信。
 
-返回面试题：[09](../index.md#q6)
+返回面试题：[10](../index.md#q6)
 {.study-source}
 
 ## 4. 与 Serving 物理均衡的边界 {#physical-placement}

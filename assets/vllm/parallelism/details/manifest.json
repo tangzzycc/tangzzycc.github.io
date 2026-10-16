@@ -1,0 +1,458 @@
+[
+  {
+    "name": "tp-column",
+    "title": "TP：QKV 列切分与矩阵视图",
+    "source": "01-tp",
+    "source_svg_y": [
+      218,
+      588
+    ],
+    "png_size": [
+      3840,
+      1292
+    ],
+    "content_svg_y": [
+      230,
+      576
+    ],
+    "panels": [
+      "QKV Projection — 列切分（Column Parallel）"
+    ]
+  },
+  {
+    "name": "tp-row",
+    "title": "TP：输出投影行切分产生 partial",
+    "source": "01-tp",
+    "source_svg_y": [
+      759,
+      1052
+    ],
+    "png_size": [
+      3840,
+      1023
+    ],
+    "content_svg_y": [
+      771,
+      1040
+    ],
+    "panels": [
+      "Output Projection — 行切分（Row Parallel），各卡产生 partial sum"
+    ]
+  },
+  {
+    "name": "tp-allreduce",
+    "title": "TP：AllReduce 合并 head partial",
+    "source": "01-tp",
+    "source_svg_y": [
+      1054,
+      1268
+    ],
+    "png_size": [
+      3840,
+      747
+    ],
+    "content_svg_y": [
+      1066,
+      1256
+    ],
+    "panels": [
+      "★ AllReduce #1（TP group=4）— Output Projection 之后"
+    ]
+  },
+  {
+    "name": "tp-mlp",
+    "title": "TP：MLP 列切、行切与第二次归约",
+    "source": "01-tp",
+    "source_svg_y": [
+      1341,
+      1837
+    ],
+    "png_size": [
+      3840,
+      1731
+    ],
+    "content_svg_y": [
+      1353,
+      1825
+    ],
+    "panels": [
+      "MLP Up（W1）— ",
+      "MLP Down（W2）— ",
+      "★ AllReduce #2（TP group=4）— MLP Down 之后"
+    ]
+  },
+  {
+    "name": "pp-layers",
+    "title": "PP：32 层分成两个 stages",
+    "source": "02-pp",
+    "source_svg_y": [
+      218,
+      511
+    ],
+    "png_size": [
+      3840,
+      1023
+    ],
+    "content_svg_y": [
+      230,
+      499
+    ],
+    "panels": [
+      "层切分（Layer Partition）— 32 层分到 2 个 stage，每段 16 层"
+    ]
+  },
+  {
+    "name": "pp-transfer",
+    "title": "PP：micro-batch 的 stage 边界 P2P",
+    "source": "02-pp",
+    "source_svg_y": [
+      784,
+      967
+    ],
+    "png_size": [
+      3840,
+      639
+    ],
+    "content_svg_y": [
+      796,
+      955
+    ],
+    "panels": [
+      "★ Point-to-Point Send / Recv — Stage 0 → Stage 1"
+    ]
+  },
+  {
+    "name": "pp-bubble",
+    "title": "PP：micro-batch 流水与气泡",
+    "source": "02-pp",
+    "source_svg_y": [
+      1308,
+      1696
+    ],
+    "png_size": [
+      3840,
+      1355
+    ],
+    "content_svg_y": [
+      1320,
+      1684
+    ],
+    "panels": [
+      "★ 流水气泡（Pipeline Bubble）与 Micro-batch 调度"
+    ]
+  },
+  {
+    "name": "dp-batch",
+    "title": "DP：请求 batch 分片与完整权重副本",
+    "source": "03-dp",
+    "source_svg_y": [
+      218,
+      558
+    ],
+    "png_size": [
+      3840,
+      1187
+    ],
+    "content_svg_y": [
+      230,
+      546
+    ],
+    "panels": [
+      "输入切分 — Batch 维切分：按请求分配到 4 个独立副本"
+    ]
+  },
+  {
+    "name": "dp-forward",
+    "title": "DP：本地请求的完整 Attention 前向",
+    "source": "03-dp",
+    "source_svg_y": [
+      560,
+      1047
+    ],
+    "png_size": [
+      3840,
+      1700
+    ],
+    "content_svg_y": [
+      572,
+      1035
+    ],
+    "panels": [
+      "QKV Projection — 完整权重，本地 batch 独立计算",
+      "Attention 计算 — 每卡独立计算自己的 64 heads，无跨卡通信",
+      "Output Projection — 完整 Wo，直接得到本地 batch 输出"
+    ]
+  },
+  {
+    "name": "ep-replicas",
+    "title": "EP：四个独立 TP4 + EP4 副本",
+    "source": "04-ep",
+    "source_svg_y": [
+      150,
+      370
+    ],
+    "png_size": [
+      3840,
+      768
+    ],
+    "content_svg_y": [
+      162,
+      358
+    ],
+    "panels": [
+      "DP=4：4 个独立模型副本（replica-level DP），总卡数 16",
+      "副本内输入 x：[8,2000,8192]（4 张 TP 卡共享本副本的 8 条请求）"
+    ]
+  },
+  {
+    "name": "ep-reduce-scatter",
+    "title": "EP：Attention 归约并按 token 分片",
+    "source": "04-ep",
+    "source_svg_y": [
+      861,
+      1233
+    ],
+    "png_size": [
+      3840,
+      1298
+    ],
+    "content_svg_y": [
+      873,
+      1221
+    ],
+    "panels": [
+      "★ ReduceScatter（attn_tp=4）— 对 head partial 求和，并按 token 分片",
+      "RS → Router → EP A2A 的衔接"
+    ]
+  },
+  {
+    "name": "ep-dispatch",
+    "title": "EP：按 expert 路由 token 并本地计算 FFN",
+    "source": "04-ep",
+    "source_svg_y": [
+      1235,
+      1610
+    ],
+    "png_size": [
+      3840,
+      1309
+    ],
+    "content_svg_y": [
+      1247,
+      1598
+    ],
+    "panels": [
+      "MoE EP A2A（dispatch）— 按 Router 结果发送到 4 个 expert rank",
+      "Expert FFN：每 rank 本地持有 64 个完整 expert · moe_tp=1 · 无 MOE_TP AllReduce"
+    ]
+  },
+  {
+    "name": "ep-combine",
+    "title": "EP：返回 token 输出并拼回副本序列",
+    "source": "04-ep",
+    "source_svg_y": [
+      1612,
+      2169
+    ],
+    "png_size": [
+      3840,
+      1945
+    ],
+    "content_svg_y": [
+      1624,
+      2157
+    ],
+    "panels": [
+      "反向 EP A2A（combine）— 按来源 rank 返回并加权合并",
+      "★ AllGather（attn_tp=4，token 维）— 拼回本副本完整 token 输出"
+    ]
+  },
+  {
+    "name": "dpa-attention",
+    "title": "DP Attention：小 TP 组内的 Attention",
+    "source": "05-dp-attention",
+    "source_svg_y": [
+      218,
+      705
+    ],
+    "png_size": [
+      3840,
+      1700
+    ],
+    "content_svg_y": [
+      230,
+      693
+    ],
+    "panels": [
+      "QKV Projection — 列切分（Column Parallel）",
+      "Attention 计算 — 每卡独立计算自己的 16 heads，无跨卡通信",
+      "Output Projection — 行切分（Row Parallel），各卡产生 partial sum"
+    ]
+  },
+  {
+    "name": "dpa-topology",
+    "title": "DP Attention：四个局部 TP 通信组",
+    "source": "05-dp-attention",
+    "source_svg_y": [
+      707,
+      1145
+    ],
+    "png_size": [
+      3840,
+      1529
+    ],
+    "content_svg_y": [
+      719,
+      1133
+    ],
+    "panels": [
+      "★ ReduceScatter（attn_tp=4）— 仅在每个 DP 组内对 partial 求和"
+    ]
+  },
+  {
+    "name": "dpa-experts",
+    "title": "DP Attention：全域 EP16 的 expert 分布",
+    "source": "05-dp-attention",
+    "source_svg_y": [
+      1147,
+      1529
+    ],
+    "png_size": [
+      3840,
+      1334
+    ],
+    "content_svg_y": [
+      1159,
+      1517
+    ],
+    "panels": [
+      "MoE EP A2A（dispatch）— 按 Router 结果发送到 16 个 expert rank",
+      "Expert FFN：每 rank 本地持有 16 个完整 expert · moe_tp=1 · 无 MOE_TP AllReduce"
+    ]
+  },
+  {
+    "name": "sp-gather",
+    "title": "SP：本地 LN 与进入 TP 区前的 AllGather",
+    "source": "06-sp",
+    "source_svg_y": [
+      150,
+      505
+    ],
+    "png_size": [
+      3840,
+      1239
+    ],
+    "content_svg_y": [
+      162,
+      493
+    ],
+    "panels": [
+      "输入 xᵢ：[32,500,8192]（SP 区域：每卡持有 1/4 序列）",
+      "LayerNorm（SP 区）：每卡独立归一化本地 token，输出 [32,500,8192]",
+      "★ AllGather #1（TP group=4，token 维）— 进入 Attention TP 区"
+    ]
+  },
+  {
+    "name": "sp-scatter",
+    "title": "SP：行切输出经 ReduceScatter 返回本地 tokens",
+    "source": "06-sp",
+    "source_svg_y": [
+      1048,
+      1625
+    ],
+    "png_size": [
+      3840,
+      2015
+    ],
+    "content_svg_y": [
+      1060,
+      1613
+    ],
+    "panels": [
+      "Output Projection — 行切分（Row Parallel），各卡产生 partial sum",
+      "★ ReduceScatter #1（token 维）— Attention TP 区出口",
+      "Residual Add（SP 区）：xᵢ + outᵢ → [32,500,8192]（本地 token 分片）"
+    ]
+  },
+  {
+    "name": "cp-kv-gather",
+    "title": "CP：跨 CP rank 收集完整 K/V",
+    "source": "07-cp",
+    "source_svg_y": [
+      399,
+      828
+    ],
+    "png_size": [
+      3840,
+      1498
+    ],
+    "content_svg_y": [
+      411,
+      816
+    ],
+    "panels": [
+      "★ CP K/V AllGather（attn_cp=2，token 维）— 本图采用全量 K/V 收集"
+    ]
+  },
+  {
+    "name": "cp-zigzag",
+    "title": "CP：早晚两段 Query 的独立 causal Attention",
+    "source": "07-cp",
+    "source_svg_y": [
+      830,
+      1138
+    ],
+    "png_size": [
+      3840,
+      1075
+    ],
+    "content_svg_y": [
+      842,
+      1126
+    ],
+    "panels": [
+      "Attention Zigzag 本地计算 — Q 分早晚两段；分别调用 causal Flash Attention"
+    ]
+  },
+  {
+    "name": "cp-topology",
+    "title": "CP：本地段输出与 Attention TP 分组",
+    "source": "07-cp",
+    "source_svg_y": [
+      1140,
+      1717
+    ],
+    "png_size": [
+      3840,
+      2014
+    ],
+    "content_svg_y": [
+      1152,
+      1705
+    ],
+    "panels": [
+      "Output Projection — 行切分（Row Parallel），各卡产生 partial sum",
+      "★ ReduceScatter（attn_tp=4，token 维）— 本 (DP,CP) 段的 head partial 求和"
+    ]
+  },
+  {
+    "name": "cp-moe-entry",
+    "title": "CP：MOE_DP / ATTN_CP gather 与 scatter 接口",
+    "source": "07-cp",
+    "source_svg_y": [
+      1719,
+      1859
+    ],
+    "png_size": [
+      3840,
+      489
+    ],
+    "content_svg_y": [
+      1731,
+      1847
+    ],
+    "panels": [
+      "MOE_DP = ATTN_CP — MoE 入口 gather / 出口 scatter 的概念接口"
+    ]
+  }
+]

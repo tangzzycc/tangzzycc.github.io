@@ -6,7 +6,7 @@ title: "MHA、GQA 与 MLA：共享、压缩和历史缓存"
 
 <div class="study-notes study-analysis" markdown="1">
 
-来源：提供的「算能科技二面」记录；对应模型结构[第 1、3～4 题](../index.md#q1)。MHA→GQA→MLA 可作为比较线索，不表示所有模型都按该顺序升级。
+来源：提供的「算能科技二面」记录；对应模型结构[第 2、4～5 题](../index.md#q1)。MHA→GQA→MLA 可作为比较线索，不表示所有模型都按该顺序升级。
 
 ## 1. 从 KV Head 数比较 {#kv-heads}
 
@@ -40,7 +40,7 @@ Query heads 不必随着 KV heads 减少：h=32、g=8 时，每个 KV head 供�
 
 实际缓存可能存旋转后的 K；位置偏移、RoPE 参数、插值/扩展方法改变时，旧 K 不必兼容。复用 prefix 时除了 token IDs，还需保持位置和模型配置语义。
 
-返回面试题：[01](../index.md#q1)
+返回面试题：[02](../index.md#q1)
 {.study-source}
 
 ## 2. MLA 共享 Latent，保留不同 Head 的投影 {#shared-latent}
@@ -51,7 +51,7 @@ Query heads 不必随着 KV heads 减少：h=32、g=8 时，每个 KV head 供�
 
 举例 c=512、位置宽度 r=64、BF16，压缩路径每 token 每层理想载荷为 `(512+64)×2=1152 bytes`。这个教学配置说明压缩维度，与前面的 h=32、d=128 的 16 KiB MHA 可比较载荷；不能由比值推断真实模型的质量或加速。
 
-返回面试题：[03](../index.md#q2)
+返回面试题：[04](../index.md#q2)
 {.study-source}
 
 ## 3. 为什么矩阵吸收能避免历史展开？ {#matrix-absorption}
@@ -79,7 +79,7 @@ Value 上投影若与最终输出投影相邻且数学兼容，还可合并固�
 
 RoPE 分支仍要并入同一完整分数再 softmax；内容 score 不能先独立 softmax 后与位置分支输出拼接。Linearity 只允许重排固定投影，不允许跨越归一化非线性。
 
-返回面试题：[04](../index.md#q3)
+返回面试题：[05](../index.md#q3)
 {.study-source}
 
 ## 4. RoPE 与执行路径 {#decoupled-rope}
@@ -95,7 +95,7 @@ Prefill 可以为大矩阵效率临时展开部分 K/V；Decode 可以更直接�
 
 已有推导：[MLA：低秩压缩、矩阵吸收与解耦 RoPE](<../../../../../vllm/进阶篇/MLA：低秩压缩、矩阵吸收与解耦RoPE.md>)。模型资料：[DeepSeek-V2](https://arxiv.org/abs/2405.04434)。
 
-返回面试题：[04](../index.md#q3)
+返回面试题：[05](../index.md#q3)
 {.study-source}
 
 </div>
