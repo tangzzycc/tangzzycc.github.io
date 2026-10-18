@@ -1,7 +1,6 @@
 ---
 title: "AI Infra"
 hide:
-  - navigation
   - toc
   - footer
 ---

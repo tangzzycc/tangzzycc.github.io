@@ -29,6 +29,9 @@ nav:
       - GPU 算子优化:
           - FlashAttention v1 & v2 浅析: ai-infra/FlashAttention.md
           - CUDA 矩阵乘法优化：从 Naive 到 cuBLAS: ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md
+  - GPU 算子实现:
+      - 访存基础:
+          - Fused Bias + GELU（向量化 elementwise）: gpu-operators/Fused Bias + GELU.md
   - 搬运:
       - 基础篇:
           - vLLM V1 整体架构: vllm/基础篇/vLLM V1整体架构.md
@@ -53,13 +56,11 @@ nav:
           - Decode Attention：Paged KV、GQA 与 Split-KV: vllm/进阶篇/Decode Attention：Paged KV、GQA与Split-KV.md
           - MLA：低秩压缩、矩阵吸收与解耦 RoPE: vllm/进阶篇/MLA：低秩压缩、矩阵吸收与解耦RoPE.md
           - 稀疏 Attention：选择性访问与高效计算: vllm/进阶篇/稀疏Attention：选择性访问与高效计算.md
-  - HandCoding: 
-      - handcoding/index.md
-      - hot100整理: handcoding/hot100.md
   - 生活:
       - life/index.md
       - 求职与面试准备:
           - life/career/index.md
+          - hot100 整理: life/career/hot100.md
           - AI Infra 面试基础:
               - life/career/fundamentals/index.md
               - GPU与算子优化:
@@ -246,19 +247,20 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=19
+  - stylesheets/extra.css?v=20
   - stylesheets/notebook-theme.css?v=4
   - stylesheets/home.css?v=3
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
-  - stylesheets/gemm-translation.css?v=2
+  - stylesheets/gemm-translation.css?v=3
+  - stylesheets/gpu-operators.css?v=4
 
 extra_javascript:
   - javascripts/header-search.js
   - javascripts/mathjax.js
   - javascripts/code-fold.js
   - javascripts/code-mark.js
-  - javascripts/sidebar-toggle.js?v=4
+  - javascripts/sidebar-toggle.js?v=5
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra:

@@ -1,175 +1,35 @@
 ---
 title: "FlashRT RDNA 3.5"
 hide:
-  - navigation
   - toc
   - footer
 ---
-
-<div class="notebook-index" markdown="1">
-
-<div class="index-intro" markdown="1">
-
-<p class="index-eyebrow">FlashRT / HIP · Wave32 · BF16</p>
 
 # FlashRT RDNA 3.5
 
 围绕 FlashRT PR #213 的 Pi0.5 后端，从硬件与推理流程进入 24 个 RDNA HIP Kernel，理解数据所有权、访存、归约与算子分发。
 
-</div>
-
 ## 硬件与推理流程
 
-<div class="index-grid" markdown="1">
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">01</p>
-
-### [AMD GPU 硬件模型与 Kernel 阅读术语](00-AMD-GPU硬件模型与术语.md)
-
-GPU 执行层级、数据所有权与 VGPR / SGPR / LDS / Cache。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">02</p>
-
-### [Frontend 与 Pipeline](01-Pi05-Frontend与Pipeline.md)
-
-从 OpenPI 模型到静态推理流程与图捕获。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">03</p>
-
-### [Pi0.5 模型结构与推理流程](02-Pi05模型结构与推理流程.md)
-
-从图像、指令与随机噪声生成连续动作。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-</div>
+- [AMD GPU 硬件模型与 Kernel 阅读术语](00-AMD-GPU硬件模型与术语.md)（01）：GPU 执行层级、数据所有权与 VGPR / SGPR / LDS / Cache。
+- [Frontend 与 Pipeline](01-Pi05-Frontend与Pipeline.md)（02）：从 OpenPI 模型到静态推理流程与图捕获。
+- [Pi0.5 模型结构与推理流程](02-Pi05模型结构与推理流程.md)（03）：从图像、指令与随机噪声生成连续动作。
 
 ## Kernel 实现
 
-<div class="index-grid" markdown="1">
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">04</p>
-
-### [HIP 执行模型与 Wave32 归约](01-HIP执行模型与Wave32归约.md)
-
-Launch、Thread Ownership 与 Wave32 / Block Reduction。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">05</p>
-
-### [Activation 与 Residual Kernel](02-Activation与Residual-Kernel.md)
-
-Scalar / Packed 路径、Merged GeGLU 与 Gated Residual。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">06</p>
-
-### [Normalization Kernel](03-Normalization-Kernel.md)
-
-8 个 Norm Kernel 的行内归约与寄存器复用。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">07</p>
-
-### [QKV Split 与 RoPE Kernel](04-QKV-Split与RoPE-Kernel.md)
-
-Complex Pair 所有权与 8Q / 1K / 1V 的 Cos / Sin 复用。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">08</p>
-
-### [Encoder FlashAttention Kernel](05-Encoder-FlashAttention-Kernel.md)
-
-Wave Pair 协作、Online Softmax 与 QK / PV 计算。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">09</p>
-
-### [Decoder GQA Kernel](06-Decoder-GQA-Kernel.md)
-
-Split-key 划分与 Row-owned Decode 实现。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">10</p>
-
-### [Small-M WMMA GEMM Kernel](07-SmallM-WMMA-GEMM-Kernel.md)
-
-WMMA Mapping、Split-K、LDS Tiling 与 hipBLASLt 分工。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-</div>
+- [HIP 执行模型与 Wave32 归约](01-HIP执行模型与Wave32归约.md)（04）：Launch、Thread Ownership 与 Wave32 / Block Reduction。
+- [Activation 与 Residual Kernel](02-Activation与Residual-Kernel.md)（05）：Scalar / Packed 路径、Merged GeGLU 与 Gated Residual。
+- [Normalization Kernel](03-Normalization-Kernel.md)（06）：8 个 Norm Kernel 的行内归约与寄存器复用。
+- [QKV Split 与 RoPE Kernel](04-QKV-Split与RoPE-Kernel.md)（07）：Complex Pair 所有权与 8Q / 1K / 1V 的 Cos / Sin 复用。
+- [Encoder FlashAttention Kernel](05-Encoder-FlashAttention-Kernel.md)（08）：Wave Pair 协作、Online Softmax 与 QK / PV 计算。
+- [Decoder GQA Kernel](06-Decoder-GQA-Kernel.md)（09）：Split-key 划分与 Row-owned Decode 实现。
+- [Small-M WMMA GEMM Kernel](07-SmallM-WMMA-GEMM-Kernel.md)（10）：WMMA Mapping、Split-K、LDS Tiling 与 hipBLASLt 分工。
 
 ## 跨帧优化
 
-<div class="index-grid" markdown="1">
+- [Temporal K/V 跨帧复用](06-Temporal-KV跨帧复用.md)（11）：跨帧 Prefix K/V 复用、失败恢复与图刷新。
 
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">11</p>
-
-### [Temporal K/V 跨帧复用](06-Temporal-KV跨帧复用.md)
-
-跨帧 Prefix K/V 复用、失败恢复与图刷新。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-</div>
-
-<details class="index-details" markdown="1">
-<summary>源码版本与阅读约定</summary>
+## 源码版本与阅读约定
 
 - PR 合并后固定版本：[`e2cf5d1`](https://github.com/flashrt-project/FlashRT/commit/e2cf5d1fe7209e3f4fbf212c5b6321467e8f4874)
 - PR 基线：[`dd549e2`](https://github.com/flashrt-project/FlashRT/commit/dd549e2)
@@ -178,10 +38,7 @@ WMMA Mapping、Split-K、LDS Tiling 与 hipBLASLt 分工。
 
 > 正文代码块中的中文注释由本系列补充，用于标记 Ownership、索引单位、数据生命周期与同步边界，不属于上游源码原注释。未加说明的代码仍对应固定提交中的实现；代码块中若出现 `...`，表示为了聚焦当前机制而明确省略的源码。
 
-</details>
-
-<details class="index-details" markdown="1">
-<summary>24 个 Kernel 清单与验证边界</summary>
+## 24 个 Kernel 清单与验证边界
 
 PR 新增了 24 个 `__global__` Kernel body。这里按源码定义计数；Template 可能在编译时实例化出多个不同的 Machine Kernel。
 
@@ -219,12 +76,4 @@ PR 新增了 24 个 `__global__` Kernel body。这里按源码定义计数；Tem
 
 算子测试能证明指定 Shape 与容差下的 HIP/PyTorch 对齐，但它不能自动证明“所有 Shape 都适用”或“所有机器上都更快”。本系列因此只说明已经写入源码的 Contract、Dispatch 和数值语义，不把某组开发机 Benchmark 外推为通用性能结论。
 
-</details>
-
-<div class="index-more" markdown="1">
-
 [返回开发贡献](../index.md) · [FlashRT PR #213](https://github.com/flashrt-project/FlashRT/pull/213)
-
-</div>
-
-</div>

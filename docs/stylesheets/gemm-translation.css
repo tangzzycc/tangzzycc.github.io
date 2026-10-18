@@ -141,7 +141,14 @@
 
 .md-typeset .gemm-translation .highlight {
   margin: 1.2rem 0;
-  font-size: clamp(16px, 0.85rem, 18px);
+  font-size: 0.8rem;
+}
+
+/* 与普通笔记的正文基准字号一致，代码再按 Material 的 0.85em 缩放。 */
+@media screen and (min-width: 76.25em) {
+  .md-typeset .gemm-translation .highlight {
+    font-size: 0.86rem;
+  }
 }
 
 .md-typeset .gemm-translation pre {
@@ -153,7 +160,7 @@
   display: block;
   padding: 0.8rem;
   font-family: var(--md-code-font);
-  font-size: 1em;
+  font-size: 0.85em;
   line-height: 1.65;
   font-variant-ligatures: none;
 }

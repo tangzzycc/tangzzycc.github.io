@@ -90,5 +90,24 @@
     });
   };
 
+  const desktopNavigation = window.matchMedia("(min-width: 76.25em)");
+  const setupNavigationGroups = () => {
+    const groups = document.querySelectorAll(
+      ".notebook-nav--expanded > .md-nav__list > .md-nav__item--active .md-nav__item--nested"
+    );
+    groups.forEach((group) => {
+      const toggle = group.querySelector(":scope > .md-nav__toggle");
+      if (!toggle) return;
+      toggle.disabled = desktopNavigation.matches;
+      if (desktopNavigation.matches) toggle.checked = true;
+      group.querySelectorAll(":scope > label[for], :scope > .md-nav__container > label[for]")
+        .forEach((label) => { label.tabIndex = desktopNavigation.matches ? -1 : 0; });
+      const nav = group.querySelector(":scope > .md-nav");
+      if (nav) nav.setAttribute("aria-expanded", String(toggle.checked));
+    });
+  };
+
+  desktopNavigation.addEventListener("change", setupNavigationGroups);
+  document$.subscribe(setupNavigationGroups);
   document$.subscribe(setupSidebarControls);
 })();
