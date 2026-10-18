@@ -3,6 +3,8 @@
   const previewLines = 14;
 
   const setupCodeFolds = () => {
+    if (document.querySelector('meta[name="notebook-code-fold"][content="false"]')) return;
+
     document.querySelectorAll(".md-content .highlight").forEach((block) => {
       if (block.closest(".gemm-translation")) return;
       if (block.dataset.codeFoldReady === "true") return;

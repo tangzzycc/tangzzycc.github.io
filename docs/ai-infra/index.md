@@ -18,7 +18,7 @@ hide:
 ## vLLM 执行机制
 
 - [vLLM Multi-LoRA 推理](vLLM Multi-LoRA推理.md)：LoRA 权重管理、请求与 adapter 的映射，以及 Shrink / Expand 算子的执行过程。
-- [vLLM Model Runner V2 架构](<vLLM Model Runner V2 架构.md>)：Persistent Batch 解耦，待完善。
+- [vLLM Model Runner V2 架构](<vLLM Model Runner V2 架构.md>)：Persistent Batch 解耦、RequestState、异步调度与投机解码。
 
 ## GPU 算子优化
 

@@ -901,7 +901,7 @@ def write_readme(out, figures, scale):
 - 修改 `scripts/reproduce_parallel_diagrams.py` 的 `tp_figure` / `pp_figure` 等函数，可批量再生成。
 - 高清 PNG 每张宽度 `{round(W * scale)}` 像素，与 vLLM 笔记的 3840px 宽图采用相同默认规格；SVG 逻辑宽度 1100，放大不失真。
 - [策略索引](../../../ai-infra/推理并行策略.md)只保留七个策略标题与流程图链接；七张完整 PNG 集中在本目录，由 `viewer.html?image=文件名.png` 显示，支持缩放滑块、百分比输入、适应宽度及 100% 原始尺寸。
-- 局部图按完整流程块切分，上下边缘移除外部残余箭头；保留块内以及多块之间的连线。PNG 宽度与完整图相同，另提供可编辑的 SVG。
+- 默认只生成当前笔记使用的完整图。需要局部图时可加 `--details`，按完整流程块切分并移除上下边缘的外部残余箭头，同时输出 PNG 与可编辑的 SVG。
 - 策略索引使用普通 Markdown 链接进入单图查看页；查看页也可直接打开原始 PNG。
 - [contact-sheet.png](contact-sheet.png) 供快速浏览整体结构，详细文字请看单张图。
 
@@ -951,7 +951,7 @@ python3 -m http.server 8765 --directory docs/assets/vllm/parallelism
 
 生成时检查文本/图形画布边界、SVG XML 能否解析，以及每个 PNG 的尺寸。
 本次交付另用 Chromium 检查了 7 张 SVG：中文内嵌字体加载成功，文字无越界或互相重叠，图底参考小字已删除。
-策略索引提供 7 张完整 PNG 的缩放查看链接；22 张局部图保留为图稿资产。
+策略索引提供 7 张完整 PNG 的缩放查看链接；局部图仅在显式指定 `--details` 时生成。
 这验证的是本地资产的完整性与可读性，不是对原文所有框架实现断言的验证。
 '''
     (out / "README.md").write_text(content)
@@ -1057,6 +1057,7 @@ def main():
     parser.add_argument("--png-width", type=int, default=3840, help="Full PNG width in pixels (default: 3840)")
     parser.add_argument("--scale", type=float, default=None, help="Override --png-width with an explicit SVG-to-PNG scale")
     parser.add_argument("--svg-only", action="store_true")
+    parser.add_argument("--details", action="store_true", help="Also generate optional cropped diagrams")
     args = parser.parse_args()
     scale = args.scale if args.scale is not None else args.png_width / W
     if scale <= 0:
@@ -1097,7 +1098,8 @@ def main():
     write_readme(args.out, figures, scale)
     if not args.svg_only:
         contact_sheet(args.out, figures)
-        write_details(args.out, figures)
+        if args.details:
+            write_details(args.out, figures)
     print(f"Gallery: {args.out / 'gallery.html'}")
 
 

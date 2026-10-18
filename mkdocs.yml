@@ -27,6 +27,7 @@ nav:
           - vLLM Multi-LoRA 推理: ai-infra/vLLM Multi-LoRA推理.md
           - vLLM Model Runner V2 架构: ai-infra/vLLM Model Runner V2 架构.md
       - GPU 算子优化:
+          - FlashAttention v1 & v2 浅析: ai-infra/FlashAttention.md
           - CUDA 矩阵乘法优化：从 Naive 到 cuBLAS: ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md
   - 搬运:
       - 基础篇:
@@ -52,7 +53,9 @@ nav:
           - Decode Attention：Paged KV、GQA 与 Split-KV: vllm/进阶篇/Decode Attention：Paged KV、GQA与Split-KV.md
           - MLA：低秩压缩、矩阵吸收与解耦 RoPE: vllm/进阶篇/MLA：低秩压缩、矩阵吸收与解耦RoPE.md
           - 稀疏 Attention：选择性访问与高效计算: vllm/进阶篇/稀疏Attention：选择性访问与高效计算.md
-  - HandCoding: handcoding/index.md
+  - HandCoding: 
+      - handcoding/index.md
+      - hot100整理: handcoding/hot100.md
   - 生活:
       - life/index.md
       - 求职与面试准备:

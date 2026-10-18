@@ -4,6 +4,9 @@
 {% block extrahead %}
   {{ super() }}
   <meta name="robots" content="noindex">
+  {% if page and page.meta.code_fold is sameas false %}
+    <meta name="notebook-code-fold" content="false">
+  {% endif %}
 {% endblock %}
 
 {# 模块导航已并入页头，移除原来的第二行标签栏。 #}

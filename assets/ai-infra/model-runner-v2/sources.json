@@ -1,0 +1,127 @@
+[
+  {
+    "file": "mrv1-persistent-batch-official.png",
+    "article": "2026972440136364694",
+    "articleFigure": 1,
+    "reference": "https://pica.zhimg.com/v2-c4335a6bafac52f6100a30e91f880d4c_r.jpg",
+    "source": "https://docs.google.com/document/d/1gFqtDkcoqhy9j-X0ndshzbhapX1uNey1-wBENwGPI80/edit",
+    "method": "从官方设计文档的原始内嵌 PNG 获取",
+    "caption": "持久化Batch中的块表会在step内的读写示意图（图源于MRV2设计文档）"
+  },
+  {
+    "file": "mrv2-persistent-batch-official.png",
+    "article": "2026972440136364694",
+    "articleFigure": 2,
+    "reference": "https://pic3.zhimg.com/v2-4fdeabf2036a50f74bdfcb80cbea4edc_r.jpg",
+    "source": "https://docs.google.com/document/d/1gFqtDkcoqhy9j-X0ndshzbhapX1uNey1-wBENwGPI80/edit",
+    "method": "从官方设计文档的原始内嵌 PNG 获取",
+    "caption": "MRV2 对块表的处理逻辑示意（图源于MRV2设计文档）"
+  },
+  {
+    "file": "mrv2-request-state-token-lifecycle.svg",
+    "article": "2029259106964312840",
+    "articleFigure": 1,
+    "reference": "https://pic1.zhimg.com/v2-35bb0fed007de552c99eadac074369fc_r.jpg",
+    "source": "https://zhuanlan.zhihu.com/p/2029259106964312840",
+    "method": "按原文配图的布局、文字和连接关系重绘 SVG",
+    "caption": "all_token_ids与last_sampled_tokens 数据交换示意图"
+  },
+  {
+    "file": "mrv1-async-scheduling-official.png",
+    "article": "2030424969511949643",
+    "articleFigure": 1,
+    "reference": "https://pic4.zhimg.com/v2-b949e72ac8aca3d3f14527861564c40d_r.jpg",
+    "source": "https://docs.google.com/document/d/1gFqtDkcoqhy9j-X0ndshzbhapX1uNey1-wBENwGPI80/edit",
+    "method": "从官方设计文档的原始内嵌 PNG 获取",
+    "caption": ""
+  },
+  {
+    "file": "mrv1-async-input-race-official.png",
+    "article": "2030424969511949643",
+    "articleFigure": 2,
+    "reference": "https://picx.zhimg.com/v2-aeb45a55b900482a6b6993348647d519_r.jpg",
+    "source": "https://docs.google.com/document/d/1gFqtDkcoqhy9j-X0ndshzbhapX1uNey1-wBENwGPI80/edit",
+    "method": "从官方设计文档的原始内嵌 PNG 获取",
+    "caption": ""
+  },
+  {
+    "file": "mrv1-synchronous-cpu-gpu-timeline.svg",
+    "article": "2030424969511949643",
+    "articleFigure": 3,
+    "reference": "https://pic1.zhimg.com/v2-820665a82fa9168bee293017d655e6e0_r.jpg",
+    "source": "https://zhuanlan.zhihu.com/p/2030424969511949643",
+    "method": "按原文配图的布局、文字和连接关系重绘 SVG",
+    "caption": "非异步调度时的CPU/GPU行为示意图",
+    "provenanceNote": "原文未标明原始出处；核查 MRV2 官方博客、官方设计文档、V1 发布博客及 v0.6.0 性能博客后未找到相同图，按所提供原文配图重绘。"
+  },
+  {
+    "file": "mrv2-throughput-comparison-official.png",
+    "article": "2030424969511949643",
+    "articleFigure": 4,
+    "reference": "https://pica.zhimg.com/v2-53986a3d8d8b7763852201903d0cb9c2_r.jpg",
+    "source": "https://vllm.ai/blog/2026-03-24-mrv2",
+    "method": "从官方博客原始 PNG 获取",
+    "caption": "图 5：MRV1 与 MRV2 在 Qwen3-0.6B × 1×GB200 上的吞吐对比。MRV2 达到 25K output tok/s，相比 MRV1 的 16K 提升 56.2%。",
+    "originalAsset": "https://vllm.ai/blog-assets/figures/2026-03-24-mrv2/throughput_comparison.png"
+  },
+  {
+    "file": "mrv2-async-spec-decoding-official.png",
+    "article": "2030424969511949643",
+    "articleFigure": 5,
+    "reference": "https://pic4.zhimg.com/v2-792741d50760beea009e8763859609c3_r.jpg",
+    "source": "https://vllm.ai/blog/2026-03-24-mrv2",
+    "method": "从官方博客原始 PNG 获取",
+    "caption": "",
+    "originalAsset": "https://vllm.ai/blog-assets/figures/2026-03-24-mrv2/async_spec_decoding.png"
+  },
+  {
+    "file": "mrv2-async-output-d2h-lifecycle.svg",
+    "article": "2030424969511949643",
+    "articleFigure": 6,
+    "reference": "https://pic1.zhimg.com/v2-ea5e4ee5265a78e1f94332d34eafbd66_r.jpg",
+    "source": "https://zhuanlan.zhihu.com/p/2030424969511949643",
+    "method": "按原文配图的布局、文字和连接关系重绘 SVG",
+    "caption": "异步D2H与Synchronize示意图，Step之间不存在任何CPU同步点，拷贝完成的事件会由ModelExecutor 等待"
+  },
+  {
+    "file": "mrv2-output-placeholder-updates.svg",
+    "article": "2030424969511949643",
+    "articleFigure": 7,
+    "reference": "https://pic3.zhimg.com/v2-918068b9fab79d9b2125057da53150f2_r.jpg",
+    "source": "https://zhuanlan.zhihu.com/p/2030424969511949643",
+    "method": "按原文配图的布局、文字和连接关系重绘 SVG",
+    "caption": "num_output_placeholders 变化示意图"
+  },
+  {
+    "file": "spec-decoding-draft-verify-accept-official.png",
+    "article": "2036841149600621958",
+    "articleFigure": 1,
+    "reference": "https://pic2.zhimg.com/v2-a7eb0d35720bf193e1547e7205fe25df_r.jpg",
+    "source": "https://vllm.ai/blog/2024-10-17-spec-decode",
+    "method": "从官方博客原始 PNG 获取",
+    "caption": "Speculative Decoding 的核心循环",
+    "originalAsset": "https://vllm.ai/blog-assets/figures/spec-decode/figure1.png"
+  },
+  {
+    "file": "mrv2-spec-decoding-components.svg",
+    "article": "2036841149600621958",
+    "articleFigure": 2,
+    "reference": "https://pic3.zhimg.com/v2-db4698c74aa5f4624b737d8a61d1912a_r.jpg",
+    "source": "https://zhuanlan.zhihu.com/p/2036841149600621958",
+    "method": "按原文配图的布局、文字和连接关系重绘 SVG",
+    "caption": "投机解码中各组件作用"
+  },
+  {
+    "file": "spec-decoding-clover-figure3.svg",
+    "article": "2036841149600621958",
+    "articleFigure": 3,
+    "reference": "https://pic3.zhimg.com/v2-324030ed0f4b26c0c236ffb07aed14ce_r.jpg",
+    "source": "https://arxiv.org/html/2405.00263v1#S2.F3",
+    "method": "使用论文 Figure 3 的原始 SVG 面板合并，保留原始矢量元素",
+    "caption": "",
+    "originalAssets": [
+      "https://arxiv.org/html/2405.00263v1/ar-decoding.svg",
+      "https://arxiv.org/html/2405.00263v1/sp-decoding.svg"
+    ]
+  }
+]
