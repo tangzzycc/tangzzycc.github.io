@@ -1,8 +1,8 @@
 ---
-title: "项目与开源贡献"
+title: "项目经历"
 ---
 
-# 项目与开源贡献
+# 项目经历
 
 围绕简历项目准备可展开的回答：先说明触发问题与个人工作，再解释实现、取舍和验证。性能数字对应具体模型、设备、负载与基线，按各项目的证据归档核对。
 
@@ -11,11 +11,12 @@ title: "项目与开源贡献"
 | vLLM ROCm 模型适配与优化 | CogAgent 接入、量化推理、LoRA 算子与优先级调度 | [面试问答](vllm-rocm/面试问题与回答.md) · [项目导航](vllm-rocm/index.md) |
 | vLLM P/D 解耦与调度优化 | RAPID-Serve、V1/MRV2、资源共享与性能取舍 | [面试问答](vllm-pd/面试问题与回答.md) · [项目导航](vllm-pd/index.md) |
 | Adaptive KV Offload | 分层缓存、重算成本、异步生命周期 | [项目导航](vllm-adaptive-kv/index.md) |
-| 开源贡献 | vLLM、FlashRT、FlyDSL 的 PR 与连续追问 | [vLLM 面试问答](open-source/vLLM-面试问题与回答.md) · [FlashRT 面试问答](open-source/FlashRT-面试问题与回答.md) · [贡献导航](open-source/index.md) |
+
+开发实现与 PR 贡献单独见[开发实践导航](../development/index.md)。
 
 ## 从基础知识进入项目案例
 
-- **GEMM 与硬件布局：** [FlashRT PR](open-source/FlashRT-PR.md)、[FlyDSL PR](open-source/FlyDSL-PR.md)。
+- **GEMM 与硬件布局：** [FlashRT PR](../development/flashrt/FlashRT-PR.md)、[FlyDSL PR](../development/flydsl/FlyDSL-PR.md)。
 - **模型适配、量化与 LoRA：** [ROCm 实现](vllm-rocm/01-CogAgent模型接入与量化推理.md)、[LoRA 算子](vllm-rocm/02-LoRA算子与优先级调度.md)。
 - **调度、KV 与异步执行：** [P/D 实现](vllm-pd/02-V1-MRV2实现与设计取舍.md)、[Adaptive KV 实现](vllm-adaptive-kv/02-调度接入与异步生命周期.md)。
 

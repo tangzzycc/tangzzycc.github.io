@@ -7,9 +7,8 @@ use_directory_urls: true
 watch:
   - assets
 
-# 旧 PR 索引与重复的 FlashRT Kernel 笔记保留在源码中，不再发布。
-exclude_docs: |
-  /open-source/
+hooks:
+  - scripts/gemm_translation_toc.py
 
 validation:
   links:
@@ -21,10 +20,15 @@ nav:
   - Tang's Notebook: index.md
   - AI Infra:
       - 学习索引: ai-infra/index.md
-      - 推理并行策略: ai-infra/推理并行策略.md
-      - 完整流程图附件: ai-infra/推理并行策略-完整流程图.md
-  - vLLM 笔记:
-      - vllm/index.md
+      - 推理架构与并行:
+          - PD 分离推理架构详解: ai-infra/PD分离推理架构详解.md
+          - 推理并行策略: ai-infra/推理并行策略.md
+      - vLLM 执行机制:
+          - vLLM Multi-LoRA 推理: ai-infra/vLLM Multi-LoRA推理.md
+          - vLLM Model Runner V2 架构: ai-infra/vLLM Model Runner V2 架构.md
+      - GPU 算子优化:
+          - CUDA 矩阵乘法优化：从 Naive 到 cuBLAS: ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md
+  - 搬运:
       - 基础篇:
           - vLLM V1 整体架构: vllm/基础篇/vLLM V1整体架构.md
           - 请求的数据形态：从 Client 到 GPU: vllm/基础篇/请求的数据形态：从Client到GPU.md
@@ -48,63 +52,7 @@ nav:
           - Decode Attention：Paged KV、GQA 与 Split-KV: vllm/进阶篇/Decode Attention：Paged KV、GQA与Split-KV.md
           - MLA：低秩压缩、矩阵吸收与解耦 RoPE: vllm/进阶篇/MLA：低秩压缩、矩阵吸收与解耦RoPE.md
           - 稀疏 Attention：选择性访问与高效计算: vllm/进阶篇/稀疏Attention：选择性访问与高效计算.md
-      - 开发实践:
-          - CogAgent-18B 模型接入与推理优化: vllm/开发实践/CogAgent-18B在vLLM中的模型接入与推理优化.md
-          - RDNA 3.5 上的 vLLM LoRA Kernel 优化: vllm/开发实践/RDNA3.5上的vLLM-LoRA-Kernel优化.md
-          - 单输出 GEMM 与 Shared Expert 门控的 ROCm 优化: vllm/开发实践/单输出GEMM与Shared-Expert门控的ROCm优化.md
-          - RDNA W4A16 的形状分发与 LDS 边界: vllm/开发实践/RDNA-W4A16的形状分发与LDS边界.md
-          - GPTQ 权重加载与 RDNA INT4 布局重排: vllm/开发实践/GPTQ权重加载与RDNA-INT4布局重排.md
-          - Channelwise GPTQ MoE 的加载与 Triton 执行: vllm/开发实践/Channelwise-GPTQ-MoE的加载与Triton执行.md
-          - ROCm Attention 滑动窗口的参数与边界: vllm/开发实践/ROCm-Attention滑动窗口的参数与边界.md
-          - 多模态 Prefix-LM 在 ROCm Attention 中的实现: vllm/开发实践/多模态Prefix-LM在ROCm-Attention中的实现.md
-          - MRV2 投机解码中的 ShortConv 历史恢复: vllm/开发实践/MRV2投机解码中的ShortConv历史恢复.md
-          - MRV2 的 PIECEWISE 填充与投机解码启动 Profiling: vllm/开发实践/MRV2的PIECEWISE填充与投机解码启动Profiling.md
-      - 杂记:
-          - vLLM Multi-LoRA 推理: vllm/杂记/vLLM Multi-LoRA推理.md
-  - GPU Kernel:
-      - 学习索引: gpu-kernel/index.md
-      - FlashRT RDNA 3.5:
-          - 学习路径: gpu-kernel/flashrt-rdna35/index.md
-          - 00 · AMD GPU 硬件模型与术语: gpu-kernel/flashrt-rdna35/00-AMD-GPU硬件模型与术语.md
-          - Frontend 与 Pipeline: gpu-kernel/flashrt-rdna35/01-Pi05-Frontend与Pipeline.md
-          - Pi0.5 模型结构与推理流程: gpu-kernel/flashrt-rdna35/02-Pi05模型结构与推理流程.md
-          - 01 · HIP 执行模型与 Wave32 归约: gpu-kernel/flashrt-rdna35/01-HIP执行模型与Wave32归约.md
-          - 02 · Activation 与 Residual Kernel: gpu-kernel/flashrt-rdna35/02-Activation与Residual-Kernel.md
-          - 03 · Normalization Kernel: gpu-kernel/flashrt-rdna35/03-Normalization-Kernel.md
-          - 04 · QKV Split 与 RoPE Kernel: gpu-kernel/flashrt-rdna35/04-QKV-Split与RoPE-Kernel.md
-          - 05 · Encoder FlashAttention Kernel: gpu-kernel/flashrt-rdna35/05-Encoder-FlashAttention-Kernel.md
-          - 06 · Decoder GQA Kernel: gpu-kernel/flashrt-rdna35/06-Decoder-GQA-Kernel.md
-          - 07 · Small-M WMMA GEMM Kernel: gpu-kernel/flashrt-rdna35/07-SmallM-WMMA-GEMM-Kernel.md
-          - Temporal K/V 跨帧复用: gpu-kernel/flashrt-rdna35/06-Temporal-KV跨帧复用.md
-      - FlyDSL:
-          - 学习路径: gpu-kernel/flydsl/index.md
-          - 01 · FlyDSL 编程模型与编译流程: gpu-kernel/flydsl/01-FlyDSL编程模型与编译流程.md
-          - 02 · Layout 代数与 Tile 编程: gpu-kernel/flydsl/02-Layout代数与Tile编程.md
-          - 03 · FlyDSL — 一次源码精读: gpu-kernel/flydsl/03-四个示例读懂FlyDSL.md
-          - "PR #1057 · RDNA3 GEMM Tile Policy": gpu-kernel/flydsl/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
-          - "PR #1113 · Fused RoPE Head-Dim 96": gpu-kernel/flydsl/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
-      - GEMM CUDA Core 优化: gpu-kernel/GEMM-CUDA-Core优化.md
-  - HandCoding:
-      - handcoding/index.md
-      - LeetGPU 练习:
-          - 题目索引: handcoding/leetgpu/index.md
-          - Vector Addition：向量加法: handcoding/leetgpu/001-vector-add.md
-          - Matrix Multiplication：矩阵乘法: handcoding/leetgpu/002-matrix-multiplication.md
-          - Matrix Transpose：矩阵转置: handcoding/leetgpu/003-matrix-transpose.md
-          - Reduction：求和归约: handcoding/leetgpu/004-reduction.md
-          - Softmax: handcoding/leetgpu/005-softmax.md
-          - Softmax Attention: handcoding/leetgpu/006-softmax-attention.md
-          - Prefix Sum：前缀和: handcoding/leetgpu/016-prefix-sum.md
-          - General Matrix Multiplication (GEMM)：通用矩阵乘法: handcoding/leetgpu/022-gemm.md
-          - Top K Selection：Top-K 选择: handcoding/leetgpu/029-top-k-selection.md
-          - INT8 Quantized MatMul：INT8 量化矩阵乘法: handcoding/leetgpu/032-int8-quantized-matmul.md
-          - Causal Self-Attention：因果自注意力: handcoding/leetgpu/053-causal-self-attention.md
-          - Rotary Positional Embedding：旋转位置编码: handcoding/leetgpu/061-rope-embedding.md
-          - Weight Dequantization：权重反量化: handcoding/leetgpu/064-weight-dequantization.md
-          - INT4 Weight-Only Quantized MatMul：W4A16 量化矩阵乘法: handcoding/leetgpu/081-int4-matmul.md
-          - Fused Residual Add and RMS Norm: handcoding/leetgpu/083-fused-residual-add-rms-norm.md
-          - Layer Normalization：层归一化: handcoding/leetgpu/113-layer-normalization.md
-  - 开源 PR 追踪: pr-tracking/index.md
+  - HandCoding: handcoding/index.md
   - 生活:
       - life/index.md
       - 求职与面试准备:
@@ -161,7 +109,7 @@ nav:
                       - MoE 与路由: life/career/fundamentals/models/analysis/02-MoE与路由.md
                       - 稀疏、压缩与线性 Attention: life/career/fundamentals/models/analysis/03-稀疏压缩与线性Attention.md
                       - MTP 与半自回归: life/career/fundamentals/models/analysis/04-MTP与半自回归.md
-          - 项目与开源贡献:
+          - 项目经历:
               - life/career/projects/index.md
               - vLLM ROCm 模型适配与优化:
                   - life/career/projects/vllm-rocm/index.md
@@ -180,14 +128,50 @@ nav:
                   - KV 分层缓存与重算成本: life/career/projects/vllm-adaptive-kv/01-KV分层缓存与重算成本.md
                   - 调度接入与异步生命周期: life/career/projects/vllm-adaptive-kv/02-调度接入与异步生命周期.md
                   - 性能证据与面试问答: life/career/projects/vllm-adaptive-kv/03-性能证据与面试问答.md
-              - 开源贡献:
-                  - life/career/projects/open-source/index.md
-                  - vLLM 面试问题与回答: life/career/projects/open-source/vLLM-面试问题与回答.md
-                  - vLLM PR: life/career/projects/open-source/vLLM-PR.md
-                  - FlashRT 面试问题与回答: life/career/projects/open-source/FlashRT-面试问题与回答.md
-                  - FlashRT PR: life/career/projects/open-source/FlashRT-PR.md
-                  - FlyDSL PR: life/career/projects/open-source/FlyDSL-PR.md
-                  - FlyDSL RoPE 修复口述: life/career/projects/open-source/FlyDSL-RoPE修复.md
+          - 开发实践与贡献:
+              - life/career/development/index.md
+              - vLLM:
+                  - life/career/development/vllm/index.md
+                  - 面试问题与回答: life/career/development/vllm/vLLM-面试问题与回答.md
+                  - PR 材料: life/career/development/vllm/vLLM-PR.md
+                  - CogAgent-18B 模型接入与推理优化: life/career/development/vllm/CogAgent-18B在vLLM中的模型接入与推理优化.md
+                  - RDNA 3.5 上的 vLLM LoRA Kernel 优化: life/career/development/vllm/RDNA3.5上的vLLM-LoRA-Kernel优化.md
+                  - 单输出 GEMM 与 Shared Expert 门控的 ROCm 优化: life/career/development/vllm/单输出GEMM与Shared-Expert门控的ROCm优化.md
+                  - RDNA W4A16 的形状分发与 LDS 边界: life/career/development/vllm/RDNA-W4A16的形状分发与LDS边界.md
+                  - GPTQ 权重加载与 RDNA INT4 布局重排: life/career/development/vllm/GPTQ权重加载与RDNA-INT4布局重排.md
+                  - Channelwise GPTQ MoE 的加载与 Triton 执行: life/career/development/vllm/Channelwise-GPTQ-MoE的加载与Triton执行.md
+                  - ROCm Attention 滑动窗口的参数与边界: life/career/development/vllm/ROCm-Attention滑动窗口的参数与边界.md
+                  - 多模态 Prefix-LM 在 ROCm Attention 中的实现: life/career/development/vllm/多模态Prefix-LM在ROCm-Attention中的实现.md
+                  - MRV2 投机解码中的 ShortConv 历史恢复: life/career/development/vllm/MRV2投机解码中的ShortConv历史恢复.md
+                  - MRV2 的 PIECEWISE 填充与投机解码启动 Profiling: life/career/development/vllm/MRV2的PIECEWISE填充与投机解码启动Profiling.md
+              - FlashRT:
+                  - life/career/development/flashrt/index.md
+                  - 面试问题与回答: life/career/development/flashrt/FlashRT-面试问题与回答.md
+                  - PR 材料: life/career/development/flashrt/FlashRT-PR.md
+                  - FlashRT RDNA 3.5:
+                      - 学习路径: life/career/development/flashrt/rdna35/index.md
+                      - 00 · AMD GPU 硬件模型与术语: life/career/development/flashrt/rdna35/00-AMD-GPU硬件模型与术语.md
+                      - Frontend 与 Pipeline: life/career/development/flashrt/rdna35/01-Pi05-Frontend与Pipeline.md
+                      - Pi0.5 模型结构与推理流程: life/career/development/flashrt/rdna35/02-Pi05模型结构与推理流程.md
+                      - 01 · HIP 执行模型与 Wave32 归约: life/career/development/flashrt/rdna35/01-HIP执行模型与Wave32归约.md
+                      - 02 · Activation 与 Residual Kernel: life/career/development/flashrt/rdna35/02-Activation与Residual-Kernel.md
+                      - 03 · Normalization Kernel: life/career/development/flashrt/rdna35/03-Normalization-Kernel.md
+                      - 04 · QKV Split 与 RoPE Kernel: life/career/development/flashrt/rdna35/04-QKV-Split与RoPE-Kernel.md
+                      - 05 · Encoder FlashAttention Kernel: life/career/development/flashrt/rdna35/05-Encoder-FlashAttention-Kernel.md
+                      - 06 · Decoder GQA Kernel: life/career/development/flashrt/rdna35/06-Decoder-GQA-Kernel.md
+                      - 07 · Small-M WMMA GEMM Kernel: life/career/development/flashrt/rdna35/07-SmallM-WMMA-GEMM-Kernel.md
+                      - Temporal K/V 跨帧复用: life/career/development/flashrt/rdna35/06-Temporal-KV跨帧复用.md
+              - FlyDSL:
+                  - life/career/development/flydsl/index.md
+                  - PR 材料: life/career/development/flydsl/FlyDSL-PR.md
+                  - RoPE 修复口述: life/career/development/flydsl/FlyDSL-RoPE修复.md
+                  - 源码笔记:
+                      - 学习路径: life/career/development/flydsl/notes/index.md
+                      - 01 · FlyDSL 编程模型与编译流程: life/career/development/flydsl/notes/01-FlyDSL编程模型与编译流程.md
+                      - 02 · Layout 代数与 Tile 编程: life/career/development/flydsl/notes/02-Layout代数与Tile编程.md
+                      - 03 · FlyDSL — 一次源码精读: life/career/development/flydsl/notes/03-四个示例读懂FlyDSL.md
+                      - "PR #1057 · RDNA3 GEMM Tile Policy": life/career/development/flydsl/notes/FlyDSL-1057-RDNA3-GEMM-Tile-Policy.md
+                      - "PR #1113 · Fused RoPE Head-Dim 96": life/career/development/flydsl/notes/FlyDSL-1113-Fused-RoPE-Head-Dim-96.md
           - 简历与项目材料: life/career/resume/index.md
           - 秋招进度: life/career/applications/index.md
 
@@ -259,12 +243,12 @@ plugins:
       separator: '[\\s\\u200b\\-]'
 
 extra_css:
-  - stylesheets/extra.css?v=18
-  - stylesheets/pr-tracking.css?v=4
+  - stylesheets/extra.css?v=19
   - stylesheets/notebook-theme.css?v=4
   - stylesheets/home.css?v=3
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
+  - stylesheets/gemm-translation.css?v=2
 
 extra_javascript:
   - javascripts/header-search.js

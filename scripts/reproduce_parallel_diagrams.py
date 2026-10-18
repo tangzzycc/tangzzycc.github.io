@@ -900,9 +900,9 @@ def write_readme(out, figures, scale):
 - SVG 中的文本、矩阵、框、箭头是独立元素，中文字体经过子集化后内嵌，无外部网络依赖。
 - 修改 `scripts/reproduce_parallel_diagrams.py` 的 `tp_figure` / `pp_figure` 等函数，可批量再生成。
 - 高清 PNG 每张宽度 `{round(W * scale)}` 像素，与 vLLM 笔记的 3840px 宽图采用相同默认规格；SVG 逻辑宽度 1100，放大不失真。
-- 正文单栏阅读，`details/` 的 22 张局部图放在对应机制段落；[完整流程图附件](../../../ai-infra/推理并行策略-完整流程图.md)只收七张长图。
+- [策略索引](../../../ai-infra/推理并行策略.md)只保留七个策略标题与流程图链接；七张完整 PNG 集中在本目录，由 `viewer.html?image=文件名.png` 显示，支持缩放滑块、百分比输入、适应宽度及 100% 原始尺寸。
 - 局部图按完整流程块切分，上下边缘移除外部残余箭头；保留块内以及多块之间的连线。PNG 宽度与完整图相同，另提供可编辑的 SVG。
-- 正文与附件均使用普通 Markdown 图片，沿用 vLLM 笔记的页面排版，没有专用工具栏或全屏弹窗。
+- 策略索引使用普通 Markdown 链接进入单图查看页；查看页也可直接打开原始 PNG。
 - [contact-sheet.png](contact-sheet.png) 供快速浏览整体结构，详细文字请看单张图。
 
 | 策略 | SVG | PNG | SVG 尺寸 |
@@ -951,7 +951,7 @@ python3 -m http.server 8765 --directory docs/assets/vllm/parallelism
 
 生成时检查文本/图形画布边界、SVG XML 能否解析，以及每个 PNG 的尺寸。
 本次交付另用 Chromium 检查了 7 张 SVG：中文内嵌字体加载成功，文字无越界或互相重叠，图底参考小字已删除。
-正文使用 22 张局部图，附件保留 7 张完整图；两页使用普通 Markdown 图片，与 vLLM 笔记一致。
+策略索引提供 7 张完整 PNG 的缩放查看链接；22 张局部图保留为图稿资产。
 这验证的是本地资产的完整性与可读性，不是对原文所有框架实现断言的验证。
 '''
     (out / "README.md").write_text(content)
@@ -1091,6 +1091,9 @@ def main():
         print(f"{fig.slug}: SVG {W}×{fig.height}" + ("" if args.svg_only else f"; PNG {pw}×{ph}"))
     (args.out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     write_gallery(args.out, figures)
+    viewer = ROOT / "assets/vllm/parallelism/viewer.html"
+    if args.out.resolve() != viewer.parent.resolve():
+        (args.out / viewer.name).write_text(viewer.read_text())
     write_readme(args.out, figures, scale)
     if not args.svg_only:
         contact_sheet(args.out, figures)

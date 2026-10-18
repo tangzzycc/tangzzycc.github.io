@@ -12,7 +12,7 @@ title: "简历与项目材料"
 | ROCm 模型适配、量化与 LoRA | [vLLM ROCm 项目](../projects/vllm-rocm/index.md) |
 | P/D 解耦与调度优化 | [vLLM P/D 项目](../projects/vllm-pd/index.md) |
 | Adaptive KV Offload | [KV 项目](../projects/vllm-adaptive-kv/index.md) |
-| vLLM、FlashRT、FlyDSL 开源贡献 | [PR 面试材料](../projects/open-source/index.md) |
+| vLLM、FlashRT、FlyDSL 开源贡献 | [开发实践与 PR 材料](../development/index.md) |
 
 项目下的性能证据页用于核对模型、设备、负载、基线与收益口径。
 

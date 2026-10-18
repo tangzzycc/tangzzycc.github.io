@@ -4,6 +4,7 @@
 
   const setupCodeFolds = () => {
     document.querySelectorAll(".md-content .highlight").forEach((block) => {
+      if (block.closest(".gemm-translation")) return;
       if (block.dataset.codeFoldReady === "true") return;
 
       const code = block.querySelector(":scope > pre > code");

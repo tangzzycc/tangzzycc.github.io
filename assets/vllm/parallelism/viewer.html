@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>完整流程图</title>
+  <style>
+    @font-face { font-family: Notebook; src: url("../../fonts/LXGWWenKaiGBScreen.ttf") format("truetype"); font-display: swap; }
+    :root { color-scheme: dark; font-family: Notebook, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: #191b2d; color: #e3e7f1; }
+    header { flex: none; padding: 12px 16px; background: #111423; border-bottom: 1px solid #35415c; }
+    .heading, .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .heading { margin-bottom: 12px; }
+    h1 { margin: 0; font-size: 17px; font-weight: 600; }
+    a { color: #86c4ff; text-underline-offset: 3px; }
+    .back { margin-right: auto; font-size: 14px; }
+    button, input { font: inherit; }
+    button { padding: 6px 12px; border: 1px solid #556482; border-radius: 6px; background: #252b41; color: inherit; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    :focus-visible { outline: 2px solid #86c4ff; outline-offset: 3px; }
+    label { display: flex; align-items: center; gap: 6px; }
+    input[type="range"] { width: clamp(100px, 18vw, 240px); accent-color: #86c4ff; }
+    input[type="number"] { width: 66px; padding: 6px; background: #191b2d; border: 1px solid #556482; border-radius: 6px; color: inherit; }
+    .original { font-size: 14px; margin-left: auto; }
+    #viewport { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+    #stage { position: relative; min-width: 100%; min-height: 100%; width: max-content; padding: 16px; }
+    #diagram { display: block; max-width: none; height: auto; margin: 0 auto; }
+    #status { text-align: center; padding: 24px; color: #adb8d2; }
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) {
+      header { padding: 10px 12px; }
+      .controls { gap: 8px; }
+      button { padding: 6px 10px; }
+      .original { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="heading">
+      <a class="back" href="../../../ai-infra/推理并行策略/">← 返回策略列表</a>
+      <h1 id="title">完整流程图</h1>
+    </div>
+    <div class="controls" role="group" aria-label="图片缩放">
+      <button id="smaller" type="button" aria-label="缩小图片" disabled>−</button>
+      <button id="larger" type="button" aria-label="放大图片" disabled>+</button>
+      <input id="slider" type="range" min="1" max="200" step="1" value="100" aria-label="缩放比例" disabled>
+      <label><input id="percent" type="number" min="1" max="200" step="1" value="100" aria-label="缩放百分比" disabled> %</label>
+      <button id="fit" type="button" disabled>适应宽度</button>
+      <button id="actual" type="button" disabled>100%</button>
+      <a id="original" class="original" hidden>打开原始 PNG</a>
+    </div>
+  </header>
+  <main id="viewport" tabindex="0" aria-label="流程图，可滚动查看">
+    <p id="status" role="status">正在加载流程图…</p>
+    <div id="stage" hidden><img id="diagram" alt="完整流程图" draggable="false"></div>
+  </main>
+  <script>
+    const diagrams = {
+      "01-tp.png": "TP · 张量并行",
+      "02-pp.png": "PP · 流水线并行",
+      "03-dp.png": "DP · 数据并行",
+      "04-ep.png": "EP · 专家并行",
+      "05-dp-attention.png": "DP Attention",
+      "06-sp.png": "SP · 序列并行",
+      "07-cp.png": "CP · 上下文并行"
+    };
+    const file = new URLSearchParams(location.search).get("image");
+    const image = document.querySelector("#diagram");
+    const viewport = document.querySelector("#viewport");
+    const stage = document.querySelector("#stage");
+    const status = document.querySelector("#status");
+    const slider = document.querySelector("#slider");
+    const percent = document.querySelector("#percent");
+    const controls = document.querySelectorAll("button, input");
+    let scale = 100;
+    let fitted = true;
+
+    function resize(value, keepCenter = true) {
+      if (!image.naturalWidth || !Number.isFinite(value)) return;
+      const next = Math.max(1, Math.min(200, Math.round(value)));
+      const oldScale = scale;
+      const centerX = viewport.scrollLeft + viewport.clientWidth / 2 - image.offsetLeft;
+      const centerY = viewport.scrollTop + viewport.clientHeight / 2 - image.offsetTop;
+      scale = next;
+      image.style.width = `${image.naturalWidth * scale / 100}px`;
+      slider.value = percent.value = scale;
+      if (keepCenter) {
+        viewport.scrollLeft = image.offsetLeft + centerX * scale / oldScale - viewport.clientWidth / 2;
+        viewport.scrollTop = image.offsetTop + centerY * scale / oldScale - viewport.clientHeight / 2;
+      }
+      document.querySelector("#smaller").disabled = scale === 1;
+      document.querySelector("#larger").disabled = scale === 200;
+    }
+
+    function fit() {
+      fitted = true;
+      // Floor so the fitted image, including its padding, stays inside the viewport.
+      resize(Math.floor((viewport.clientWidth - 32) / image.naturalWidth * 100), false);
+      viewport.scrollLeft = 0;
+    }
+
+    function zoom(value) {
+      fitted = false;
+      resize(value);
+    }
+
+    slider.addEventListener("input", () => zoom(Number(slider.value)));
+    percent.addEventListener("change", () => {
+      if (percent.value === "") percent.value = scale;
+      else zoom(Number(percent.value));
+    });
+    document.querySelector("#smaller").onclick = () => zoom(scale - 10);
+    document.querySelector("#larger").onclick = () => zoom(scale + 10);
+    document.querySelector("#actual").onclick = () => zoom(100);
+    document.querySelector("#fit").onclick = fit;
+    window.addEventListener("resize", () => {
+      if (fitted && !stage.hidden) fit();
+    });
+
+    if (Object.hasOwn(diagrams, file)) {
+      document.title = `${diagrams[file]} · 完整流程图`;
+      document.querySelector("#title").textContent = diagrams[file];
+      image.alt = `${diagrams[file]}完整流程图`;
+      const original = document.querySelector("#original");
+      original.href = file;
+      original.hidden = false;
+      image.addEventListener("load", () => {
+        status.hidden = true;
+        stage.hidden = false;
+        controls.forEach(control => control.disabled = false);
+        fit();
+      });
+      image.addEventListener("error", () => status.textContent = "图片加载失败，请打开原始 PNG 或返回策略列表。");
+      image.src = file;
+    } else {
+      status.textContent = "未找到该流程图，请返回策略列表选择。";
+    }
+  </script>
+</body>
+</html>

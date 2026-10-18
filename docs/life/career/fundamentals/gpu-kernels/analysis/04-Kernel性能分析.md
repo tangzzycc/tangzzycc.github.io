@@ -181,7 +181,7 @@ NCU 的 `smsp__pcsamp_warps_issue_stalled_long_scoreboard` 关联等待 L1TEX �
 
 如果同一角度多次计算，可评估复用、共享 sin/cos 计算或预计算表；表格增加 global/cache 流量，近似数学改变范围与误差。浮点范围缩减、数据转换和编译策略都要查证，用正确性及总耗时确认收益。
 
-相关笔记：[GEMM 性能分析](../../../../../gpu-kernel/GEMM-CUDA-Core优化.md)、[GEMM 任务与 Tile](14-GEMM切分与Persistent调度.md)、[Cache 与 Layout](11-GEMM缓存与Reduction.md)、[Prefill 与 Decode](../../inference/analysis/02-Prefill与Decode.md)。资料：[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)、[Ampere Tuning Guide](https://docs.nvidia.com/cuda/ampere-tuning-guide/index.html)、[CUDA for Tegra](https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html)，查阅日期 2026-10-13。
+相关笔记：[GEMM 性能分析](../../../../../ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md)、[GEMM 任务与 Tile](14-GEMM切分与Persistent调度.md)、[Cache 与 Layout](11-GEMM缓存与Reduction.md)、[Prefill 与 Decode](../../inference/analysis/02-Prefill与Decode.md)。资料：[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)、[Ampere Tuning Guide](https://docs.nvidia.com/cuda/ampere-tuning-guide/index.html)、[CUDA for Tegra](https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html)，查阅日期 2026-10-13。
 
 返回面试题：[39](../index.md#q62)
 {.study-source}

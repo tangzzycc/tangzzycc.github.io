@@ -1,0 +1,264 @@
+/* 忠实保留英文原文的 Tufte 正文与旁注关系，仅作用于这篇译文。 */
+.md-content:has(.gemm-translation) {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.md-typeset .gemm-translation-source {
+  max-width: 1120px;
+  margin: 0 auto 2rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.75rem;
+}
+
+.md-typeset .gemm-translation {
+  position: relative;
+  width: 62.5%;
+  max-width: 760px;
+  margin-left: max(0px, calc((100% - 1120px) / 2));
+  padding: 0 0 3rem;
+  counter-reset: gemm-sidenote;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.md-typeset .gemm-translation h1 {
+  margin: 1.5rem 0;
+  font-size: 1.9rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.md-typeset .gemm-translation h2 {
+  margin: 2rem 0 0;
+  font-size: 1.55rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.md-typeset .gemm-translation h3 {
+  margin: 2rem 0 0;
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.md-typeset .gemm-translation p,
+.md-typeset .gemm-translation li {
+  text-align: justify;
+}
+
+.md-typeset .gemm-translation p {
+  margin: 1.2rem 0;
+}
+
+.md-typeset .gemm-translation p:has(+ ul),
+.md-typeset .gemm-translation p:has(+ ol) {
+  margin-bottom: 1.2rem;
+}
+
+.md-typeset .gemm-translation ul,
+.md-typeset .gemm-translation ol {
+  margin: 1.2rem 0;
+  padding-left: 1.3rem;
+}
+
+.md-typeset .gemm-translation li {
+  margin-bottom: 0.3rem;
+}
+
+.gemm-translation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.75rem;
+}
+
+.gemm-translation-meta > span {
+  margin-left: auto;
+}
+
+.md-typeset .gemm-translation .sidenote,
+.md-typeset .gemm-translation .marginnote {
+  position: relative;
+  float: right;
+  clear: right;
+  width: 50%;
+  margin: 0 -60% 1.4rem 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--md-default-fg-color--light);
+}
+
+.gemm-translation .sidenote-number {
+  counter-increment: gemm-sidenote;
+  cursor: pointer;
+}
+
+.gemm-translation .sidenote-number::after,
+.gemm-translation .sidenote::before {
+  position: relative;
+  color: #a00000;
+  font-size: 0.65rem;
+  content: counter(gemm-sidenote);
+}
+
+.gemm-translation .sidenote-number::after {
+  top: -0.35rem;
+  margin-left: 0.1rem;
+}
+
+.gemm-translation .sidenote::before {
+  top: -0.25rem;
+  margin-right: 0.2rem;
+}
+
+.gemm-translation input.margin-toggle {
+  display: none;
+}
+
+.md-typeset .gemm-translation li .sidenote {
+  margin-right: -63.29%;
+  width: 51.6%;
+}
+
+.md-typeset .gemm-translation blockquote {
+  margin: 1rem 0 1rem 1.5rem;
+  font-size: 0.8rem;
+}
+
+.md-typeset .gemm-translation img {
+  max-width: 100%;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+}
+
+.md-typeset .gemm-translation .highlight {
+  margin: 1.2rem 0;
+  font-size: clamp(16px, 0.85rem, 18px);
+}
+
+.md-typeset .gemm-translation pre {
+  margin: 0;
+  overflow-x: auto;
+}
+
+.md-typeset .gemm-translation pre > code {
+  display: block;
+  padding: 0.8rem;
+  font-family: var(--md-code-font);
+  font-size: 1em;
+  line-height: 1.65;
+  font-variant-ligatures: none;
+}
+
+.md-typeset .gemm-translation code {
+  font-size: 0.9em;
+}
+
+.md-typeset .gemm-translation table {
+  display: table;
+  width: 100%;
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 2px solid var(--md-default-fg-color);
+  border-bottom: 2px solid var(--md-default-fg-color);
+  border-collapse: collapse;
+  border-radius: 0;
+  font-size: 0.7rem;
+}
+
+.md-typeset .gemm-translation table th,
+.md-typeset .gemm-translation table td {
+  padding: 0.35rem;
+  border: 0;
+  text-align: right !important;
+}
+
+.md-typeset .gemm-translation table th {
+  border-bottom: 1px solid var(--md-default-fg-color);
+  font-weight: 400;
+}
+
+.md-typeset .gemm-translation table th:first-child,
+.md-typeset .gemm-translation table td:first-child {
+  text-align: left !important;
+}
+
+.md-typeset .gemm-translation table tbody tr:nth-child(odd) {
+  background: var(--md-code-bg-color);
+}
+
+.md-typeset .gemm-translation table code {
+  overflow-wrap: anywhere;
+}
+
+.md-typeset .gemm-translation .highlight .c1 {
+  color: var(--md-default-fg-color--light);
+  font-family: var(--md-text-font);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.md-typeset .gemm-translation .highlight .k,
+.md-typeset .gemm-translation .highlight .kt {
+  color: var(--md-code-hl-keyword-color);
+}
+
+.md-typeset .gemm-translation .highlight .nf {
+  color: var(--md-code-hl-function-color);
+}
+
+.md-typeset .gemm-translation .highlight .mi,
+.md-typeset .gemm-translation .highlight .mf,
+.md-typeset .gemm-translation .highlight .mh {
+  color: var(--md-code-hl-number-color);
+}
+
+/* 以正文的实际可用宽度判断是否容得下旁注，兼容侧栏展开或收起。 */
+@container (max-width: 1050px) {
+  .md-typeset .gemm-translation {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+  }
+
+  .md-typeset .gemm-translation .sidenote,
+  .md-typeset .gemm-translation .marginnote,
+  .md-typeset .gemm-translation li .sidenote {
+    display: none;
+    float: none;
+    clear: both;
+    width: 100%;
+    margin: 0.8rem 0;
+    padding: 0.6rem;
+    background: var(--md-code-bg-color);
+  }
+
+  .gemm-translation .margin-toggle:checked + .sidenote,
+  .gemm-translation .margin-toggle:checked + .marginnote {
+    display: block;
+  }
+}
+
+@media print {
+  .md-typeset .gemm-translation {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .md-typeset .gemm-translation .sidenote,
+  .md-typeset .gemm-translation li .sidenote {
+    display: block;
+    float: none;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}

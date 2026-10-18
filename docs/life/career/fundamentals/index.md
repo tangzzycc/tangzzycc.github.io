@@ -15,8 +15,8 @@ title: "AI Infra 面试基础"
 | vLLM P/D 解耦、HIP Graph 与动态资源调度 | [请求与指标](inference/index.md#request-metrics) → [组批与异步执行](inference/index.md#batching-execution) → [P/D 解耦](inference/index.md#pd-disaggregation) | [P/D 项目问答](../projects/vllm-pd/面试问题与回答.md) |
 | Adaptive KV Offload、Load-vs-Recompute | [KV 容量、加载与重算](inference/index.md#kv-reuse) | [KV 分层与成本](../projects/vllm-adaptive-kv/01-KV分层缓存与重算成本.md) |
 | ROCm/CogAgent 接入、Snapdragon/QNN 部署 | [模型适配与端侧执行](inference/index.md#model-backend) → [Attention 状态](models/index.md#attention-state) | [ROCm 项目问答](../projects/vllm-rocm/面试问题与回答.md) |
-| FlashRT/FlyDSL、LoRA、GPTQ/AWQ 算子 | [GEMM](gpu-kernels/index.md#gemm) → [量化执行](gpu-kernels/index.md#quantization) → [访存布局](gpu-kernels/index.md#memory-layout) → [性能证据](gpu-kernels/index.md#profiling) | [FlashRT 问答](../projects/open-source/FlashRT-面试问题与回答.md) · [FlyDSL 贡献](../projects/open-source/FlyDSL-PR.md) |
-| 混合 Attention 状态与投机解码修复 | [混合状态](models/index.md#hybrid-attention) → [投机与状态正确性](inference/index.md#speculation) | [vLLM 开源问答](../projects/open-source/vLLM-面试问题与回答.md) |
+| FlashRT/FlyDSL、LoRA、GPTQ/AWQ 算子 | [GEMM](gpu-kernels/index.md#gemm) → [量化执行](gpu-kernels/index.md#quantization) → [访存布局](gpu-kernels/index.md#memory-layout) → [性能证据](gpu-kernels/index.md#profiling) | [FlashRT 问答](../development/flashrt/FlashRT-面试问题与回答.md) · [FlyDSL 贡献](../development/flydsl/FlyDSL-PR.md) |
+| 混合 Attention 状态与投机解码修复 | [混合状态](models/index.md#hybrid-attention) → [投机与状态正确性](inference/index.md#speculation) | [vLLM 开源问答](../development/vllm/vLLM-面试问题与回答.md) |
 
 ## GPU与算子优化
 

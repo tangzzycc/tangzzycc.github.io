@@ -72,6 +72,11 @@
   margin-bottom: 0.3em;
 }
 
+/* PD 分离笔记：一级沿用实心圆点，二级显示空心圆点。 */
+.md-typeset:has(> h1.pd-inference-note) > ul > li > ul {
+  list-style-type: circle;
+}
+
 /* 顶层分点比正文略向内缩进，强调其从属于前面的引导句。 */
 [dir="ltr"] .md-content__inner.md-typeset > p + ul:not(.task-list) {
   margin-left: 1em;

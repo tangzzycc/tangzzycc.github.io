@@ -104,7 +104,7 @@ XOR 只是坐标置换；它可以改善一种消费者映射，也可能破坏�
 
 对常见 4-byte bank 模型，两个 FP16 元素共享一个 bank-word；同一个 bank 的相同 word、不同半字，与两个完全不同 word 的服务方式也要按指令核对。128-bit shared load 会拆成多个事务，应逐事务判断冲突。所谓“32 bank 就必然需要 stride 33”只适用于某些访问，padding 还增加 stage 空间，可能跨过驻留阈值。
 
-相关笔记：[CUDA GEMM 的访存与布局](../../../../../gpu-kernel/GEMM-CUDA-Core优化.md)。
+相关笔记：[CUDA GEMM 的访存与布局](../../../../../ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md)。
 
 返回面试题：[26](../index.md#q51)
 {.study-source}

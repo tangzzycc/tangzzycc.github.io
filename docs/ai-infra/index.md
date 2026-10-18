@@ -6,68 +6,20 @@ hide:
   - footer
 ---
 
-<div class="notebook-index" markdown="1">
-
-<div class="index-intro" markdown="1">
-
-<p class="index-eyebrow">推理系统 · 工程实践</p>
-
 # AI Infra
 
-围绕大模型推理基础设施整理学习方向。从并行部署、推理框架到 GPU 算子，沿计算、通信与资源分配理解系统。
+本目录记录大模型推理架构、并行策略、vLLM 执行机制与 GPU 算子优化。
 
-</div>
+## 推理架构与并行
 
-<div class="index-grid" markdown="1">
+- [PD 分离推理架构详解](PD分离推理架构详解.md)：Prefill 与 Decode 的计算差异、性能干扰，以及分离部署和 KV Cache 传输机制。
+- [推理并行策略](推理并行策略.md)：TP、PP、DP、EP、DP Attention、SP、CP 的切分方式、通信位置与适用场景。
 
-<section class="index-card" markdown="1">
+## vLLM 执行机制
 
-<p class="index-card-label">分布式推理</p>
+- [vLLM Multi-LoRA 推理](vLLM Multi-LoRA推理.md)：LoRA 权重管理、请求与 adapter 的映射，以及 Shrink / Expand 算子的执行过程。
+- [vLLM Model Runner V2 架构](<vLLM Model Runner V2 架构.md>)：Persistent Batch 解耦，待完善。
 
-### [推理并行策略](推理并行策略.md)
+## GPU 算子优化
 
-TP、PP、DP、EP、DP Attention、SP、CP：参数与数据怎样切分，在哪里通信，以及如何组合。正文按机制配局部图，[完整流程图附件](推理并行策略-完整流程图.md)收录七张高清长图。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">vLLM</p>
-
-### [推理框架](../vllm/index.md)
-
-请求生命周期、调度、KV Cache 与模型执行。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">GPU Kernel</p>
-
-### [GPU 算子](../gpu-kernel/index.md)
-
-从 GPU 执行模型到算子源码与性能优化。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">开源 PR 追踪</p>
-
-### [开发与贡献](../pr-tracking/index.md)
-
-沿实际 PR 理解问题、实现与验证过程。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-</div>
-
-</div>
+- [CUDA 矩阵乘法优化：从 Naive 到 cuBLAS](CUDA矩阵乘法优化：从Naive到cuBLAS.md)：Simon Boehm 的 CUDA SGEMM 优化文章完整译文，从朴素实现逐步优化到 Warp 分块。

@@ -14,7 +14,7 @@ hide:
 
 # 求职与面试准备
 
-面向秋招 AI Infra（推理＋算子）方向，整理基础知识、项目追问、简历与求职进度。
+面向秋招 AI Infra（推理＋算子）方向，整理基础知识、项目经历、开发实践、简历与求职进度。
 
 </div>
 
@@ -36,9 +36,21 @@ hide:
 
 <p class="index-card-label">项目复习</p>
 
-### [项目与开源贡献](projects/index.md)
+### [项目经历](projects/index.md)
 
 围绕个人工作解释问题、实现、取舍与验证，结合归档证据核对性能数字。
+
+<span class="index-card-arrow" aria-hidden="true">↗</span>
+
+</section>
+
+<section class="index-card" markdown="1">
+
+<p class="index-card-label">开发复习</p>
+
+### [开发实践与贡献](development/index.md)
+
+vLLM 模型与算子开发、FlashRT RDNA 后端、FlyDSL 贡献，以及对应的 PR 材料与面试问答。
 
 <span class="index-card-arrow" aria-hidden="true">↗</span>
 

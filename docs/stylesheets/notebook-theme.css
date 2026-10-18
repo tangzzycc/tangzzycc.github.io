@@ -271,22 +271,6 @@
   display: none;
 }
 
-[data-md-color-scheme="default"] .pr-tracker {
-  --pr-border: #e8e6dc;
-  --pr-muted: #767368;
-  --pr-ink: #30302e;
-  --pr-surface: #fff;
-  --pr-hover-border: #bcb6a9;
-}
-
-[data-md-color-scheme="slate"] .pr-tracker {
-  --pr-border: #43413b;
-  --pr-muted: #b8b5ab;
-  --pr-ink: #e8e6de;
-  --pr-surface: #2d2c28;
-  --pr-hover-border: #696559;
-}
-
 @media screen and (max-width: 59.984375em) {
   .notebook-header .md-header__inner {
     gap: 10px;

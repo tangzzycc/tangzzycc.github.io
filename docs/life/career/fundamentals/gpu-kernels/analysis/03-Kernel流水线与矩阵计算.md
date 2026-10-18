@@ -142,7 +142,7 @@ Grid 输出任务数约为 `ceil(M/BM)×ceil(N/BN)`，寄存器、shared、线�
 
 Prefill 的 token 行数较大时通常已有较多输出任务；小 batch Decode 的 M 小可能更值得评估 Split-K，但不能按阶段直接决定开关，仍需看 N/K、本地 TP shape 与归约成本。Decode Attention 的 Split-KV 与这里 Linear GEMM 的 Split-K 应分别说明。
 
-相关笔记：[CUDA GEMM 的双缓冲与异步搬运](../../../../../gpu-kernel/GEMM-CUDA-Core优化.md)。矩阵流水线参考：[CUTLASS Efficient GEMM](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/efficient_gemm.html)。
+相关笔记：[CUDA GEMM 的双缓冲与异步搬运](../../../../../ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md)。矩阵流水线参考：[CUTLASS Efficient GEMM](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/efficient_gemm.html)。
 
 返回面试题：[04](../index.md#q47)
 {.study-source}

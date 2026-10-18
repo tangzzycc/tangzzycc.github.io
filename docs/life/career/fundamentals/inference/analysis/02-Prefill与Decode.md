@@ -73,7 +73,7 @@ Decode Attention 的另一项是历史 K/V：每步读取载荷随活动请求�
 
 先看执行时间线是否连续，再看 grid/local shape、eligible warp、流量和指令路径。为小 M 增加 Split-K 是任务量候选，Graph 是提交候选，预取/ILP 是依赖候选；哪项有效必须对应实际瓶颈，且计入额外归约、资源和状态成本。
 
-相关笔记：[GEMM 的 Roofline 分析](../../../../../gpu-kernel/GEMM-CUDA-Core优化.md)。
+相关笔记：[GEMM 的 Roofline 分析](../../../../../ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md)。
 
 返回面试题：[06](../index.md#q7)
 {.study-source}

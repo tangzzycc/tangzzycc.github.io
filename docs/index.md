@@ -34,23 +34,11 @@ hide:
 
 <section class="index-card" markdown="1">
 
-<p class="index-card-label">源码阅读</p>
+<p class="index-card-label">转载笔记</p>
 
-### [vLLM 笔记](vllm/index.md)
+### [搬运](vllm/基础篇/vLLM V1整体架构.md)
 
-从请求调度与 KV Cache，到 Attention、模型接入与 ROCm 优化。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">算子与性能</p>
-
-### [GPU Kernel](gpu-kernel/index.md)
-
-阅读 FlyDSL 与 FlashRT，理解线程分工、内存访问和 GEMM 优化。
+搬运整理的 vLLM 笔记，涵盖请求调度、KV Cache 与 Attention 实现。
 
 <span class="index-card-arrow" aria-hidden="true">↗</span>
 
@@ -62,19 +50,7 @@ hide:
 
 ### [HandCoding](handcoding/index.md)
 
-动手实现与优化 GPU 算子，按题目整理 LeetGPU 练习。
-
-<span class="index-card-arrow" aria-hidden="true">↗</span>
-
-</section>
-
-<section class="index-card" markdown="1">
-
-<p class="index-card-label">开源实践</p>
-
-### [开源 PR 追踪](pr-tracking/index.md)
-
-按项目查看我的 Open 与 Merged PR，以及对应的学习笔记。
+编程练习入口，内容待补充。
 
 <span class="index-card-arrow" aria-hidden="true">↗</span>
 
