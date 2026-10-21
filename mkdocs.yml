@@ -125,6 +125,7 @@ nav:
                   - life/career/projects/vllm-pd/index.md
                   - 面试问题与回答: life/career/projects/vllm-pd/面试问题与回答.md
                   - RAPID-Serve 论文与推理指标: life/career/projects/vllm-pd/01-论文与推理指标.md
+                  - RAPID-Serve 论文完整中文翻译: life/career/projects/vllm-pd/RAPID-Serve论文完整中文翻译.md
                   - V1/MRV2 实现与设计取舍: life/career/projects/vllm-pd/02-V1-MRV2实现与设计取舍.md
                   - 性能证据与面试问答: life/career/projects/vllm-pd/03-性能证据与面试问答.md
               - vLLM Adaptive KV Offload:

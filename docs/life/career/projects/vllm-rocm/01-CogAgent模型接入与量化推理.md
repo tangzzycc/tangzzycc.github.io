@@ -25,6 +25,8 @@ CogAgent 接入的核心是把模型的真实数据流映射到 vLLM 的输入�
 
 这里的“逐层视觉特征注入”指 decoder 每层都有 cross-attention。视觉塔输出只算一次，不代表每层都重新做图像编码。
 
+面试中的完整讲法见[CogAgent 计算流与数据流](面试问题与回答.md#q5-compute-dataflow)，包含双视觉 tensor 的去向、Decoder 每层顺序与 Prefill/Decode 的计算差异。
+
 ### 接入包含哪些接口
 
 | 接口 | 为什么需要 | 漏掉后的典型现象 |
@@ -133,6 +135,8 @@ $$
 | Cross-attention KV | 各层对 6400 个视觉 state 投影的 K/V | 每层建立 | 长度固定，持续读取 |
 
 Encoder cache 的输出是一份特征；KV block 元数据管理位置和所有权；GPU KV tensors 保存真实数值。三者不可混用。
+
+两类 KV 的实际分配、块表、写入映射与释放见[Self-KV 和 Cross-KV 如何分别管理](面试问题与回答.md#q10-kv-management)。它们使用不同 cache group 和长度，可以共享底层 BlockPool；Cross 写入 mapping 按视觉位置生成，不能直接使用 decoder 的 mapping。由于 head dim 不同，统一物理 page 时各组的 token block size 也可能不同。
 
 在 BF16、32 层、32 cross heads、head dim 32 的简化容量计算中：
 

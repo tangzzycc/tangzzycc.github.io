@@ -1,6 +1,7 @@
 ---
 title: "Tang's Notebook"
 hide:
+  - navigation
   - toc
   - footer
 ---
