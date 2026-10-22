@@ -30,8 +30,34 @@ nav:
           - FlashAttention v1 & v2 浅析: ai-infra/FlashAttention.md
           - CUDA 矩阵乘法优化：从 Naive 到 cuBLAS: ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md
   - GPU 算子实现:
-      - 访存基础:
-          - Fused Bias + GELU（向量化 elementwise）: gpu-operators/Fused Bias + GELU.md
+      - 学习索引: gpu-operators/index.md
+      - "访存基础":
+          - "Fused Bias + GELU（向量化 elementwise）": "gpu-operators/Fused Bias + GELU.md"
+          - "矩阵转置（shared memory / bank conflict / swizzle）": "gpu-operators/矩阵转置.md"
+      - "Reduce":
+          - "Reduce Sum 七连击（归约优化全流程）": "gpu-operators/Reduce Sum.md"
+          - "warpReduce / blockReduce 模板工具箱": "gpu-operators/Warp 与 Block 归约模板.md"
+          - "Reduce Max / ArgMax（含 float atomicMax 技巧）": "gpu-operators/Reduce Max 与 ArgMax.md"
+      - "Scan":
+          - "Prefix Sum / Scan（Hillis-Steele → Blelloch → decoupled lookback）": "gpu-operators/Prefix Sum 与 Scan.md"
+      - "Norm":
+          - "Softmax（safe / online 一遍法 / 寄存器缓存）": "gpu-operators/Softmax.md"
+          - "LayerNorm（一趟 vs Welford 的数值取舍 + 融合 residual）": "gpu-operators/LayerNorm.md"
+          - "RMSNorm（LLaMA 形态：融合 residual + half IO）": "gpu-operators/RMSNorm.md"
+      - "RoPE":
+          - "RoPE 旋转位置编码（两种配对 + GQA + KV cache 偏移）": "gpu-operators/RoPE.md"
+      - "Attention":
+          - "朴素 Attention（三段式 → 融合，理解 O(S²) 的痛点）": "gpu-operators/朴素 Attention.md"
+          - "FlashAttention（分块 + online softmax + causal 跳块）": "gpu-operators/FlashAttention.md"
+          - "Decode Attention（KV cache / flash-decoding / paged / GQA 共享读）": "gpu-operators/Decode Attention.md"
+      - "GEMM":
+          - "SGEMM 逐级优化（naive → shared → register tile → 向量化 → 双缓冲 → wmma）": "gpu-operators/SGEMM.md"
+          - "GEMV / decode 算子（split-K + W8A16 反量化融合）": "gpu-operators/GEMV.md"
+      - "TopK/Sort":
+          - "TopK（迭代 / 局部堆 / warp bitonic / radix select）": "gpu-operators/TopK.md"
+          - "排序（bitonic sort + radix sort 的 1-bit split）": "gpu-operators/排序.md"
+      - "量化":
+          - "量化 / 低精度（per-channel、dp4a、fp8 KV cache）": "gpu-operators/量化与低精度.md"
   - 搬运:
       - 基础篇:
           - vLLM V1 整体架构: vllm/基础篇/vLLM V1整体架构.md
@@ -124,10 +150,10 @@ nav:
               - vLLM P/D 解耦与调度优化:
                   - life/career/projects/vllm-pd/index.md
                   - 面试问题与回答: life/career/projects/vllm-pd/面试问题与回答.md
+                  - ATOM 框架层开发与多卡 DeepSeek 适配: life/career/projects/vllm-pd/ATOM-RAPIDServe框架层开发讲解.md
                   - RAPID-Serve 论文与推理指标: life/career/projects/vllm-pd/01-论文与推理指标.md
                   - RAPID-Serve 论文完整中文翻译: life/career/projects/vllm-pd/RAPID-Serve论文完整中文翻译.md
-                  - V1/MRV2 实现与设计取舍: life/career/projects/vllm-pd/02-V1-MRV2实现与设计取舍.md
-                  - 性能证据与面试问答: life/career/projects/vllm-pd/03-性能证据与面试问答.md
+                  - P/D 解耦项目详解: life/career/projects/vllm-pd/02-PD解耦项目详解.md
               - vLLM Adaptive KV Offload:
                   - life/career/projects/vllm-adaptive-kv/index.md
                   - KV 分层缓存与重算成本: life/career/projects/vllm-adaptive-kv/01-KV分层缓存与重算成本.md
@@ -254,7 +280,7 @@ extra_css:
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
   - stylesheets/gemm-translation.css?v=3
-  - stylesheets/gpu-operators.css?v=4
+  - stylesheets/gpu-operators.css?v=5
 
 extra_javascript:
   - javascripts/header-search.js

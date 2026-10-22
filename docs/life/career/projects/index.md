@@ -18,6 +18,6 @@ title: "项目经历"
 
 - **GEMM 与硬件布局：** [FlashRT PR](../development/flashrt/FlashRT-PR.md)、[FlyDSL PR](../development/flydsl/FlyDSL-PR.md)。
 - **模型适配、量化与 LoRA：** [ROCm 实现](vllm-rocm/01-CogAgent模型接入与量化推理.md)、[LoRA 算子](vllm-rocm/02-LoRA算子与优先级调度.md)。
-- **调度、KV 与异步执行：** [P/D 实现](vllm-pd/02-V1-MRV2实现与设计取舍.md)、[Adaptive KV 实现](vllm-adaptive-kv/02-调度接入与异步生命周期.md)。
+- **调度、KV 与异步执行：** [P/D 实现](vllm-pd/02-PD解耦项目详解.md)、[Adaptive KV 实现](vllm-adaptive-kv/02-调度接入与异步生命周期.md)。
 
 [基础知识复习](../fundamentals/index.md) · [简历](../resume/index.md)

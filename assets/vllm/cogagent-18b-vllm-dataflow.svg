@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-labelledby="title desc">
   <title id="title">vLLM 中 CogAgent 的输入处理、双视觉编码器与三种序列长度</title>
-  <desc id="desc">一张图片被转换为 224² 与 1120² 两个张量。小型 EVA 塔返回 258 个宽度为 4096 的 decoder embedding，CrossVision 返回 6400 个宽度为 1024 的 source state；两者打包成 [1,6658,4096] 的多模态 encoder cache，而三种长度分别描述 decoder 替换、encoder 计算与缓存，以及 cross-attention KV 分配。</desc>
+  <desc id="desc">一张图片被转换为 224² 与 1120² 两个张量。小型 EVA 塔返回 258 个宽度为 4096 的 decoder embedding，CrossVision 返回 6400 个宽度为 1024 的 source state；两者打包成 [1,6658,4096] 的首步组合 encoder 输出，而三种长度分别描述 decoder 替换、encoder 计算与输出容量，以及 cross-attention KV 分配。</desc>
   <defs>
     <marker id="arrow-blue" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
       <path d="M0 0.8 L7 4 L0 7.2" fill="none" stroke="#2865a8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -36,7 +36,7 @@
   <rect x="48" y="34" width="6" height="39" rx="3" fill="#e65b3d"/>
   <text x="70" y="66" class="title">vLLM 中的 CogAgent：一张图片，两条编码路径</text>
   <text x="48" y="101" class="subtitle">Processor 生成 decoder 占位符、两种图像张量与彼此独立的长度元数据。</text>
-  <text x="1552" y="62" text-anchor="end" class="small">模型输入与 Encoder Cache</text>
+  <text x="1552" y="62" text-anchor="end" class="small">模型输入与 Encoder 输出</text>
 
   <text x="48" y="151" class="eyebrow">01  Processor 输入输出契约</text>
   <rect x="48" y="174" width="222" height="188" rx="15" class="card"/>
@@ -111,7 +111,7 @@
   <text x="748" y="807" class="small">不会插入 Decoder Prompt</text>
 
   <rect x="1160" y="470" width="392" height="398" rx="15" class="card"/>
-  <text x="1184" y="507" class="section">一个 Encoder Cache 条目</text>
+  <text x="1184" y="507" class="section">一个组合 Encoder 输出</text>
   <text x="1184" y="535" class="small">序列轴仅作示意，不按比例绘制</text>
   <path d="M1102 562 C1140 562 1138 600 1188 600" class="flow-green"/>
   <path d="M1102 772 C1140 772 1138 744 1188 744" class="flow-purple"/>
@@ -139,7 +139,7 @@
   <circle cx="591" cy="996" r="13" fill="#218367"/>
   <text x="591" y="1002" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
   <text x="616" y="1003" class="section">6658 个 Encoder 输出</text>
-  <text x="588" y="1038" class="body">预算 Encoder 计算量与缓存空间</text>
+  <text x="588" y="1038" class="body">预算 Encoder 计算量与输出容量</text>
   <text x="588" y="1070" class="mono">encoder_output_seq_len</text>
   <text x="588" y="1097" class="small">消费者：InputProcessor / Scheduler</text>
   <rect x="1072" y="962" width="480" height="156" rx="15" class="card"/>
@@ -149,5 +149,5 @@
   <text x="1100" y="1038" class="body">分配并寻址逐层 Cross K/V</text>
   <text x="1100" y="1070" class="mono">cross_attention_seq_len</text>
   <text x="1100" y="1097" class="small">消费者：Scheduler / Attention Metadata</text>
-  <text x="48" y="1155" class="small">关键约束：虽然都属于同一个 image item，但占位符数量、Encoder Cache 长度与 Cross KV 长度分别服务于不同消费者。</text>
+  <text x="48" y="1155" class="small">关键约束：虽然都属于同一个 image item，但占位符数量、Encoder 输出长度与 Cross KV 长度分别服务于不同消费者。</text>
 </svg>

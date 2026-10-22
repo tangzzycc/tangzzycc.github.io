@@ -98,7 +98,10 @@
 .md-typeset .gpu-operator .tabbed-set > input:nth-child(1):checked ~ .tabbed-labels > label:nth-child(1),
 .md-typeset .gpu-operator .tabbed-set > input:nth-child(2):checked ~ .tabbed-labels > label:nth-child(2),
 .md-typeset .gpu-operator .tabbed-set > input:nth-child(3):checked ~ .tabbed-labels > label:nth-child(3),
-.md-typeset .gpu-operator .tabbed-set > input:nth-child(4):checked ~ .tabbed-labels > label:nth-child(4) {
+.md-typeset .gpu-operator .tabbed-set > input:nth-child(4):checked ~ .tabbed-labels > label:nth-child(4),
+.md-typeset .gpu-operator .tabbed-set > input:nth-child(5):checked ~ .tabbed-labels > label:nth-child(5),
+.md-typeset .gpu-operator .tabbed-set > input:nth-child(6):checked ~ .tabbed-labels > label:nth-child(6),
+.md-typeset .gpu-operator .tabbed-set > input:nth-child(7):checked ~ .tabbed-labels > label:nth-child(7) {
   color: var(--md-typeset-a-color);
   border-color: var(--md-typeset-a-color);
   font-weight: 700;

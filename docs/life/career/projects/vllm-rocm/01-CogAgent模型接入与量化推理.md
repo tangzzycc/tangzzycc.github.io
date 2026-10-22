@@ -18,7 +18,7 @@ CogAgent 接入的核心是把模型的真实数据流映射到 vLLM 的输入�
 
 1. Chat template 和 tokenizer 构造文本序列，processor 生成两种分辨率的图像 tensor。
 2. InputProcessor 保存 multimodal feature，并区分 decoder placeholder、encoder output 和 cross-attention 的长度。
-3. Scheduler 为视觉计算、encoder cache 和 decoder KV 分配预算；MRV2 执行两套视觉编码器。
+3. Scheduler 为视觉计算、encoder 输出容量和两类 KV 分配预算；MRV2 执行两套视觉编码器。
 4. 小视觉塔的输出替换 decoder 中的 image-token embedding；高分辨率视觉输出进入每层 cross-attention。
 5. Decoder Prefill 建立 self KV 与每层 cross KV，计算最后位置的 logits，采样首个输出 token。
 6. 后续 Decode 输入上一个生成 token，读取两类 KV，不重新执行图像编码。
@@ -62,14 +62,14 @@ $$
 
 ![一张图片的两条视觉路径、三种长度与缓存容器](../../../../../assets/vllm/rocm-interview-vision-lengths.png){ width="100%" }
 
-为了复用 vLLM encoder cache，`embed_multimodal()` 将两路输出组合成 `[1,6658,4096]`：前 258 行保存小视觉 embedding，后 6400 行的前 1024 列保存 cross states，剩余通道补零。组合 tensor 是框架容器，并没有给 cross states 增加信息，也不表示 decoder self-attention 有 6658 个视觉 token。
+为了复用统一的 encoder 输出接口，`embed_multimodal()` 将两路输出组合成 `[1,6658,4096]`：前 258 行保存小视觉 embedding，后 6400 行的前 1024 列保存 cross states，剩余通道补零。组合 tensor 是框架容器，并没有给 cross states 增加信息，也不表示 decoder self-attention 有 6658 个视觉 token。
 
 具体组合见 [`embed_multimodal()`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent.py#L770-L794)，字段与长度定义见 [processor](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent_processing.py#L152-L235)。
 
 | 逻辑对象 | 长度 | 用于哪里 |
 | --- | ---: | --- |
 | Decoder image embedding | 258 | decoder 输入替换 |
-| Encoder output | 6658 | 视觉计算预算、encoder cache |
+| Encoder output | 6658 | 视觉计算预算与首步输出容量 |
 | Cross-attention source | 6400 | 每层 cross KV 分配与读取 |
 
 原通用路径往往从 placeholder 长度推导另外两种长度。这次在 [MultiModalFeatureSpec](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/multimodal/inputs.py) 增加 `encoder_output_seq_len` 和 `cross_attention_seq_len`，由 [InputProcessor](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/engine/input_processor.py) 写入，交给 [Scheduler](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/core/sched/scheduler.py) 消费。其他模型未声明新长度时保留默认行为。
@@ -78,7 +78,7 @@ $$
 
 ### 为什么接受容器里的补零开销
 
-同一宽度的组合输出能进入现有 encoder cache，减少为一种模型新增另一套缓存管线的改动。但存储有冗余：
+同一宽度的组合输出可以经现有 `encoder_outputs` 接口传递，避免为一种模型增加第二套输出协议。但存储有冗余：
 
 $$
 6658\times4096\times2=54\,542\,336\ \mathrm{bytes}
@@ -126,15 +126,15 @@ $$
 
 ## 4. 三类缓存怎样建立、增长和释放
 
-![Encoder output、self KV 和逐层 cross KV 的生命周期](../../../../../assets/vllm/rocm-interview-cache-lifetime.png){ width="100%" }
+![首步视觉输出、Self-KV 和逐层 Cross-KV 的生命周期](../../../../../assets/vllm/cogagent-interview-kv-lifecycle.svg){ width="1000" }
 
 | 缓存 | 保存什么 | Prefill | Decode |
 | --- | --- | --- | --- |
-| Encoder cache | 两路视觉编码结果的组合 tensor | 计算或命中 | 不重新编码图片 |
+| 首步 encoder 输出 | 两路视觉编码结果的组合 tensor | 直接交给模型 forward | 正常生成时不再提供；不长期存入 encoder tensor cache |
 | Self-attention KV | decoder 各位置的 K/V | 写入 prompt 位置 | 每 step 追加新位置 |
 | Cross-attention KV | 各层对 6400 个视觉 state 投影的 K/V | 每层建立 | 长度固定，持续读取 |
 
-Encoder cache 的输出是一份特征；KV block 元数据管理位置和所有权；GPU KV tensors 保存真实数值。三者不可混用。
+首步 encoder 输出是一份特征；KV block 元数据管理位置和所有权；GPU KV tensors 保存真实数值。当前 MRV2 的 `EncoderDecoderModelState` 直接使用 EncoderRunner 返回值，传入 forward 后清空临时列表，不将组合输出长期存入 encoder tensor cache。`EncoderDecoderCacheManager` 在这条路径主要承担调度容量记账；正常 Decode 跨步复用的是各层 Cross-KV。参见[当前源码](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/worker/gpu/model_states/encoder_decoder.py#L70-L100)。
 
 两类 KV 的实际分配、块表、写入映射与释放见[Self-KV 和 Cross-KV 如何分别管理](面试问题与回答.md#q10-kv-management)。它们使用不同 cache group 和长度，可以共享底层 BlockPool；Cross 写入 mapping 按视觉位置生成，不能直接使用 decoder 的 mapping。由于 head dim 不同，统一物理 page 时各组的 token block size 也可能不同。
 

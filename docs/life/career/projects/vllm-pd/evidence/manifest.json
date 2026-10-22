@@ -41,7 +41,8 @@
     "public-perf-8k.png": {
       "source": "atom_pr860_review/perf-8k.png",
       "bytes": 35904,
-      "sha256": "38e28d061596fb3d0ff2ccc2df1d16047394f28aabc22bbd9c1da75b6f006ab7"
+      "sha256": "38e28d061596fb3d0ff2ccc2df1d16047394f28aabc22bbd9c1da75b6f006ab7",
+      "public_url": "https://github.com/user-attachments/assets/b4ce39b1-df48-4245-a863-835a22e9034b"
     },
     "qwen06-large-summary.json": {
       "source": "inferencex_qwen06/large_batch/summary.json",
@@ -66,7 +67,8 @@
     "public-perf-1k.png": {
       "source": "atom_pr860_review/perf-1k.png",
       "bytes": 36054,
-      "sha256": "68751dea7e8db0a07e5b68b59cc23261ef432e9bfab5bd64ff7fdd5ef08b40a8"
+      "sha256": "68751dea7e8db0a07e5b68b59cc23261ef432e9bfab5bd64ff7fdd5ef08b40a8",
+      "public_url": "https://github.com/user-attachments/assets/29d28b7a-529d-4794-9a5a-f7501ea94e21"
     },
     "profiler-overlap.json": {
       "source": "dual_process/marked-overlap.json",
@@ -77,6 +79,18 @@
       "source": "inferencex_qwen06/metadata.json",
       "bytes": 1847,
       "sha256": "f605dd56fa3e5da1e98fc422a7ef430e382cff56bc42e40a3f9c36ccd3be79b9"
+    },
+    "atom-pr860-gsm8k.png": {
+      "source": "https://github.com/user-attachments/assets/19097372-b692-4cb9-89cf-c97693b26d8c",
+      "collected_on": "2026-10-22",
+      "bytes": 26414,
+      "sha256": "0b00b3f2ee70b05e9d156f47ede801315cf47fc807de5c2ff5c8692292ad854c"
+    },
+    "atom-pr860-historical-metrics.json": {
+      "source": "https://github.com/ROCm/ATOM/pull/860.patch",
+      "collected_on": "2026-10-22",
+      "bytes": 6219,
+      "sha256": "01d3cf4628641601aa41fe18a887189b9eac8d983c8aa9f09c18d65ea488e155"
     }
   }
 }

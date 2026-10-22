@@ -1,6 +1,6 @@
 # CogAgent-18B 在 vLLM 中的模型接入与推理优化
 
-CogAgent-18B 不是“视觉编码器输出若干 embedding，再交给普通 LLM”这一种单路径结构。同一张图片会进入两套视觉编码器：一套产生插入 decoder prompt 的视觉 embedding，另一套产生每层 cross-attention 使用的 K/V 来源。模型接入的难点因此不只在 `forward()`，还包括 processor、encoder cache、scheduler、cross-attention KV cache 和模型专用数值语义。
+CogAgent-18B 不是“视觉编码器输出若干 embedding，再交给普通 LLM”这一种单路径结构。同一张图片会进入两套视觉编码器：一套产生插入 decoder prompt 的视觉 embedding，另一套产生每层 cross-attention 使用的 K/V 来源。模型接入的难点因此不只在 `forward()`，还包括 processor、encoder 预算、scheduler、cross-attention KV cache 和模型专用数值语义。
 
 本文以开发分支的最终提交为基线，聚焦模型接入、数据流、缓存和定向实现优化。AWQ 部分只说明 vLLM 内的量化范围，不展开 AMD Quark 的校准、导出或性能测试。
 
@@ -46,18 +46,20 @@ CogAgent processor 对同一张图片执行两套固定变换，分别得到 `pi
 
 224 分辨率的 EVA2CLIP 路径使用 `patch_size=14`，形成 $16\times16=256$ 个 patch。模型在输出两侧增加 BOI/EOI embedding，最终得到 `[batch,258,4096]`。这 258 条 embedding 会替换 decoder prompt 中的 image placeholder；processor 不是简单追加 token，而是用 `BOS + 258 × image_token` 替换原 BOS 区域，并标记其中哪些位置应接收 multimodal embedding，见 [`_get_prompt_updates`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent_processing.py#L203-L227)。
 
-1120 分辨率的 CrossVision 路径形成 $80\times80=6400$ 个 patch，输出 `[batch,6400,1024]`。这些 state 不插入 decoder prompt，而是作为每层 cross-attention 的 K/V 来源。为了让 vLLM 的 encoder cache 保存一次视觉计算结果，`embed_multimodal()` 把两路输出组合成一个 `[batch,6658,4096]` tensor：前 258 行保存 small-vision embedding，后 6400 行只使用前 1024 个通道保存 cross-vision 输出，其余通道补零。组合过程见 [`embed_multimodal`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent.py#L770-L794)。
+1120 分辨率的 CrossVision 路径形成 $80\times80=6400$ 个 patch，输出 `[batch,6400,1024]`。这些 state 不插入 decoder prompt，而是作为每层 cross-attention 的 K/V 来源。为了通过统一 encoder 输出接口传递两路视觉计算结果，`embed_multimodal()` 把两路输出组合成一个 `[batch,6658,4096]` tensor：前 258 行保存 small-vision embedding，后 6400 行只使用前 1024 个通道保存 cross-vision 输出，其余通道补零。组合过程见 [`embed_multimodal`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent.py#L770-L794)。
 
-![CogAgent Processor 输出协议、双视觉编码路径与组合后的 encoder cache](../../../../../assets/vllm/cogagent-18b-vllm-dataflow.png){ width="95%" }
+![CogAgent Processor 输出协议、双视觉编码路径与组合后的 encoder 输出](../../../../../assets/vllm/cogagent-18b-vllm-dataflow.svg){ width="95%" }
 
-图中组合 tensor 的高度只用来表示两段 sequence，并没有按 258:6400 严格缩放；宽度则强调 CrossVision 的 1024 个有效通道如何被放入 4096 宽的缓存项。这是 encoder cache 的容器表示，不意味着 6658 个 token 都进入 decoder self-attention。
+图中组合 tensor 的高度只用来表示两段 sequence，并没有按 258:6400 严格缩放；宽度则强调 CrossVision 的 1024 个有效通道如何被放入 4096 宽的输出项。这是首步 encoder 输出的容器表示，不意味着 6658 个 token 都进入 decoder self-attention。
+
+当前 MRV2 encoder-decoder 路径直接使用 EncoderRunner 的返回值，作为 `encoder_outputs` 传给首步 forward，不将组合 tensor 长期保存在 encoder tensor cache；后续 Decode 复用各层 Cross-KV。源码见[EncoderDecoderModelState](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/worker/gpu/model_states/encoder_decoder.py#L70-L100)。
 
 因此同一个 image item 必须携带三个不同长度：
 
 | 长度 | 数值 | 消费者 |
 | --- | ---: | --- |
 | Decoder multimodal embeddings | 258 | 替换 decoder prompt 中的 image token |
-| Encoder output sequence | 6658 | encoder compute budget 与 multimodal encoder cache |
+| Encoder output sequence | 6658 | encoder compute budget 与首步输出容量 |
 | Cross-attention sequence | 6400 | cross-attention KV block 分配与 attention metadata |
 
 过去的通用路径通常用 placeholder embedding 数量代表另外两种长度，对 CogAgent 会把 258、6400 和 6658 错当成同一个值。为此，`MultiModalFeatureSpec` 新增 `encoder_output_seq_len` 与 `cross_attention_seq_len`，并保留默认回退逻辑，使其他模型仍可继续使用 placeholder 长度，见 [`MultiModalFeatureSpec`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/multimodal/inputs.py#L354-L381)。
@@ -68,7 +70,7 @@ CogAgent processor 分别返回 6658 和 6400；`InputProcessor` 将它们写入
 
 ## 3. Decoder Layer：路由、Cross KV 与 Prefill/Decode
 
-`CogAgentForCausalLM.forward()` 从 encoder cache 取回组合结果，再切成两部分：
+`CogAgentForCausalLM.forward()` 接收 MRV2 传入的首步组合 encoder 输出，再切成两部分：
 
 ```text
 encoder_outputs[:, :258, :]
@@ -144,4 +146,4 @@ CrossVision 的 attention head dim 为 64，因此 non-causal encoder attention 
 
 最后一项 metadata 修复属于正确性条件。CogAgent 的 decoder self-attention 使用 32 个 head、head dim 128，而 cross-attention 使用 32 个 head、head dim 32；视觉 attention 又存在自己的 head 配置。Triton metadata builder 如果始终从全局 model config 推导 KV head shape，就会为非均匀 layer 分配错误的临时 buffer 或启动参数。最终实现改为从当前 attention group 的 `kv_cache_spec` 读取 `num_kv_heads` 与 `head_size`，见 [`TritonAttentionMetadataBuilder`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/attention/backends/triton_attn.py#L105-L123)。
 
-因此，这组工作的核心并不是增加一个模型名称，而是让 CogAgent 的真实结构进入 vLLM 已有抽象：processor 明确三种长度，encoder cache 保存两路视觉结果，decoder 用 token mask 选择 expert，cross-attention 复用固定视觉 K/V，量化通过通用 Linear 接口接入，硬件优化则由 shape、dtype 和 architecture guard 局部启用。
+因此，这组工作的核心并不是增加一个模型名称，而是让 CogAgent 的真实结构进入 vLLM 已有抽象：processor 明确三种长度，首步 encoder 输出传递两路视觉结果，decoder 用 token mask 选择 expert，cross-attention 复用固定视觉 K/V，量化通过通用 Linear 接口接入，硬件优化则由 shape、dtype 和 architecture guard 局部启用。
