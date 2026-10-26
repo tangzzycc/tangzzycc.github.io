@@ -4,7 +4,7 @@ CogAgent 接入的核心是把模型的真实数据流映射到 vLLM 的输入�
 
 本文依据 [`f9ddabc759`](https://github.com/tangzzycc/vllm/commit/f9ddabc759c66cdb76567d22d05683ea8d30cd37)。对应开发分支为 `gfx11/cogagent-18b-support`，源码链接固定到该提交。性能数字及其比较条件见 [性能证据与面试问答](03-性能证据与面试问答.md)，LoRA 实现见 [LoRA 算子与优先级调度](02-LoRA算子与优先级调度.md)。
 
-## 1. 从一张图片追踪到首个输出 token
+## 1. 从一张图片追踪到首个输出 token {#request-flow}
 
 ### 原模型为什么采用双视觉结构
 
@@ -27,7 +27,7 @@ CogAgent 接入的核心是把模型的真实数据流映射到 vLLM 的输入�
 
 面试中的完整讲法见[CogAgent 计算流与数据流](面试问题与回答.md#q5-compute-dataflow)，包含双视觉 tensor 的去向、Decoder 每层顺序与 Prefill/Decode 的计算差异。
 
-### 接入包含哪些接口
+### 接入包含哪些接口 {#model-interfaces}
 
 | 接口 | 为什么需要 | 漏掉后的典型现象 |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ CogAgent 接入的核心是把模型的真实数据流映射到 vLLM 的输入�
 
 对应入口是 [模型注册](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/registry.py)、[多模态处理](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent_processing.py) 和 [模型实现](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent.py)。
 
-## 2. 258、6400、6658 为什么不能合成一个长度
+## 2. 258、6400、6658 为什么不能合成一个长度 {#vision-lengths}
 
 ### 两种分辨率对应两种用途
 
@@ -94,7 +94,7 @@ $$
 
 当前选择是用约 37.5 MiB/图片的额外容器空间换取接入现有接口的简洁性。这是可讨论的工程取舍，不能称为“零拷贝紧凑存储”。
 
-## 3. Decoder 怎样同时处理视觉与语言 token
+## 3. Decoder 怎样同时处理视觉与语言 token {#token-routing}
 
 每层执行顺序是：
 
@@ -124,7 +124,7 @@ $$
 
 其中 $H_l$ 是本层 decoder state，$E$ 是共享的视觉塔输出。各层共享 $E$，但 **投影权重和投影后的 cross KV 属于各自 layer**。不能把“视觉特征共享”讲成“所有层共用一份 cross KV”。实现见 [`CogAgentCrossAttention`](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/model_executor/models/cogagent.py#L342-L416)。
 
-## 4. 三类缓存怎样建立、增长和释放
+## 4. 三类缓存怎样建立、增长和释放 {#kv-cache}
 
 ![首步视觉输出、Self-KV 和逐层 Cross-KV 的生命周期](../../../../../assets/vllm/cogagent-interview-kv-lifecycle.svg){ width="1000" }
 
@@ -162,7 +162,7 @@ Self head dim 128，decoder cross head dim 32，CrossVision 塔内部 head dim 6
 
 该提交从当前 group 的 `kv_cache_spec` 读取 KV heads 和 head size，并从具体 layer 获取 Query heads，见 [TritonAttentionMetadataBuilder](https://github.com/tangzzycc/vllm/blob/f9ddabc759c66cdb76567d22d05683ea8d30cd37/vllm/v1/attention/backends/triton_attn.py#L105-L124)。这是模型正确接入框架的必要条件，不能只当作性能配置。
 
-## 5. BF16 数值对齐为什么难于“公式一样”
+## 5. BF16 数值对齐为什么难于“公式一样” {#bf16-parity}
 
 ### 先对齐输入历史，再找首个分叉
 
@@ -191,7 +191,7 @@ RoPE 对相邻维或半向量的配对方式、角度生成精度、乘加顺序
 
 已有 32 条 holdout 报告显示 18/32 序列完全一致，Word F1、ROUGE-L 的差值置信区间包含零；这支持当前样本上的质量对齐，不能证明所有输入 bitwise 相同。详细口径见第三篇。
 
-## 6. AWQ W4A16 改了哪些数值，哪些没有改
+## 6. AWQ W4A16 改了哪些数值，哪些没有改 {#awq-integration}
 
 W4A16 表示主要 Linear 权重存为 4-bit，activation 仍是 FP16/BF16。它不表示整个模型的中间结果、KV Cache 和 attention 都是 INT4。
 
@@ -221,7 +221,7 @@ $$
 
 比 BF16 的 2 bytes 小约 3.85 倍。整体模型压缩率较低，是因为视觉塔等仍为 BF16，并存在实际 packing 和附加 buffer。
 
-## 7. 为什么小 M 与大 M 采用不同量化路径
+## 7. 为什么小 M 与大 M 采用不同量化路径 {#rdna-w4a16}
 
 对 Linear $Y=XW^T$，$X$ 为 $M\times K$，$W$ 为 $N\times K$。这里 $M$ 是本轮 token 行数，不能直接当作请求并发。
 
@@ -229,7 +229,7 @@ Decode 小 M 时权重复用弱，压缩权重流量与 skinny GEMM 很关键；
 
 这次新增的是 gfx1151/BF16/group size 128 下的 shape 配置：按 `(N,K)` 与 M 区间匹配，不按模型名 dispatch。典型 M 包括 language 22、vision 257、完整 decoder 279，以及 cross-KV projection 6400。未命中时保留通用选择。
 
-## 8. Compile、HIP Graph 和视觉融合各解决什么
+## 8. Compile、HIP Graph 和视觉融合各解决什么 {#execution-optimization}
 
 | 技术 | 降低的成本 | 仍然存在的成本 |
 | --- | --- | --- |

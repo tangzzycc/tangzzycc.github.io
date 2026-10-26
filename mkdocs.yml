@@ -29,6 +29,9 @@ nav:
       - GPU 算子优化:
           - FlashAttention v1 & v2 浅析: ai-infra/FlashAttention.md
           - CUDA 矩阵乘法优化：从 Naive 到 cuBLAS: ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md
+  - CUDA 学习:
+      - 学习索引: cuda/index.md
+      - Reduce 规约求和: cuda/Reduce规约求和.md
   - GPU 算子实现:
       - 学习索引: gpu-operators/index.md
       - "访存基础":
@@ -280,12 +283,11 @@ extra_css:
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
   - stylesheets/gemm-translation.css?v=3
-  - stylesheets/gpu-operators.css?v=5
+  - stylesheets/gpu-operators.css?v=10
 
 extra_javascript:
   - javascripts/header-search.js
   - javascripts/mathjax.js
-  - javascripts/code-fold.js
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=5
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

@@ -8,7 +8,7 @@ title: "项目经历"
 
 | 项目 | 复习重点 | 入口 |
 | --- | --- | --- |
-| vLLM ROCm 模型适配与优化 | CogAgent 接入、量化推理、LoRA 算子与优先级调度 | [面试问答](vllm-rocm/面试问题与回答.md) · [项目导航](vllm-rocm/index.md) |
+| vLLM ROCm 模型适配与优化 | CogAgent 接入、数值对齐、量化与视觉优化、LoRA Shrink/Expand 算子 | [面试问答](vllm-rocm/面试问题与回答.md) · [项目导航](vllm-rocm/index.md) |
 | vLLM P/D 解耦与调度优化 | RAPID-Serve、V1/MRV2、资源共享与性能取舍 | [面试问答](vllm-pd/面试问题与回答.md) · [项目导航](vllm-pd/index.md) |
 | Adaptive KV Offload | 分层缓存、重算成本、异步生命周期 | [项目导航](vllm-adaptive-kv/index.md) |
 

@@ -4,7 +4,7 @@ LoRA 文件很小，推理增量却不一定小。每层 Linear 后的两次低�
 
 源码固定到 [`5bdd3cc58d`](https://github.com/tangzzycc/vllm/commit/5bdd3cc58d8985c2c2ebcb21377b3526335b5741)。其中 LoRA kernel 来自 `f393507827`，后续两个提交增加严格优先级及指标。**算子优化和调度探索是两项不同改动；简历的 18.6%～24.8% 来自算子 A/B，不来自抢占实验。** CogAgent 与 LoRA 也分别使用 CogAgent-18B 和 Qwen3-VL-4B 验证，不能讲成在 CogAgent 上运行了这组 LoRA。
 
-## 1. 一个 Linear 为什么拆成 Shrink 与 Expand
+## 1. 一个 Linear 为什么拆成 Shrink 与 Expand {#lora-math}
 
 对基座权重 $W\in\mathbb{R}^{N\times K}$，输入 $X\in\mathbb{R}^{M\times K}$，LoRA 的 $A\in\mathbb{R}^{r\times K}$、$B\in\mathbb{R}^{N\times r}$：
 
@@ -66,7 +66,7 @@ $$
 
 它保留 Q、K、V 的实际输出 offset，不能简单把三种权重当作一个连续且等宽的矩阵。
 
-## 3. Decode 和 Prefill 为什么需要四条 kernel
+## 3. Decode 和 Prefill 为什么需要四条 kernel {#lora-kernel-design}
 
 ### Decode：围绕少量真实 token 建 program
 
@@ -103,7 +103,7 @@ Shrink FP32 累加并存 T。Expand 将 T 转到 B 权重的 FP16/BF16 输入精
 
 Atomic 加法顺序、FMA、tile shape 可能改变舍入。目标是规定容差和任务质量下的正确性，不承诺所有配置逐 bit 一样。
 
-## 4. Metadata 如何保持 adapter 身份
+## 4. Metadata 如何保持 adapter 身份 {#lora-metadata}
 
 取 `mapping=[0,1,0,-1,1]`，每行是当前 token 的 adapter slot。稳定分组可以表示为：
 

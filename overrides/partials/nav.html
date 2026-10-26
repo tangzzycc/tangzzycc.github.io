@@ -1,5 +1,5 @@
 {# 笔记栏目默认展开全部笔记分组。 #}
-{% set expand_note_groups = page and page.file.src_uri.startswith(("ai-infra/", "vllm/", "gpu-operators/")) %}
+{% set expand_note_groups = page and page.file.src_uri.startswith(("ai-infra/", "cuda/", "vllm/", "gpu-operators/")) %}
 {% if expand_note_groups %}
   {% set features = features + ["navigation.expand"] %}
 {% endif %}
