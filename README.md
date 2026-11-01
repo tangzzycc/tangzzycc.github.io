@@ -19,6 +19,12 @@ Every HTML page includes `noindex, nofollow, noimageindex` directives. Sitemap g
 
 Direct links, site navigation, and the built-in search remain available. Rebuild and deploy the site to apply these settings online. These directives apply to compliant search engines, not access control; previously indexed pages may remain in results until they are crawled again. Raw assets would need an HTTP `X-Robots-Tag` header from the hosting server to receive their own indexing directive.
 
+## GitHub Pages
+
+The site is published at `https://tangzzycc.github.io/`. In the repository's **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**.
+
+The workflow in `.github/workflows/pages.yml` builds the site with MkDocs and deploys the generated `site/` directory whenever changes are pushed to `master`. It can also be run manually from the Actions tab. GitHub's default Jekyll build cannot render this MkDocs project.
+
 ## Repository Structure
 
 - `docs/ai-infra/`: Notes on inference architecture and vLLM execution.
