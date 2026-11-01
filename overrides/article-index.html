@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="notebook-index article-index">
+    <header class="index-intro">
+      <h1>{{ page.meta.title | e }}</h1>
+      <p lang="en">{{ page.meta.description | e }}</p>
+    </header>
+    {% include "partials/article-list.html" %}
+  </div>
+{% endblock %}

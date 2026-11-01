@@ -1,35 +1,46 @@
-{# 笔记栏目默认展开全部笔记分组。 #}
-{% set expand_note_groups = page and page.file.src_uri.startswith(("ai-infra/", "cuda/", "vllm/", "gpu-operators/")) %}
-{% if expand_note_groups %}
-  {% set features = features + ["navigation.expand"] %}
-{% endif %}
-{% import "partials/nav-item.html" as item with context %}
-{% set class = "md-nav md-nav--primary" %}
-{% if expand_note_groups %}
-  {% set class = class ~ " notebook-nav--expanded" %}
-{% endif %}
-{% if "navigation.tabs" in features and page != nav.homepage %}
-  {% set class = class ~ " md-nav--lifted" %}
-{% endif %}
-{% if "toc.integrate" in features %}
-  {% set class = class ~ " md-nav--integrated" %}
-{% endif %}
-<nav class="{{ class }}" aria-label="{{ lang.t('nav') }}" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}" title="{{ config.site_name | e }}" class="md-nav__button md-logo" aria-label="{{ config.site_name }}" data-md-component="logo">
-      {% include "partials/logo.html" %}
-    </a>
-    {{ config.site_name }}
+<nav class="md-nav md-nav--primary notebook-site-card" aria-label="站点导航" data-md-level="0">
+  <label class="site-card-close md-icon" for="__drawer" title="关闭导航" aria-label="关闭导航">
+    {% include ".icons/material/close.svg" %}
   </label>
-  {% if config.repo_url %}
-    <div class="md-nav__source">
-      {% include "partials/source.html" %}
-    </div>
-  {% endif %}
-  <ul class="md-nav__list" data-md-scrollfix>
+  <a class="site-card-brand" href="{{ nav.homepage.url | url }}">
+    <span class="site-card-avatar" aria-hidden="true">{% include "partials/logo.html" %}</span>
+    <span class="site-card-name">{{ config.site_name | e }}</span>
+  </a>
+
+  <div class="site-card-stats">
+    <a href="{{ nav.homepage.url | url }}" aria-label="{{ notebook_note_count }} 篇笔记">
+      <strong>{{ notebook_note_count }}</strong><span>笔记</span>
+    </a>
+    <a href="{{ 'tags/' | url }}" aria-label="{{ notebook_tag_count }} 个标签">
+      <strong>{{ notebook_tag_count }}</strong><span>标签</span>
+    </a>
+  </div>
+
+  <ul class="site-card-menu">
+    <li>
+      <a class="site-card-link" href="{{ nav.homepage.url | url }}"{% if page == nav.homepage %} aria-current="page"{% endif %}>
+        <span class="md-icon" aria-hidden="true">{% include ".icons/material/home-outline.svg" %}</span>
+        <span>Home</span>
+      </a>
+    </li>
     {% for nav_item in nav.items %}
-      {% set path = "__nav_" ~ loop.index %}
-      {{ item.render(nav_item, path, 1) }}
+      {% if nav_item != nav.homepage %}
+        {% set target = nav_item.children[0] if nav_item.children else nav_item %}
+        {% set active = nav_item.active or (page and page.meta.get("tag_archive") and nav_item.is_page and nav_item.file.src_uri == "tags/index.md") %}
+        <li>
+          <a class="site-card-link" href="{{ target.url | url }}"{% if active %} aria-current="location"{% endif %}>
+            <span class="md-icon" aria-hidden="true">
+              {% if nav_item.is_page and nav_item.file.src_uri == "tags/index.md" %}
+                {% include ".icons/material/tag-outline.svg" %}
+              {% else %}
+                {% include ".icons/material/book-open-outline.svg" %}
+              {% endif %}
+            </span>
+            <span>{{ nav_item.title | e }}</span>
+          </a>
+        </li>
+      {% endif %}
     {% endfor %}
   </ul>
+  <p class="site-card-footer">{{ config.copyright | e }}</p>
 </nav>

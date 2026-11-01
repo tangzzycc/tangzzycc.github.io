@@ -14,13 +14,19 @@
     <div class="notebook-navigation">
       <ul class="md-tabs__list">
         {% for nav_item in nav.items %}
-          {% if nav_item != nav.homepage %}
+          {% if nav_item != nav.homepage and not (nav_item.is_page and nav_item.file.src_uri == "tags/index.md") %}
             {{ item.render(nav_item) }}
           {% endif %}
         {% endfor %}
       </ul>
     </div>
     <div class="notebook-header-actions">
+      {% for nav_item in nav.items %}
+        {% if nav_item.is_page and nav_item.file.src_uri == "tags/index.md" %}
+          {% set tags_active = nav_item.active or (page and page.meta.get("tag_archive")) %}
+          <a href="{{ nav_item.url | url }}" class="notebook-tags-link{% if tags_active %} notebook-tags-link--active{% endif %}"{% if tags_active %} aria-current="page"{% endif %}>Tags</a>
+        {% endif %}
+      {% endfor %}
       {% if config.theme.palette and config.theme.palette is not mapping %}
         {% include "partials/palette.html" %}
         {% include "partials/javascripts/palette.html" %}

@@ -1,0 +1,20 @@
+{% for group in article_groups %}
+  <section class="article-year-group" aria-label="{{ group.year if group.year else '未注明日期' }}">
+    <h2 class="article-year">{{ group.year if group.year else '未注明日期' }}</h2>
+    <div class="article-list">
+      {% for entry in group.entries %}
+        <article class="article-entry article-entry-dated">
+          {% if entry.date %}
+            <time class="article-date" datetime="{{ entry.date.isoformat() }}" title="{{ entry.date.isoformat() }}">{{ entry.date.strftime("%m-%d") }}</time>
+          {% else %}
+            <span class="article-date">—</span>
+          {% endif %}
+          <div class="article-entry-body">
+            <h3 class="article-title"><a href="{{ entry.url | url }}">{{ entry.title | e }}</a></h3>
+            {% if entry.description %}<p>{{ entry.description | e }}</p>{% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}

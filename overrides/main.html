@@ -3,7 +3,7 @@
 {# 全站不收录到搜索引擎，允许抓取以便识别 noindex。 #}
 {% block extrahead %}
   {{ super() }}
-  <meta name="robots" content="noindex">
+  <meta name="robots" content="noindex, nofollow, noimageindex">
   {% if page and page.meta.code_fold is sameas false %}
     <meta name="notebook-code-fold" content="false">
   {% endif %}

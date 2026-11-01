@@ -1,11 +1,5 @@
 (() => {
   const sidebars = {
-    primary: {
-      selector: ".md-sidebar--primary",
-      label: "左侧导航",
-      storageKey: "notebook.sidebar.primary.collapsed",
-      iconPath: "M6 7.5h12M8.5 12H18M6 16.5h12",
-    },
     secondary: {
       selector: ".md-sidebar--secondary",
       label: "右侧目录",
@@ -73,7 +67,7 @@
   const setupSidebarControls = () => {
     Object.entries(sidebars).forEach(([side, config]) => {
       const sidebar = document.querySelector(config.selector);
-      if (!sidebar) return;
+      if (!sidebar || sidebar.hidden || !sidebar.querySelector('[data-md-component="toc"]')) return;
 
       const scrollwrap = sidebar.querySelector(":scope > .md-sidebar__scrollwrap");
       if (!scrollwrap) return;
@@ -90,24 +84,29 @@
     });
   };
 
-  const desktopNavigation = window.matchMedia("(min-width: 76.25em)");
-  const setupNavigationGroups = () => {
-    const groups = document.querySelectorAll(
-      ".notebook-nav--expanded > .md-nav__list > .md-nav__item--active .md-nav__item--nested"
-    );
-    groups.forEach((group) => {
-      const toggle = group.querySelector(":scope > .md-nav__toggle");
-      if (!toggle) return;
-      toggle.disabled = desktopNavigation.matches;
-      if (desktopNavigation.matches) toggle.checked = true;
-      group.querySelectorAll(":scope > label[for], :scope > .md-nav__container > label[for]")
-        .forEach((label) => { label.tabIndex = desktopNavigation.matches ? -1 : 0; });
-      const nav = group.querySelector(":scope > .md-nav");
-      if (nav) nav.setAttribute("aria-expanded", String(toggle.checked));
+  const setupSiteNavigation = () => {
+    document.body.classList.remove("sidebar-primary-collapsed");
+    document.querySelectorAll(".sidebar-rail-toggle--primary").forEach(button => button.remove());
+    const drawer = document.getElementById("__drawer");
+    if (!drawer) return;
+    document.querySelectorAll(".notebook-drawer-toggle, .site-card-close").forEach(label => {
+      label.tabIndex = 0;
+      label.setAttribute("role", "button");
+      label.setAttribute("aria-expanded", String(drawer.checked));
+      if (label.dataset.drawerKeybinding) return;
+      label.dataset.drawerKeybinding = "true";
+      label.addEventListener("keydown", event => {
+        // Material activates focused labels on Enter; add Space support.
+        if (event.key !== " ") return;
+        event.preventDefault();
+        drawer.click();
+      });
+      drawer.addEventListener("change", () => {
+        label.setAttribute("aria-expanded", String(drawer.checked));
+      });
     });
   };
 
-  desktopNavigation.addEventListener("change", setupNavigationGroups);
-  document$.subscribe(setupNavigationGroups);
+  document$.subscribe(setupSiteNavigation);
   document$.subscribe(setupSidebarControls);
 })();

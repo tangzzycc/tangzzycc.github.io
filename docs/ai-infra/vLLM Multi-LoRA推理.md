@@ -1,3 +1,12 @@
+---
+tags:
+  - vLLM
+  - LoRA
+title: vLLM Multi-LoRA 推理
+description: LoRA 权重管理、请求与 adapter 的映射，以及 Shrink / Expand 算子如何组织不同请求的低秩计算。
+date: 2026-09-06
+---
+
 ## LoRA基础概念
 
 LoRA（Low-Rank Adaptation）通俗理解就是一套高效微调（PEFT）的机制，它可以在基座模型的基础上，通过调整极少量的参数，实现模型在特定领域的优秀表现。
@@ -46,7 +55,7 @@ Punica 采用了类似 **LRU（Least Recently Used）** 的冷热分层机制�
 
   - **Expand ($y = PB$)**：将秩 $r$ 的中间结果重新投影回维度 $k$。再乘 B 恢复维度。这种策略将计算复杂度从 $O(d \cdot k)$ 降低到了 $O(r(d + k))$。
 
-    ![Multi-LoRA SGMV 计算示意图](../../assets/image-20260906-095014.png){ width="60%" }
+    ![Multi-LoRA SGMV 计算示意图](../../assets/ai-infra/multi-lora/multi-lora-sgmv-computation.png){ width="60%" }
 
 ### 数据预处理
 

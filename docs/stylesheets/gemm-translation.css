@@ -208,7 +208,7 @@
 
 .md-typeset .gemm-translation .highlight .c1 {
   color: var(--md-default-fg-color--light);
-  font-family: var(--md-text-font);
+  font-family: var(--md-code-font);
   font-style: normal;
   font-weight: 400;
 }

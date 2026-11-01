@@ -1,0 +1,5 @@
+Cormorant Garamond SemiBold Italic (Latin subset), weight 600
+https://fonts.google.com/specimen/Cormorant+Garamond
+Source CSS: https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&display=swap
+Font: https://fonts.gstatic.com/s/cormorantgaramond/v21/co3smX5slCNuHLi8bLeY9MK7whWMhyjYrGFEsdtdc62E6zd5LDf-iNM8.woff2
+License: SIL Open Font License 1.1 (see OFL.txt)

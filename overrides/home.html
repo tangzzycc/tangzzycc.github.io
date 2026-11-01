@@ -1,0 +1,58 @@
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="home-page">
+    {% if page.meta.motto %}
+      <figure class="home-epigraph">
+        <p class="home-motto" lang="la">
+          {% for line in page.meta.motto %}
+            <span class="home-motto-line">{{ line | e }}</span>
+          {% endfor %}
+        </p>
+        <figcaption class="home-motto-source" lang="la"><span class="home-motto-dash" aria-hidden="true">——</span> <span class="home-motto-attribution">{{ page.meta.motto_source | e }}</span></figcaption>
+      </figure>
+    {% endif %}
+    <figure class="home-identity">
+      <img class="home-logo" src="{{ config.theme.logo | url }}" alt="{{ config.site_name | e }} Logo" width="260" height="260">
+      <figcaption class="home-identity-caption">
+        <span class="home-site-name">{{ config.site_name | e }}</span>
+        <a class="home-github-link" href="https://github.com/tangzzycc" aria-label="Tang 的 GitHub" title="GitHub · tangzzycc">
+          <span class="md-icon" aria-hidden="true">{% include ".icons/fontawesome/brands/github.svg" %}</span>
+        </a>
+      </figcaption>
+    </figure>
+    <div class="home-timeline" aria-label="个人介绍与笔记栏目">
+      <svg class="home-timeline-spine" viewBox="0 0 24 800" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="home-spine-ink" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="currentColor" stop-opacity="0.45" />
+            <stop offset="0.12" stop-color="currentColor" stop-opacity="0.95" />
+            <stop offset="0.72" stop-color="currentColor" stop-opacity="0.8" />
+            <stop offset="1" stop-color="currentColor" stop-opacity="0.35" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#home-spine-ink)" d="M12 4 C9.8 78 10.4 151 9.6 224 C8.9 315 10.7 401 9.7 492 C8.6 592 10.1 698 10.2 788 Q10.5 800 12.2 797 C13.1 712 13 614 14.2 504 C15.3 393 13.5 307 14.6 217 C15.4 136 13.8 61 13.5 8 Q13.1 1 12 4Z" />
+      </svg>
+      <section class="home-node home-about" aria-labelledby="about-me">
+        <header class="home-node-heading"><h1 id="about-me">About me</h1></header>
+        <p lang="en">
+          {% for line in page.meta.about %}
+            <span class="home-about-line">{{ line | e }}</span>
+          {% endfor %}
+        </p>
+      </section>
+      {% for section in page.meta.sections %}
+        <section class="home-node" aria-labelledby="home-section-{{ loop.index }}">
+          <header class="home-node-heading">
+            <h2 id="home-section-{{ loop.index }}"><a href="{{ section.url | url }}">{{ section.title | e }}</a></h2>
+          </header>
+          <p lang="en">{{ section.description | e }}</p>
+        </section>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <footer class="home-copyright" aria-label="版权信息"><p>{{ config.copyright | e }}</p></footer>
+{% endblock %}

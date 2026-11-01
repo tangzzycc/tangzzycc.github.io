@@ -1,0 +1,20 @@
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="notebook-index tags-index">
+    <header class="index-intro">
+      <h1 id="tags">Tags</h1>
+      <p lang="en">{{ tag_cloud | length }} tags · {{ tag_article_count }} notes</p>
+    </header>
+
+    <nav class="tag-cloud" aria-label="主题标签">
+      {% for tag in tag_cloud %}
+        <a class="tag-cloud-link" href="{{ tag.url | url }}" style="--tag-weight: {{ tag.weight }}" aria-label="{{ tag.name | e }}，{{ tag.count }} 篇笔记">
+          <span class="tag-cloud-name">{{ tag.name | e }}</span>
+          <span class="tag-cloud-count" aria-hidden="true">{{ tag.count }}</span>
+        </a>
+      {% endfor %}
+    </nav>
+
+  </div>
+{% endblock %}

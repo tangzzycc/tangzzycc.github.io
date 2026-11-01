@@ -1,0 +1,12 @@
+{% if tags %}
+  <nav class="md-tags" aria-label="文章标签" {% if "tags" in page.meta.get("hide", []) %}hidden{% endif %}>
+    {% for tag in tags %}
+      {% set target = tag_archive_urls.get(tag.name, tag.url) %}
+      {% if target %}
+        <a href="{{ target | url }}" class="md-tag">{{ tag.name | e }}</a>
+      {% else %}
+        <span class="md-tag">{{ tag.name | e }}</span>
+      {% endif %}
+    {% endfor %}
+  </nav>
+{% endif %}

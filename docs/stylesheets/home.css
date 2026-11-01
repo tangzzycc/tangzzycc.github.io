@@ -1,4 +1,366 @@
 /* 首页与模块索引共用的入口布局，配色继承全站主题。 */
+@font-face {
+  font-family: "Caveat";
+  src: url("../assets/fonts/caveat/Caveat-Latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("../assets/fonts/cormorant-garamond/CormorantGaramond-Latin-SemiBoldItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+
+.md-typeset .home-page {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 72px;
+  row-gap: 32px;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 28px 0 40px;
+}
+
+.md-typeset .home-epigraph {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  transform: translateY(-24px);
+}
+
+.md-typeset .home-motto {
+  max-width: 480px;
+  margin: 0;
+  color: var(--md-default-fg-color);
+  font-family: "Caveat", var(--md-text-font);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  transform: skewX(-2deg);
+}
+
+.home-motto-line {
+  display: block;
+}
+
+.md-typeset .home-motto-source {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  max-width: none;
+  margin: 12px 0 0;
+  color: var(--md-default-fg-color);
+  font-family: "Caveat", var(--md-text-font);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.home-motto-dash {
+  display: block;
+  flex: 0 0 52px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  font-size: 0;
+}
+
+.md-typeset .home-identity {
+  width: 260px;
+  margin: 44px 0 0;
+}
+
+.md-typeset .home-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 20px;
+}
+
+.md-typeset .home-identity-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  max-width: 100%;
+}
+
+.md-typeset .home-site-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--md-default-fg-color);
+  font-family: "Caveat", var(--md-text-font);
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.md-typeset .home-github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 40px;
+  margin: 0;
+  border-radius: 50%;
+  color: var(--md-default-fg-color--light);
+}
+
+.home-github-link .md-icon,
+.home-github-link svg {
+  width: 26px;
+  height: 26px;
+}
+
+.md-typeset .home-github-link:hover {
+  color: var(--md-typeset-a-color);
+  background: var(--notebook-hover);
+}
+
+.home-github-link:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 3px;
+}
+
+.home-copyright {
+  padding: 20px 16px;
+  color: var(--md-default-fg-color--light);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.home-copyright p {
+  margin: 0;
+}
+
+.home-timeline {
+  --home-ink: color-mix(in srgb, var(--md-default-fg-color) 65%, var(--md-typeset-a-color));
+  position: relative;
+  min-width: 0;
+  padding: 24px 0 12px;
+}
+
+.home-timeline-spine {
+  position: absolute;
+  top: 0;
+  left: -12px;
+  width: 24px;
+  height: 100%;
+  color: var(--home-ink);
+  pointer-events: none;
+}
+
+.home-node {
+  position: relative;
+  margin: 0 0 44px;
+}
+
+.home-about {
+  margin-bottom: 140px;
+}
+
+.home-node:last-child {
+  margin-bottom: 24px;
+}
+
+.home-node-heading {
+  position: relative;
+  max-width: 360px;
+  padding: 0 0 13px 32px;
+}
+
+.home-node-heading::before {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 11px;
+  height: 10px;
+  border-radius: 48% 52% 55% 45%;
+  background: var(--md-typeset-a-color);
+  box-shadow: 0 0 0 3px var(--md-default-bg-color);
+  transform: translate(-50%, 50%) rotate(-12deg);
+  content: "";
+}
+
+.home-node-heading::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 40% 65% 55% 35%;
+  background: linear-gradient(to right, var(--home-ink), color-mix(in srgb, var(--home-ink) 45%, transparent) 65%, transparent);
+  transform: rotate(0.2deg);
+  transform-origin: left center;
+  content: "";
+}
+
+.md-typeset .home-node h1,
+.md-typeset .home-node h2 {
+  margin: 0;
+  color: var(--md-default-fg-color);
+  font-family: "Caveat", var(--md-text-font);
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 41.4px;
+  letter-spacing: 0;
+}
+
+.md-typeset .home-node h1 {
+  font-size: 40px;
+  line-height: 46px;
+}
+
+.home-site-name,
+.home-node h1,
+.home-node h2 {
+  transform: skewX(-2deg);
+  transform-origin: left center;
+}
+
+.md-typeset .home-node h2 a {
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+}
+
+.md-typeset .home-node h2 a:hover {
+  color: var(--md-typeset-a-color);
+}
+
+.home-node h2 a:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
+.md-typeset .home-node > p {
+  max-width: 490px;
+  margin: 14px 0 0 32px;
+}
+
+.md-typeset .home-node > p,
+.md-typeset .article-index .index-intro > p[lang="en"] {
+  color: var(--md-default-fg-color);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.75;
+  letter-spacing: 0;
+  text-wrap: pretty;
+  transform: none;
+}
+
+.home-about-line {
+  display: block;
+}
+
+@media screen and (max-width: 59.984375em) {
+  .md-typeset .home-page {
+    grid-template-columns: 200px minmax(0, 1fr);
+    column-gap: 48px;
+    max-width: 760px;
+    padding-top: 16px;
+  }
+
+  .md-typeset .home-identity {
+    width: 200px;
+  }
+
+  .md-typeset .home-epigraph {
+    transform: translateY(-16px);
+  }
+
+  .md-typeset .home-motto {
+    font-size: 26px;
+  }
+
+  .md-typeset .home-site-name {
+    font-size: 26px;
+  }
+}
+
+@media screen and (max-width: 39.984375em) {
+  .md-typeset .home-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    max-width: 490px;
+    padding-top: 8px;
+  }
+
+  .md-typeset .home-identity {
+    width: 180px;
+    margin: 0 auto;
+  }
+
+  .md-typeset .home-epigraph {
+    transform: translateY(-8px);
+  }
+
+  .md-typeset .home-motto {
+    font-size: clamp(18px, 6vw, 24px);
+  }
+
+  .md-typeset .home-site-name {
+    font-size: 23px;
+  }
+
+  .home-timeline {
+    margin-left: 8px;
+  }
+
+  .home-node {
+    margin-bottom: 36px;
+  }
+
+  .home-about {
+    margin-bottom: 120px;
+  }
+
+  .home-node-heading {
+    padding-left: 24px;
+  }
+
+  .md-typeset .home-node > p {
+    margin-left: 24px;
+  }
+
+  .md-typeset .home-node > p,
+  .md-typeset .article-index .index-intro > p[lang="en"] {
+    font-size: 17px;
+  }
+
+  .md-typeset .home-node h1 {
+    font-size: 36px;
+    line-height: 41.4px;
+  }
+
+  .md-typeset .home-node h2 {
+    font-size: 34px;
+    line-height: 39.1px;
+  }
+}
+
 .md-typeset .notebook-index {
   max-width: 1120px;
   margin: 0 auto;
@@ -20,10 +382,12 @@
 .md-typeset .notebook-index h1 {
   margin: 0 0 18px;
   color: var(--md-default-fg-color);
-  font-size: clamp(30px, 3vw, 42px);
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(36px, 4vw, 48px);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 .notebook-index .index-intro > p:not(.index-eyebrow) {
@@ -226,5 +590,247 @@
 @media (prefers-reduced-motion: reduce) {
   .notebook-index .index-card {
     transition: none;
+  }
+}
+
+/* 模块索引：标题、简介与细分隔线组成单列文章列表。 */
+.md-typeset .notebook-index.article-index {
+  max-width: 1060px;
+  padding-top: 20px;
+}
+
+.article-index .index-intro {
+  max-width: none;
+  padding-bottom: 32px;
+}
+
+.article-index .article-list {
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.article-index .article-entry {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .article-index .article-entry h2,
+.md-typeset .article-index .article-title {
+  display: block;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+
+.md-typeset .article-index .article-entry h2 a,
+.md-typeset .article-index .article-title a {
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+}
+
+.md-typeset .article-index .article-entry h2 a:hover,
+.md-typeset .article-index .article-title a:hover {
+  color: var(--md-typeset-a-color);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.md-typeset .article-index .article-entry > p,
+.md-typeset .article-index .article-entry-body > p {
+  margin: 8px 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+@media screen and (max-width: 34.984375em) {
+  .md-typeset .notebook-index.article-index {
+    padding-top: 8px;
+  }
+
+  .article-index .index-intro {
+    padding-bottom: 24px;
+  }
+
+  .article-index .article-entry {
+    padding: 20px 0;
+  }
+
+  .md-typeset .article-index .article-entry h2,
+  .md-typeset .article-index .article-title {
+    font-size: 0.95rem;
+  }
+
+  .md-typeset .article-index .article-entry > p,
+  .md-typeset .article-index .article-entry-body > p {
+    font-size: 0.8rem;
+  }
+}
+
+/* 文章标签与自动生成的主题归档。 */
+.md-typeset .md-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 1.15rem;
+}
+
+.md-typeset .md-tags .md-tag {
+  margin: 0;
+  padding: 3px 9px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+  color: var(--md-default-fg-color--light);
+  background: var(--notebook-hover);
+  font-size: 0.7rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.md-typeset .md-tags a.md-tag:hover {
+  color: var(--md-typeset-a-color);
+  border-color: currentColor;
+}
+
+.md-typeset .notebook-index.tags-index {
+  max-width: 780px;
+  padding-top: 16px;
+}
+
+.tags-index .index-intro {
+  max-width: none;
+  padding-bottom: 24px;
+}
+
+.md-typeset .tags-index h1 {
+  margin-bottom: 14px;
+}
+
+.md-typeset .tags-index .index-intro > p {
+  font-size: 15px;
+}
+
+.tags-index #tags {
+  scroll-margin-top: 90px;
+}
+
+.tags-index .tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 20px 24px;
+  padding: 32px 2px 28px;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .tags-index .tag-cloud-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  max-width: 100%;
+  color: var(--md-default-fg-color--light);
+  font-size: calc(16px + var(--tag-weight) * 8px);
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.tags-index .tag-cloud-name {
+  overflow-wrap: anywhere;
+}
+
+.tags-index .tag-cloud-count {
+  flex-shrink: 0;
+  padding: 0.04em 0.28em;
+  border-radius: 999px;
+  background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color--lighter);
+  font-size: max(12px, 0.68em);
+  line-height: 1.3;
+}
+
+.md-typeset .tags-index .tag-cloud-link:hover {
+  color: var(--md-typeset-a-color);
+}
+
+@media screen and (max-width: 34.984375em) {
+  .md-typeset .notebook-index.tags-index {
+    padding-top: 8px;
+  }
+
+  .tags-index .tag-cloud {
+    gap: 16px 20px;
+    padding: 26px 0 24px;
+  }
+
+  .md-typeset .tags-index .tag-cloud-link {
+    font-size: calc(15px + var(--tag-weight) * 7px);
+  }
+
+}
+
+/* 模块索引和标签归档共用带日期的文章行。 */
+.md-typeset .article-index .article-year {
+  display: block;
+  margin: 28px 0 12px;
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.article-index .article-entry-dated {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 22px;
+}
+
+.article-index .article-date {
+  padding-top: 3px;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.md-typeset .notebook-index.tag-archive-index {
+  max-width: 780px;
+  padding-top: 16px;
+}
+
+.tag-archive-index .index-intro {
+  padding-bottom: 24px;
+}
+
+.tag-archive-index .tag-title-marker {
+  color: var(--md-typeset-a-color);
+}
+
+.md-typeset .tag-archive-index .index-intro > p:not(.index-eyebrow),
+.md-typeset .tag-archive-index .article-entry-body > p {
+  font-size: 15px;
+}
+
+.md-typeset .tag-archive-index .article-title {
+  font-size: 18px;
+}
+
+.md-typeset .note-date {
+  margin: -0.6rem 0 1.4rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 13px;
+}
+
+@media screen and (max-width: 34.984375em) {
+  .article-index .article-entry-dated {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .md-typeset .tag-archive-index .article-title {
+    font-size: 16px;
+  }
+
+  .article-index .article-date {
+    font-size: 13px;
   }
 }

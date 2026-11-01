@@ -1,3 +1,13 @@
+---
+tags:
+  - vLLM
+  - KV Cache
+  - 推理调度
+title: PD 分离推理架构详解
+description: Prefill 与 Decode 的计算差异、混合部署中的性能干扰，以及分离部署和 KV Cache 传输机制。
+date: 2026-10-18
+---
+
 # PD 分离推理架构详解
 
 在大语言模型推理过程中，prefill 阶段和 decode 阶段具有截然不同的计算特性：
@@ -18,7 +28,7 @@
 
 例如，实时聊天机器人更关注低 TTFT 以保证响应及时，而 TPOT 只需快于人类阅读速度（约 250 词/分钟）即可；相反，文档摘要则更强调低 TPOT，以便更快地产生完整摘要。
 
-![不同应用对 TTFT 与 TPOT 的 SLO 要求](../../assets/pd-application-ttft-tpot-slo.png){ width="800" }
+![不同应用对 TTFT 与 TPOT 的 SLO 要求](../../assets/ai-infra/pd/pd-application-ttft-tpot-slo.png){ width="800" }
 
 单纯依赖 Throughput 作为指标，并不能反映延迟表现，系统看似处理了大量请求，但其中不少未能满足 SLO，最终呈现给用户的仍是不理想的服务体验。
 
@@ -33,17 +43,17 @@
 
 下图展示了一个简单的例子：某应用的吞吐量为 10 RPS（每秒请求数），但由于延迟约束的限制，只有 3 RPS 的请求满足 SLO，因此该系统的 Goodput 仅为 3 RPS。可以想象，用户在这样一个高吞吐但低 Goodput 的系统中，依然会感受到较差的服务体验。
 
-![吞吐量与满足延迟约束的有效吞吐量对比](../../assets/pd-throughput-vs-goodput.png){ width="850" }
+![吞吐量与满足延迟约束的有效吞吐量对比](../../assets/ai-infra/pd/pd-throughput-vs-goodput.png){ width="850" }
 
 ## 2、Prefill 与 Decode 共置导致干扰
 
 在 LLM 服务中请求的生命周期通常包含两个阶段：prefill（生成首个 token）和 decode（逐步生成后续 token）。大多数现有系统（如 vLLM、TensorRT-LLM）采用 continuous batching 技术，将 prefill 和 decode 混合在一起统一批处理。这种方式确实能够提升整体吞吐量，但由于两者计算特性和 SLO 目标差异显著，将它们共置在同一 GPU 上往往并不理想。
 
-![Prefill 与 Decode 共置时的请求执行过程](../../assets/pd-colocated-request-lifecycle.gif){ width="800" }
+![Prefill 与 Decode 共置时的请求执行过程](../../assets/ai-infra/pd/pd-colocated-request-lifecycle.gif){ width="800" }
 
 如下图所示，continuous batching 会带来明显的干扰。**当 prefill 和 decode 被放在同一批次时，decode 请求的延迟（TPOT）会被显著拉长，而 prefill 请求的首 token 延迟（TTFT）也会有所增加。**
 
-![128-token prompt 下混合批处理对 Decode 延迟的影响](../../assets/pd-colocated-interference-prompt-128.png){ width="900" }
+![128-token prompt 下混合批处理对 Decode 延迟的影响](../../assets/ai-infra/pd/pd-colocated-interference-prompt-128.png){ width="900" }
 
 图中展示了三种不同的执行方式：
 
@@ -53,11 +63,11 @@
 
 **在 prompt 长度为 128 时，相比仅包含 decode 的请求，延迟增加约 1.8 倍；而当 prompt 长度为 1024 时，干扰效应显著放大，decode 延迟提升至 12.6 倍**
 
-![1024-token prompt 下混合批处理对 Decode 延迟的影响](../../assets/pd-colocated-interference-prompt-1024.png){ width="900" }
+![1024-token prompt 下混合批处理对 Decode 延迟的影响](../../assets/ai-infra/pd/pd-colocated-interference-prompt-1024.png){ width="900" }
 
 由于这种干扰，如下图所示，当服务必须同时满足 TTFT 和 TPOT 的 SLO 时， **系统往往需要进行资源的过度配置才能达到延迟目标** ，尤其是在任一 SLO 要求较严格的情况下。
 
-![共置部署为满足 SLO 而增加 GPU 资源](../../assets/pd-colocated-slo-overprovisioning.png){ width="800" }
+![共置部署为满足 SLO 而增加 GPU 资源](../../assets/ai-infra/pd/pd-colocated-slo-overprovisioning.png){ width="800" }
 
 ## 3、PD 分离的整体思路
 
@@ -68,7 +78,7 @@
 
 下图展示了在这样一个分离式系统中，请求是如何被处理的。当一个请求到达系统时，它会先被分配到 prefill worker 完成 prefill 阶段；随后系统将其中间状态（主要是 KV Cache）迁移到 decode worker，并执行多步 decode 以生成后续 token；当生成完成后，请求才会离开系统。
 
-![PD 分离后的请求执行与 KV Cache 迁移过程](../../assets/pd-disaggregated-request-lifecycle.gif){ width="800" }
+![PD 分离后的请求执行与 KV Cache 迁移过程](../../assets/ai-infra/pd/pd-disaggregated-request-lifecycle.gif){ width="800" }
 
 让我们通过一个简单的实验来看看为什么 PD 分离是有益的。我们在一张 A100-80GB GPU 上运行一个 130 亿参数的 LLM，请求到达服从泊松分布，输入长度为 512，输出长度为 64。我们逐步增加请求速率（x 轴），并在下图测量两类延迟（P90 TTFT 和 P90 TPOT，y 轴）的变化。
 
@@ -82,7 +92,7 @@ $$
 
 这个实验表明，即便没有引入任何并行优化，仅仅通过简单的分离，Goodput 就提升了约 2 倍。
 
-![共置部署与 2P1D 部署的延迟及每 GPU 有效吞吐量对比](../../assets/pd-colocated-vs-2p1d-goodput.png){ width="850" }
+![共置部署与 2P1D 部署的延迟及每 GPU 有效吞吐量对比](../../assets/ai-infra/pd/pd-colocated-vs-2p1d-goodput.png){ width="850" }
 
 ## 4、分离式推理架构的优化方向
 
@@ -98,7 +108,7 @@ $$
 * prefill 阶段：随着 batch size 的增加，吞吐量的提升很快趋于平缓。这是因为 prefill 属于 compute-bound，当 batch 中的总 tokens 数超过一定规模后，GPU 的计算能力已经被完全吃满，再增加请求只会延长整体处理时间，而不会带来明显的吞吐提升。
 * decode 阶段：随着 batch size 的增加，吞吐量的增长趋势越来越显著。这是因为 decode 阶段是 memory-bound，即相比于计算，读写数据的时间要更多。所以在 decode 阶段中，如果我们能提升 batch size，就能把计算强度提起来，吞吐量就上去了。
 
-![Prefill 与 Decode 吞吐量随 Batch Size 的变化](../../assets/pd-prefill-decode-batch-throughput.png){ width="800" }
+![Prefill 与 Decode 吞吐量随 Batch Size 的变化](../../assets/ai-infra/pd/pd-prefill-decode-batch-throughput.png){ width="800" }
 
 在分离架构下，我们可以针对 prefill 和 decode 的特性对 batching 策略分别进行优化：
 
@@ -125,7 +135,7 @@ $$
 
 对于 OPT-175B，延迟小于单次 decode 步骤（在 A100 上约为 30-50 毫秒）。对于更大的模型、更长的序列或更先进的网络（例如带宽为 600GB/s 的 A100-NVLink），如下图所示，与单次 decoe 步骤相比，KV cache 传输相关的相对开销变得不那么显著。总之，通过精心安排 prefill 和 decode 工作节点以利用高带宽网络，可以有效隐藏 KV cache 传输的开销。
 
-![KV Cache 传输与单步 Decode 的延迟对比](../../assets/pd-kv-transfer-vs-decode-latency.png){ width="800" }
+![KV Cache 传输与单步 Decode 的延迟对比](../../assets/ai-infra/pd/pd-kv-transfer-vs-decode-latency.png){ width="800" }
 
 ### 5.2 KV Cache 传输方式
 
@@ -139,7 +149,7 @@ $$
 * **中心存储** ：更适合构建大规模集群，能充分利用多种存储介质和传输通道，并提升计算结果的复用效率，但在某些场景下性能可能受限，同时系统维护成本较高。
 * **P2P 传输** ：架构更简单，性能表现通常更好，但在扩展性和链路稳定性方面会面临挑战。
 
-![中心式 KV Store 与分布式 P2P 传输架构对比](../../assets/pd-kv-central-store-vs-p2p.png){ width="950" }
+![中心式 KV Store 与分布式 P2P 传输架构对比](../../assets/ai-infra/pd/pd-kv-central-store-vs-p2p.png){ width="950" }
 
 ### 5.3 KV Cache 传输的网络堆栈
 
@@ -149,7 +159,7 @@ $$
 * **Direct-NIC** ，即 GPU 通过其配套的网卡（NIC）进行通信。在这里，可以使用定制化的库，通过 PCIe 和以太网（或 InfiniBand）进行数据传输。
 * **Indirect** ，即当 GPU 之间没有直接链路时，必须通过其 CPU 的 DRAM 中转数据，从而带来额外的内存拷贝开销。
 
-![KV Cache 传输的 Direct、Direct-NIC 与 Indirect 网络链路](../../assets/pd-kv-transfer-network-stack.png){ width="600" }
+![KV Cache 传输的 Direct、Direct-NIC 与 Indirect 网络链路](../../assets/ai-infra/pd/pd-kv-transfer-network-stack.png){ width="600" }
 
 ### 5.4 KV Cache 传输粒度
 
@@ -158,7 +168,7 @@ KV cache 传输粒度可以分为 3 类：
 * **请求级** ：等到 prefill 阶段完成后，将 KV cache 一次性传输。这种方式的好处是能够减少网络传输次数，因为每次传输的数据量更大，从而降低了通信开销。然而当 KV cache 大小较大时，会影响 TTFT 的延迟。
 * **层级** ：Splitwise 通过在 prefill 阶段的计算与 KV cache 传输之间实现重叠来优化性能。**每一层计算完成后，都会异步传输该层的 KV cache，同时继续执行下一层的计算，从而降低传输开销。**层级传输还能带来额外优势，例如更早启动 decode 阶段，以及更早释放 prefill 端的内存。层级 KV cache 传输与下一层的 prefill 计算并行进行，这需要逐层的细粒度同步以确保正确性，因此可能会带来性能干扰并增加 TTFT，尤其是在小 prompt 的场景下。不过对于小 prompt 来说，KV cache 的总体规模很小，不需要层级传输来隐藏延迟。由于在计算开始时批次中的 token 数已经是已知的，**Splitwise 会选择最合适的 KV cache 传输方式：小 prompt 使用序列化传输，而大 prompt 使用层级传输。**
 
-![Splitwise 请求级串行传输与逐层 KV Cache 传输对比](../../assets/pd-splitwise-layerwise-kv-transfer.png){ width="850" }
+![Splitwise 请求级串行传输与逐层 KV Cache 传输对比](../../assets/ai-infra/pd/pd-splitwise-layerwise-kv-transfer.png){ width="850" }
 
 * **块级** ：TetriInfer 在 PD 分离的基础上，还会将输入的 prompt 划分为固定大小的 chunk，以便让 GPU 始终运行在接近计算饱和的状态。因此，TetriInfer 论文中也提出了基于块级的 KV cache 传输方案。
 
@@ -297,7 +307,7 @@ chunked-prefills 有两个明显的好处：
 * Mooncake 的核心是一个以 KV cache 为中心的调度器，它在最大化整体有效吞吐量和满足延迟相关的 SLO 之间进行平衡。
 * 与传统假设所有请求都会被处理的研究不同，Mooncake 需要应对高负载场景带来的挑战。为此，Mooncake 提出了一种基于预测的早期拒绝策略。
 
-![image-20261018-1792252811983](../../assets/image-20261018-1792252811983.png){ width="900" }
+![Mooncake 的 Prefill、KV Cache 与 Decode 架构](../../assets/ai-infra/pd/pd-mooncake-architecture.png){ width="900" }
 
 实验结果表明，Mooncake 在 长上下文场景下表现尤为突出：在某些模拟场景中，吞吐量相比基线方法最高可提升 525%，同时仍能满足 SLO。在真实负载下，Mooncake 的创新架构使 Kimi 能够多处理 75% 的请求。
 

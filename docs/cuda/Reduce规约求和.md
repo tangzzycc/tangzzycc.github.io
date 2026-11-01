@@ -1,3 +1,11 @@
+---
+tags:
+  - Warp
+  - 访存优化
+title: Reduce 规约求和
+description: 从树形归约与两阶段计算出发，逐步优化线程访问、Bank Conflict、循环展开和 Warp 内求和。
+date: 2026-10-26
+---
 
 reduce 算法本质上就是计算：
 
@@ -7,13 +15,11 @@ $$
 
 在GPU中，reduce采用了一种树形的计算方式，由于GPU没有针对global数据的同步操作，只能针对block的数据进行同步。所以，一般而言将reduce分为两个阶段，其示意图如下：
 
-![Reduce 的两阶段树形归约](../../assets/cuda/reduce-two-stage-tree.svg){ width="1000" }
+![Reduce 的两阶段树形归约](../../assets/cuda/reduce/reduce-two-stage-tree.svg){ width="1000" }
 
 假设给定一个长度为N的数组，需要计算该数组的所有元素之和。首先需要将数组分为m个小份。而后，在第一阶段中，开启m个block计算出m个小份的reduce值。最后，在第二阶段中，使用一个block将m个小份再次进行reduce，得到最终的结果。
 
 > 由于第二阶段本质上是可以调用第一个阶段的kernel，所以不做单独说明，下文只是探索**第一阶段**的优化技巧。
-
-## Global Memory的朴素实现
 
 最直接的实现方式是：**每个 Block 负责一段连续的输入数据，在 Global Memory 中原地完成树形规约**。每个 thread 对应一个元素，各轮相加后的中间结果仍然写回输入数组。
 
@@ -27,7 +33,7 @@ $$
 
 > 先用 `input_begin` 明确当前 Block 的数据起始地址，后续就可以直接用 `threadIdx.x` 索引这段数据，不必每次都加上 Block 的偏移量。
 
-![Global Memory 数据分块与 Block0 的朴素归约](../../assets/cuda/reduce-global-memory-naive.svg){ width="500" }
+![Global Memory 数据分块与 Block0 的朴素归约](../../assets/cuda/reduce/reduce-global-memory-naive.svg){ width="500" }
 
 ```cuda
 __global__ void reduce(float *d_input, float *d_output) {
@@ -55,7 +61,7 @@ __global__ void reduce(float *d_input, float *d_output) {
 
 **数据加载完成后，以及每轮规约结束后，Block 内所有线程都需要同步。** 图中以 16 个元素为例，四轮参与相加的线程数依次为 8、4、2、1，红色表示当前轮参与计算的线程，其余线程仍需参与同步。
 
-![Shared Memory 数据加载与四轮树形规约](../../assets/cuda/reduce-shared-memory-iterations.svg){ width="700" }
+![Shared Memory 数据加载与四轮树形规约](../../assets/cuda/reduce/reduce-shared-memory-iterations.svg){ width="700" }
 
 ```cuda
 #define THREAD_PER_BLOCK 256
@@ -92,8 +98,7 @@ GPU 以 **warp** 为单位发射指令，一个 warp 通常包含 32 个线程�
 
 > 因此，这个实现**消除了前 3 轮的 warp divergence**。从第 4 轮开始，参与计算的线程数不足一个 warp，仍会出现分歧；每轮结束后，所有线程仍需参与同步。
 
-
-![连续线程分工与 Shared Memory 数据索引映射](../../assets/cuda/reduce-contiguous-thread-iterations.svg){ width="700" }
+![连续线程分工与 Shared Memory 数据索引映射](../../assets/cuda/reduce/reduce-contiguous-thread-iterations.svg){ width="700" }
 
 ```cuda
 #define THREAD_PER_BLOCK 256
@@ -131,7 +136,7 @@ __global__ void reduce(float *d_input, float *d_output) {
 
 > 元素 0 和 128 虽然位于同一 bank，但分属两次读取，不会因此产生冲突。右图的两条连线分别表示这两次读取。
 
-![Shared Memory 的 bank conflict 优化前后对照](../../assets/cuda/reduce-bank-conflict-comparison.svg){ width="1000" }
+![Shared Memory 的 bank conflict 优化前后对照](../../assets/cuda/reduce/reduce-bank-conflict-comparison.svg){ width="1000" }
 
 ```cuda
 #define THREAD_PER_BLOCK 256
@@ -160,7 +165,7 @@ __global__ void reduce(float *d_input, float *d_output) {
 
 可以将一次合并提前到加载阶段：**每个线程读取两个元素，先相加，再将部分和写入 Shared Memory**。这样所有线程都先完成一次相加，随后继续进行树形规约。具体可以增加每个 Block 的数据量，或减少每个 Block 的线程数，形成下面两种方案。
 
-![原实现、Plan A、Plan B 的加载时相加与规约流程](../../assets/cuda/reduce-add-during-load-plans.svg){ width="1000" }
+![原实现、Plan A、Plan B 的加载时相加与规约流程](../../assets/cuda/reduce/reduce-add-during-load-plans.svg){ width="1000" }
 
 <div class="cuda__plans" markdown="1">
 
@@ -224,13 +229,13 @@ reduce<<<block_num, THREAD_PER_BLOCK>>>(d_input, d_output);
 
 之后进入 `tid < 32`，由 warp 0 完成距离 32、16、8、4、2、1 的六步累加。将这些固定步骤直接写出来，就不必继续执行循环中的 Block 级屏障。**32 个线程仍然执行全部六条语句，后续需要的有效结果逐步减少，最后由 thread 0 写出整个 Block 的部分和。**
 
-![跨 warp 合并保留同步，最后一个 warp 展开固定步骤](../../assets/cuda/reduce-last-warp-unroll.svg){ width="1100" }
+![跨 warp 合并保留同步，最后一个 warp 展开固定步骤](../../assets/cuda/reduce/reduce-last-warp-unroll.svg){ width="1100" }
 
 > 绿色框表示一个 warp。一个 warp 包含 32 个线程，thread 0～31 属于 warp 0，thread 32～63 属于 warp 1；因此 thread 0 和 thread 7 同组，thread 34 属于另一组。
 
 GPU 以 warp 为单位执行 SIMT 指令。在传统的 warp 锁步执行下，同一 warp 的线程共同执行指令，而不同 warp 的执行进度相互独立。**thread 0 和 thread 34 之间如果存在 Shared Memory 读写依赖，就需要通过 `__syncthreads()` 保证前一轮的结果已经写回；尾部计算只涉及 warp 0，因此可以在这一执行假设下省去反复的 Block 同步。**
 
-![thread 0、7 属于 warp 0，thread 34 属于 warp 1](../../assets/cuda/reduce-warp-thread-groups.svg){ width="660" }
+![thread 0、7 属于 warp 0，thread 34 属于 warp 1](../../assets/cuda/reduce/reduce-warp-thread-groups.svg){ width="660" }
 
 > 这里省去尾部同步的写法依赖传统 warp 锁步执行。Volta 及之后的 GPU 支持独立线程调度，不能仅凭“同一 warp”保证 Shared Memory 读写顺序；`volatile` 也不是同步屏障，现代实现需要显式的 `__syncwarp()` 或使用 warp shuffle 完成规约。
 
@@ -405,7 +410,7 @@ reduce<num_per_block, num_per_thread>
 
 Shuffle 用于**同一 warp 内线程之间的寄存器值交换**，不需要先写入 Shared Memory 再读取。`__shfl_down_sync(mask, sum, offset)` 将同一 warp 内 `laneId + offset` 位置的 `sum` 值传给当前线程，再与当前线程的 `sum` 相加；依次使用 16、8、4、2、1 的偏移，最终由 lane 0 得到整个 warp 的部分和。
 
-![Shared Memory 与 Shuffle 的 warp 内传值对照](../../assets/cuda/reduce-warp-shuffle.svg){ width="1100" }
+![Shared Memory 与 Shuffle 的 warp 内传值对照](../../assets/cuda/reduce/reduce-warp-shuffle.svg){ width="1100" }
 
 **Shuffle 只能在 warp 内传值，跨 warp 合并仍需 Shared Memory。** 对于 256 个线程的 Block，先由 8 个 warp 分别完成规约，各自的 lane 0 将部分和写入 Shared Memory。经过一次 `__syncthreads()` 后，warp 0 读取这 8 个部分和，其余 lane 补 0，再用 Shuffle 完成最终规约。
 

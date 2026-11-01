@@ -1,0 +1,4 @@
+# Crawlers must be able to read the noindex directives in each HTML page.
+# This site does not publish a sitemap.
+User-agent: *
+Allow: /

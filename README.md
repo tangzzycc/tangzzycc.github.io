@@ -1,8 +1,8 @@
 # Notebook
 
-个人技术笔记与本地博客。笔记、图片和站点资源统一保存在 `docs/` 中。
+Personal technical notes and a local blog. Notes are stored in `docs/`, while images and fonts are stored in `assets/`.
 
-## 本地预览
+## Local Preview
 
 ```bash
 python -m venv .venv
@@ -10,14 +10,36 @@ python -m venv .venv
 NO_MKDOCS_2_WARNING=1 .venv/bin/mkdocs serve
 ```
 
-打开 [http://127.0.0.1:8000](http://127.0.0.1:8000) 即可查看。开发服务会监听文件变化并自动刷新页面。
-`NO_MKDOCS_2_WARNING=1` 只关闭 Material 关于未来 MkDocs 2.0 的公告，不影响构建和预览。
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) to view the site. The development server watches for file changes and automatically refreshes the page.
+`NO_MKDOCS_2_WARNING=1` suppresses Material's announcement about the upcoming MkDocs 2.0 release without affecting builds or previews.
 
-## 内容结构
+## Search Engine Visibility
 
-- `docs/ai-infra/`：推理架构、并行策略、vLLM 执行机制与 GEMM 优化笔记
-- `docs/gpu-operators/`：GPU 算子实现，记录题目、Tips、公共前置与分级代码实现
-- `docs/vllm/`：搬运栏目，收录 vLLM 框架基础与 Attention 进阶笔记
-- `docs/life/`：生活记录，其中 `career/` 收录 hot100 算法面试笔记，并按 `fundamentals/`、`projects/`、`development/`、`resume/`、`applications/` 整理面试基础、项目经历、开发实践、简历与秋招进度；FlashRT RDNA 3.5 与 FlyDSL 源码笔记归入各自的 `development/` 目录
-- `assets/`：站点 Logo、笔记图片和本地字体
-- `mkdocs.yml`：导航与站点配置
+Every HTML page includes `noindex, nofollow, noimageindex` directives. Sitemap generation is disabled, and stale sitemap files are removed during builds. `robots.txt` permits crawling so search engines can read these directives; blocking crawling would prevent them from seeing `noindex`.
+
+Direct links, site navigation, and the built-in search remain available. Rebuild and deploy the site to apply these settings online. These directives apply to compliant search engines, not access control; previously indexed pages may remain in results until they are crawled again. Raw assets would need an HTTP `X-Robots-Tag` header from the hosting server to receive their own indexing directive.
+
+## Repository Structure
+
+- `docs/ai-infra/`: Notes on inference architecture and vLLM execution.
+- `docs/cuda/`: Notes on CUDA programming, matrix multiplication, FlashAttention, and performance analysis.
+- `docs/rocm/`: Notes on GPU programming and engineering with the ROCm platform.
+- `docs/tags/`: Automatically generated topic index.
+- `assets/ai-infra/`: Images organized by topic: prefill/decode disaggregation (PD), Multi-LoRA, and Model Runner V2.
+- `assets/cuda/`: Images organized by note topic, including fundamentals, reduction, matrix multiplication, memory access, and scheduling.
+- `assets/fonts/`: Local fonts; `assets/logo.jpg`: Site logo.
+- `mkdocs.yml`: Site navigation and configuration.
+
+Use descriptive filenames for images and store them in the appropriate topic directory. Notes reference images using relative paths; links that open images at full size use the same image path.
+
+## Tags
+
+Add a record date, summary, and topic tags to a note's YAML front matter. The module indexes and tag archives use this metadata to display articles by year, with the newest entries first. Each tag has its own archive page, generated automatically during the build.
+
+```yaml
+date: 2026-10-18
+description: A summary of the note.
+tags:
+  - vLLM
+  - KV Cache
+```

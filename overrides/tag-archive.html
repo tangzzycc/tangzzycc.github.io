@@ -1,0 +1,12 @@
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="notebook-index article-index tag-archive-index">
+    <header class="index-intro">
+      <p class="index-eyebrow">TAG</p>
+      <h1><span class="tag-title-marker" aria-hidden="true">#</span> {{ page.meta.tag_archive | e }}</h1>
+      <p>{{ archive_article_count }} 篇笔记归于此标签。返回<a href="{{ 'tags/' | url }}">所有标签</a>或<a href="{{ '.' | url }}">首页</a>。</p>
+    </header>
+    {% include "partials/article-list.html" %}
+  </div>
+{% endblock %}
