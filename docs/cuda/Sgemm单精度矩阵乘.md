@@ -1,8 +1,8 @@
 ---
 code_fold: false
 tags:
-  - 矩阵乘法
-  - 访存优化
+  - GEMM
+  - Memory
 title: SGEMM 单精度矩阵乘
 description: 共享内存分块、寄存器复用、float4 向量化、数据转置与双缓冲，逐步提高矩阵乘法的计算和访存效率。
 date: 2026-10-27

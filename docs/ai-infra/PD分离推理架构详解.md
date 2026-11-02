@@ -2,7 +2,7 @@
 tags:
   - vLLM
   - KV Cache
-  - 推理调度
+  - Scheduling
 title: PD 分离推理架构详解
 description: Prefill 与 Decode 的计算差异、混合部署中的性能干扰，以及分离部署和 KV Cache 传输机制。
 date: 2026-10-18

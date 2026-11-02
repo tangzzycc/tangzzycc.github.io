@@ -2,9 +2,9 @@
 title: "MMA 与 Swizzle 访存优化"
 code_fold: false
 tags:
-  - 矩阵乘法
+  - GEMM
   - Tensor Core
-  - 访存优化
+  - Memory
 description: ldmatrix 与 MMA 的寄存器映射、共享内存读写冲突，以及 Padding 和 Swizzle 地址重排。
 date: 2026-11-01
 ---

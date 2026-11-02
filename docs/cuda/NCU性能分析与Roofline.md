@@ -1,7 +1,7 @@
 ---
 code_fold: false
 tags:
-  - 性能分析
+  - Profiling
 title: NCU 性能分析与 Roofline
 description: Nsight Compute 报告采集、源码定位与计算强度，用算力和带宽上界判断 Kernel 的性能瓶颈。
 date: 2026-10-31

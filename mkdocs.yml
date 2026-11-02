@@ -23,6 +23,8 @@ nav:
       - vLLM 推理框架:
           - vLLM Model Runner V2 架构: ai-infra/vLLM Model Runner V2 架构.md
           - vLLM Multi-LoRA 推理: ai-infra/vLLM Multi-LoRA推理.md
+      - Speculative Decoding:
+          - Speculative Decoding 之 DFlash 与 DSpark: ai-infra/DFlash与DSpark.md
   - CUDA:
       - 学习索引: cuda/index.md
       - CUDA 基础: cuda/CUDA基础.md
@@ -112,7 +114,7 @@ hooks:
   - scripts/search_visibility.py
 
 extra_css:
-  - stylesheets/extra.css?v=23
+  - stylesheets/extra.css?v=26
   - stylesheets/notebook-theme.css?v=9
   - stylesheets/home.css?v=34
   - stylesheets/interview-notes.css?v=2

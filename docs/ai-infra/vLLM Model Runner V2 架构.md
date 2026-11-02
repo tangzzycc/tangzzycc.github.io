@@ -1,7 +1,7 @@
 ---
 tags:
   - vLLM
-  - 推理调度
+  - Scheduling
 title: vLLM Model Runner V2 架构
 description: 从 Persistent Batch 解耦与 RequestState 管理出发，理解模型执行中的异步调度、输入输出组织与投机解码。
 date: 2026-10-18

@@ -2,7 +2,7 @@
 code_fold: false
 tags:
   - Warp
-  - 性能分析
+  - Profiling
 title: Occupancy 与 Warp 调度
 description: 驻留资源限制、Active / Eligible / Issued Warp 的区别，以及如何结合调度指标定位主要 Stall。
 date: 2026-10-31

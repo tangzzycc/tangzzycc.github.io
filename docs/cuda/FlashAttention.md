@@ -1,7 +1,7 @@
 ---
 tags:
   - Attention
-  - 访存优化
+  - Memory
 title: FlashAttention v1 & v2 浅析
 description: 分块 Attention、Online Softmax、线程块与 Warp 分工，以及 Flash-Decoding 的并行方式。
 date: 2026-10-18

@@ -1,6 +1,6 @@
 ---
 tags:
-  - 访存优化
+  - Memory
   - Warp
 title: CUDA 基础
 description: GPU 存储层次、Warp 执行、Shared Memory 的 Bank Conflict，以及线程间的 Shuffle 数据交换。

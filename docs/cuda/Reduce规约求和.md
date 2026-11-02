@@ -1,7 +1,7 @@
 ---
 tags:
   - Warp
-  - 访存优化
+  - Memory
 title: Reduce 规约求和
 description: 从树形归约与两阶段计算出发，逐步优化线程访问、Bank Conflict、循环展开和 Warp 内求和。
 date: 2026-10-26

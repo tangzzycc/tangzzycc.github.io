@@ -105,9 +105,14 @@
   margin-bottom: 0.3em;
 }
 
-/* PD 分离笔记：一级沿用实心圆点，二级显示空心圆点。 */
-.md-typeset:has(> h1.pd-inference-note) > ul > li > ul {
+/* 全站正文：一级沿用实心圆点，嵌套无序列表显示空心圆点。 */
+.md-typeset ul ul:not(.task-list) {
   list-style-type: circle;
+}
+
+/* 有序列表可用 data-number 指定 2.1、2.2 等自定义编号。 */
+.md-typeset ol > li[data-number]::marker {
+  content: attr(data-number) ". ";
 }
 
 /* 顶层分点比正文略向内缩进，强调其从属于前面的引导句。 */
@@ -323,5 +328,58 @@
 @media screen and (max-width: 600px) {
   .md-typeset .cuda-figure-pair {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 推理流程按正文可用宽度排版，宽屏左右对照，窄屏上下阅读。 */
+.md-typeset .inference-section {
+  container-type: inline-size;
+  margin: 1.2em 0 2em;
+}
+
+.md-typeset .inference-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 1.4em;
+}
+
+.md-typeset .inference-figure,
+.md-typeset .inference-description {
+  min-width: 0;
+}
+
+.md-typeset .inference-figure > p,
+.md-typeset .inference-description > p:first-child {
+  margin-top: 0;
+}
+
+.md-typeset .inference-figure > p {
+  margin-bottom: 0;
+}
+
+.md-typeset .inference-description > p > strong:only-child {
+  font-size: 1.05em;
+}
+
+@container (min-width: 760px) {
+  .md-typeset .inference-layout {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: 1.5em;
+  }
+
+  .md-typeset .inference-figure {
+    position: sticky;
+    top: 4.5rem;
+  }
+}
+
+@media print {
+  .md-typeset .inference-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .md-typeset .inference-figure {
+    position: static;
   }
 }

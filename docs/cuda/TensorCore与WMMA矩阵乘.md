@@ -2,7 +2,7 @@
 title: "Tensor Core 与 WMMA 矩阵乘"
 code_fold: false
 tags:
-  - 矩阵乘法
+  - GEMM
   - Tensor Core
 description: cuBLAS 行主序布局、WMMA 接口、Warp 分块、fragment 复用与异步双缓冲。
 date: 2026-11-01

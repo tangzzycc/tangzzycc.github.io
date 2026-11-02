@@ -1,4 +1,8 @@
 /* 首页与模块索引共用的入口布局，配色继承全站主题。 */
+body:has(.home-page) .notebook-header {
+  display: none;
+}
+
 @font-face {
   font-family: "Caveat";
   src: url("../assets/fonts/caveat/Caveat-Latin.woff2") format("woff2");
