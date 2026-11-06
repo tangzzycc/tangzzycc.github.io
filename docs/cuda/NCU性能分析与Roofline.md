@@ -110,7 +110,7 @@ $$
 P\leq\min\left(P_{\mathrm{peak}},\ B_{\mathrm{peak}}I\right).
 $$
 
-![计算强度、带宽斜线与峰值算力平台](../../assets/cuda/roofline/roofline-bandwidth-compute-ceiling.svg){ width="900" }
+![计算强度、带宽斜线与峰值算力平台](../../assets/cuda/roofline/roofline-bandwidth-compute-ceiling.svg){ width="800" }
 
 左侧斜线是带宽上界：计算强度较低时，即使算力很强，也没有足够快的数据供应。右侧平台是计算上界：计算强度足够高之后，继续增加每字节的运算量，也不能突破硬件峰值算力。
 
@@ -154,7 +154,7 @@ $$
 
 下面三种执行过程使用同一个简化平台：峰值算力为 2 FLOP/s，峰值带宽为 5 B/s，拐点为 0.4 FLOP/B。按下面三个执行过程比较：
 
-![同一平台上串行、访存受限流水与计算受限流水](../../assets/cuda/roofline/roofline-load-compute-pipeline.svg){ width="900" }
+![同一平台上串行、访存受限流水与计算受限流水](../../assets/cuda/roofline/roofline-load-compute-pipeline.svg){ width="800" }
 
 **访存与计算完全串行**：任务搬运 50 B、执行 10 次浮点运算，计算强度为 0.2 FLOP/B。先搬运花 10 s，再计算花 5 s，总时间 15 s；实际算力为 $10/15\approx0.667$ FLOP/s，实际带宽为 $50/15\approx3.33$ B/s。两个阶段都没有占满整个执行区间。
 
@@ -183,7 +183,7 @@ void __global__ add1(float *x, float *y, float *z)
 }
 ```
 
-![数组加法在 NCU Roofline 中的实测点](../../assets/cuda/roofline/ncu-roofline-vector-add.png){ width="950" }
+![数组加法在 NCU Roofline 中的实测点](../../assets/cuda/roofline/ncu-roofline-vector-add.png){ width="800" }
 
 截图中的点位于带宽斜线一侧。报告按实际执行的浮点指令和测得的流量给出计算强度，可能与算法的 $1/12$ 不完全一致；读取时应确认是 Single Precision，以及对应的是哪条内存层级的 roofline。
 
@@ -215,7 +215,7 @@ void __global__ add2(float *x, float *y, float *z)
 }
 ```
 
-![增加线程内运算后，Kernel 在 Roofline 图中向右移动](../../assets/cuda/roofline/ncu-roofline-repeated-add.png){ width="950" }
+![增加线程内运算后，Kernel 在 Roofline 图中向右移动](../../assets/cuda/roofline/ncu-roofline-repeated-add.png){ width="800" }
 
 NCU 中的点向右移动，但没有贴近算力平台。原因之一是 **`c += ...` 存在连续的结果依赖**，后一次累加要等待前一次；另外，编译器可以将不变的 `a+b` 提到循环外，所以不能机械地按源代码给每轮记两次加法，应结合实际生成的 SASS 计数。
 

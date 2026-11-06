@@ -50,6 +50,14 @@
   overflow-y: hidden;
 }
 
+/* 长篇公式笔记：限制隐藏的 MathML 辅助文本，避免它撑宽窄屏页面。 */
+.md-typeset .dense-attention-note mjx-assistive-mml,
+.md-typeset .sparse-attention-note mjx-assistive-mml,
+.md-typeset .linear-attention-note mjx-assistive-mml {
+  width: 1px !important;
+  height: 1px !important;
+}
+
 .md-typeset table:not([class]) th {
   min-width: 0;
 }
@@ -322,6 +330,7 @@
 .md-typeset .cuda-figure-pair img {
   display: block;
   width: 100%;
+  max-width: min(100%, 800px);
   height: auto;
 }
 

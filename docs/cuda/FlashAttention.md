@@ -32,14 +32,14 @@ $$
 1. **Tiling（分块）**：将大矩阵拆分成小块，使其能够放入 SRAM（速度快但容量小的片上存储）。
 2. **算子融合（Kernel Fusion）**：在一个 GPU Kernel 中完成这些计算，不再将完整的中间矩阵 $S$ 和 $P$ 写回 HBM。
 
-![FlashAttention v1：存储层级、分块计算与性能对比](../../assets/cuda/flashattention/flashattention-v1-memory-tiling-overview.png){ width="1200" }
+![FlashAttention v1：存储层级、分块计算与性能对比](../../assets/cuda/flashattention/flashattention-v1-memory-tiling-overview.png){ width="800" }
 
 > [FlashAttention](https://link.zhihu.com/?target=https%3A//arxiv.org/abs/2205.14135) 是一种重新排序注意力计算并利用分块和重新计算来显著加速并减少内存使用（从序列长度的二次方降至线性）的算法。我们使用分块将输入块从 HBM（GPU 内存）加载到 SRAM（快速缓存），对该块执行注意力计算，并更新 HBM 中的输出。
 > 通过不将大型中间注意力矩阵写入 HBM，我们减少了内存读写量，从而使实际时间加快 2-4 倍。
 
 此处展示了 FlashAttention 正向传播的示意图：通过分块和 softmax 重缩放，我们以块为单位进行操作，避免从 HBM 读取/写入，同时获得正确的输出而没有近似值。
 
-![FlashAttention 正向传播：分块计算与 Softmax 重缩放](../../assets/cuda/flashattention/flashattention-v1-tiled-forward.svg){ width="1200" }
+![FlashAttention 正向传播：分块计算与 Softmax 重缩放](../../assets/cuda/flashattention/flashattention-v1-tiled-forward.svg){ width="800" }
 
 实现分块计算最大的难点在于 **Softmax，因为**要计算序列中任意一个位置的 Softmax 值，你必须先知道**整个序列**中的最大值和所有数值的指数和。
 
@@ -49,19 +49,19 @@ $$
 
 由于在实际的计算中，指数计算exp存在不稳定性，比如数值容易溢出，超过一定范围计算精度会下降等问题
 
-![Naive Softmax 算法](../../assets/cuda/flashattention/softmax-naive-algorithm.png){ width="900" }
+![Naive Softmax 算法](../../assets/cuda/flashattention/softmax-naive-algorithm.png){ width="800" }
 
 **Safe softmax**
 
 计算时每个数减去数组中的最大值，与Naive版本相比，不会出现数值溢出，但是多了一次寻找最大值的遍历。一共需要三次遍历。
 
-![Safe Softmax 算法](../../assets/cuda/flashattention/softmax-safe-algorithm.png){ width="900" }
+![Safe Softmax 算法](../../assets/cuda/flashattention/softmax-safe-algorithm.png){ width="800" }
 
 **Online softmax**
 
 Online Softmax 提出了一种**增量更新**的策略。具体实现策略如下：
 
-![Online Softmax：在线更新归一化因子](../../assets/cuda/flashattention/softmax-online-normalizer-algorithm.png){ width="900" }
+![Online Softmax：在线更新归一化因子](../../assets/cuda/flashattention/softmax-online-normalizer-algorithm.png){ width="800" }
 
 使得我们可以在不知道全局最大值的情况下，开始计算和存储中间结果。允许将巨大的 Attention 矩阵切分成小块放入 SRAM（共享内存）中计算，这是**FlashAttention**能够减少显存访问（HBM Access）并提升速度的数学基础。
 
@@ -71,9 +71,9 @@ Online Softmax 提出了一种**增量更新**的策略。具体实现策略如�
 
 由下图可以清晰的看到计算过程中每个分块的大小
 
-![FlashAttention v1 分块尺寸：Q、Kᵀ、V 与输出矩阵](../../assets/cuda/flashattention/flashattention-v1-tile-shapes.svg){ width="1000" }
+![FlashAttention v1 分块尺寸：Q、Kᵀ、V 与输出矩阵](../../assets/cuda/flashattention/flashattention-v1-tile-shapes.svg){ width="800" }
 
-![FlashAttention v1 前向算法](../../assets/cuda/flashattention/flashattention-v1-forward-algorithm.png){ width="1200" }
+![FlashAttention v1 前向算法](../../assets/cuda/flashattention/flashattention-v1-forward-algorithm.png){ width="800" }
 
 **关键变量定义**：
 
@@ -186,7 +186,7 @@ $$
 
 #### 算法流程
 
-![FlashAttention v2 前向算法](../../assets/cuda/flashattention/flashattention-v2-forward-algorithm.png){ width="1200" }
+![FlashAttention v2 前向算法](../../assets/cuda/flashattention/flashattention-v2-forward-algorithm.png){ width="800" }
 
 ### 更强的并行化
 
@@ -205,7 +205,7 @@ $$
 
 在 NVIDIA GPU 中，一个 Warp 由 32 个线程组成。FA2 调整了同一线程块内各 Warp 的分工，减少了通过**共享内存（Shared Memory）**交换、归约中间结果所需的读写与同步开销。
 
-![FlashAttention 与 FlashAttention-2 的 Warp 任务划分](../../assets/cuda/flashattention/flashattention-v2-warp-partition.svg){ width="1200" }
+![FlashAttention 与 FlashAttention-2 的 Warp 任务划分](../../assets/cuda/flashattention/flashattention-v2-warp-partition.svg){ width="800" }
 
 ## Flash-Decoding
 

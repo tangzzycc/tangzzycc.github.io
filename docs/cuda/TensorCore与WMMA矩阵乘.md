@@ -66,7 +66,7 @@ $$
 
 **输入解释和输出布局都必须匹配** ，不能只检查矩阵乘法的维度能否对上。
 
-![行主序内存被错误的列主序跨度重新解释](../../assets/cuda/tensor-core/tensor-core-cublas-layout-mismatch.svg){ width="960" }
+![行主序内存被错误的列主序跨度重新解释](../../assets/cuda/tensor-core/tensor-core-cublas-layout-mismatch.svg){ width="800" }
 
 ### 使用 OP_T 后还要处理输出布局
 
@@ -94,7 +94,7 @@ $$
 | 输出、`ldc` | `C`、`N` | 列主序 $C^T$，与行主序 C 共用同一布局 |
 | `transa,transb` | `OP_N,OP_N` | 两个乘数按上述列主序视图直接参与运算 |
 
-![两种正确 cuBLAS 调用的输出内存布局](../../assets/cuda/tensor-core/tensor-core-cublas-row-major-gemm.svg){ width="960" }
+![两种正确 cuBLAS 调用的输出内存布局](../../assets/cuda/tensor-core/tensor-core-cublas-row-major-gemm.svg){ width="800" }
 
 完整调用如下。`A`、`B`、`C` 是已经分配好的设备内存，`handle` 已创建；标量采用默认的 Host pointer mode。
 
@@ -231,7 +231,7 @@ $$
 
 A 的起点地址是 `A+m0*K+t*16`，行跨度是 K；B 的起点是 `B+t*16*N+n0`，行跨度是 N。`load_matrix_sync` 从 Global Memory 直接加载 fragment，然后执行乘加；$1024/16=64$ 轮后写回 C。
 
-![一个 Warp 从全局内存加载并计算一个 16×16 输出块](../../assets/cuda/tensor-core/tensor-core-wmma-one-warp-tile.svg){ width="1100" }
+![一个 Warp 从全局内存加载并计算一个 16×16 输出块](../../assets/cuda/tensor-core/tensor-core-wmma-one-warp-tile.svg){ width="800" }
 
 **C fragment 只在循环前清零一次** ，随后每一轮都在旧值上累加。A、B fragment 在各轮被重新加载，不需要填零。原版 K 循环内有 `__syncthreads()`，这里一个 Block 只有一个 Warp，且没有 Shared Memory 的跨线程生产与消费，因此省去这个额外的 Block barrier。
 
@@ -319,7 +319,7 @@ $$
 
 图中绿色区域标出了 Warp 0 使用的共享输入与对应输出。
 
-![共享输入 tile 与 4×2 个 Warp 的输出布局](../../assets/cuda/tensor-core/tensor-core-wmma-block-four-by-two.svg){ width="1100" }
+![共享输入 tile 与 4×2 个 Warp 的输出布局](../../assets/cuda/tensor-core/tensor-core-wmma-block-four-by-two.svg){ width="800" }
 
 ### 256 个线程合作加载
 
@@ -464,7 +464,7 @@ $$
 
 每个 A fragment 用于四个 C，每个 B fragment 用于两个 C。**6 次 fragment 加载支撑 8 次 WMMA 调用** 。如果 8 个输出各自加载 A、B，则要做 16 次 fragment 加载；这里利用寄存器中的操作数复用减少 Shared Memory 到 fragment 的加载。
 
-![128×128 的 Block 输出与一个 Warp 内的 2×4 fragment 复用](../../assets/cuda/tensor-core/tensor-core-wmma-warp-fragment-reuse.svg){ width="1100" }
+![128×128 的 Block 输出与一个 Warp 内的 2×4 fragment 复用](../../assets/cuda/tensor-core/tensor-core-wmma-warp-fragment-reuse.svg){ width="800" }
 
 Shared A 的行起点为 `warp_m*32+i*16`；Shared B 的列起点为 `warp_n*64+j*16`。输出 C 的同一行列位置再加 Block 的全局起点，即：
 
@@ -683,7 +683,7 @@ CP_ASYNC_CG(shared_addr, &A[global_addr], 16);
 2. **稳态循环** ：`k=1...T-1`，整个 Block 合作异步加载 tile k 到 `k&1`，同时从 `(k-1)&1` 读取 tile k−1。每个 Warp 加载 2 个 A 与 4 个 B fragment，执行 8 次 WMMA；8 个 Warp 合计执行 64 次 WMMA。末尾 `wait 0 → __syncthreads()`，再交换两组 buffer 的角色。
 3. **收尾** ：循环结束时 tile T−1 已加载却还没有计算，从 `(T-1)&1` 读出并执行最后一轮 WMMA；每个 Warp 写回自己保存的 8 个 C fragment，8 个 Warp 共同完成整个 Block 的输出。
 
-![WMMA 的矩阵分块、双共享缓冲与 Warp 0 的 fragment 计算范围](../../assets/cuda/tensor-core/tensor-core-wmma-async-double-buffer.svg){ width="1120" }
+![WMMA 的矩阵分块、双共享缓冲与 Warp 0 的 fragment 计算范围](../../assets/cuda/tensor-core/tensor-core-wmma-async-double-buffer.svg){ width="800" }
 
 图中展示 `k=1` 的状态：Shared 0 中的 tile 0 已可读取，tile 1 正在写入 Shared 1。右上角保留 $4\times2$ 个 Warp 的 Block 分块，右下角展开 Warp 0 的 $2\times4$ 个输出 fragment；这里只画有效输入，行末 Padding 未画出。**双缓冲改变的是输入的准备时机，WMMA 的计算分块保持不变** 。下方的 `read` / `copy` 状态表示共享缓冲区编号与对应 tile，未画出的中间迭代同样交替使用两组 buffer。
 

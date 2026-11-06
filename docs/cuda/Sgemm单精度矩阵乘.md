@@ -26,7 +26,7 @@ $$
 
 `A_ptr_start` 和 `B_ptr_start` 分别指向当前 Block 对应的 A 行条带、B 列条带；再加上线程的局部行列索引，就能找到参与计算的元素。C 的输出只写一次，接下来要减少的是计算过程中对 A、B 的重复读取。
 
-![Global Memory 中的矩阵分块与线程计算范围](../../assets/cuda/sgemm/sgemm-global-memory.svg){ width="950" }
+![Global Memory 中的矩阵分块与线程计算范围](../../assets/cuda/sgemm/sgemm-global-memory.svg){ width="800" }
 
 === "核心修改"
 
@@ -75,7 +75,7 @@ $$
 
 加载时，一个线程每轮写入一个 A 元素和一个 B 元素，循环覆盖整个 K 维；`__syncthreads()` 保证所有线程加载完成，再开始计算。这一版所需共享内存为 $4K(bm+bn)$ 字节，**K 越大，共享内存占用越大**，因此还需要把 K 维拆开。
 
-![Block 合作加载 A、B 条带并在 Shared Memory 中复用](../../assets/cuda/sgemm/sgemm-shared-memory.svg){ width="950" }
+![Block 合作加载 A、B 条带并在 Shared Memory 中复用](../../assets/cuda/sgemm/sgemm-shared-memory.svg){ width="800" }
 
 === "核心修改"
 
@@ -141,7 +141,7 @@ $$
 
 滑动窗口保留了上一版的输入复用，主要解决共享内存容量随 K 增长的问题。两个 $16 \times 16$ 的 `float` 分块只占 2 KiB；代价是每个窗口都要经历加载和计算两次同步，为后面的双缓冲留下了优化空间。
 
-![沿 K 维滑动的窗口与加载、计算、写回流程](../../assets/cuda/sgemm/sgemm-k-sliding-window.svg){ width="950" }
+![沿 K 维滑动的窗口与加载、计算、写回流程](../../assets/cuda/sgemm/sgemm-k-sliding-window.svg){ width="800" }
 
 === "核心修改"
 
@@ -207,7 +207,7 @@ $$
 
 输出块从 $16 \times 16$ 扩大到 $32 \times 32$ 后，每份 A、B 输入能被更多输出复用，计算整个矩阵所需的 Block 数变为原来的四分之一。相应地，每线程需要四个累加值，共享内存也从两个 $16 \times 16$ 分块扩大到两个 $32 \times 32$ 分块。这里增加工作量的目的，是提高一个 Block 内的数据复用。
 
-![每个线程负责四个分散的输出与相应数据加载位置](../../assets/cuda/sgemm/sgemm-thread-multiple-outputs.svg){ width="950" }
+![每个线程负责四个分散的输出与相应数据加载位置](../../assets/cuda/sgemm/sgemm-thread-multiple-outputs.svg){ width="800" }
 
 === "核心修改"
 
@@ -294,7 +294,7 @@ $$
 
 `FETCH_FLOAT4` 将首元素地址按 `float4` 解释，加载和写入 Shared Memory 都以四个数为一组。与逐个加载这四个数相比，它减少的是访存指令与地址计算；后面的乘加仍逐个处理四个输出，尚未显式将 A、B 的计算输入保存在寄存器中反复复用。
 
-![标量加载与 float4 加载的线程分工对照](../../assets/cuda/sgemm/sgemm-float4-vector-load.svg){ width="950" }
+![标量加载与 float4 加载的线程分工对照](../../assets/cuda/sgemm/sgemm-float4-vector-load.svg){ width="800" }
 
 === "核心修改"
 
@@ -382,7 +382,7 @@ $$
 
 核心变化是循环顺序：原来先选定输出，再沿 K 完成它的内积；现在把 k 放在外层，取出一组 A、B fragment 后更新所有输出累加值。**外积没有改变矩阵乘法，只是改变同一批乘加的组织方式**，让输入值在寄存器中复用。
 
-![内积与外积的循环顺序、数据读取和输出区域对比](../../assets/cuda/sgemm/sgemm-inner-outer-product.svg){ width="950" }
+![内积与外积的循环顺序、数据读取和输出区域对比](../../assets/cuda/sgemm/sgemm-inner-outer-product.svg){ width="800" }
 
 这一版每个线程计算**连续的 $2 \times 2$ 输出**。加载时仍用 `Block(8,32)`，计算时将 `tid` 重排为 $16 \times 16$ 个线程位置；**负责搬运的数据位置与负责计算的输出位置可以不同**。
 
@@ -478,7 +478,7 @@ Global Memory 到 Shared Memory 的加载继续使用 `float4`。固定 k 时，
 
 每个 k 用四个 A 值和四个 B 值更新 16 个结果，相比逐个输出计算时的 32 次标量输入读取，显式 fragment 只需八个输入值。复用范围扩大到 $4 \times 4$ 后，每线程也要维护 16 个累加值；下一步重点是**让 A fragment 的四个值在 Shared Memory 中也变成连续存放**。
 
-![4×4 寄存器分块及 Global Memory、Shared Memory、寄存器之间的传递](../../assets/cuda/sgemm/sgemm-register-float4-tile.svg){ width="950" }
+![4×4 寄存器分块及 Global Memory、Shared Memory、寄存器之间的传递](../../assets/cuda/sgemm/sgemm-register-float4-tile.svg){ width="800" }
 
 === "核心修改"
 
@@ -575,7 +575,7 @@ Global Memory 到 Shared Memory 的加载继续使用 `float4`。固定 k 时，
 
 一个线程先从 Global Memory 连续读取四个 K 方向元素到临时寄存器，再分别写入转置后的四行。下面两组位置对应不同的 K 窗口：
 
-![A 的 float4 加载、临时寄存器与 Shared Memory 转置存储](../../assets/cuda/sgemm/sgemm-a-transpose-load.svg){ width="950" }
+![A 的 float4 加载、临时寄存器与 Shared Memory 转置存储](../../assets/cuda/sgemm/sgemm-a-transpose-load.svg){ width="800" }
 
 固定 k 计算时，A 的四个 m 方向元素已经在同一行连续存放，**A、B fragment 都可以使用 float4 读取**，再按上一版的 $4 \times 4$ 外积方式累加。
 
@@ -583,7 +583,7 @@ Global Memory 到 Shared Memory 的加载继续使用 `float4`。固定 k 时，
 
 因此，加载 A 时要经过临时寄存器和四次标量写入，换取计算循环中 A fragment 的向量读取。一个 K 分块会被反复用于输出块内的乘加，将布局调整放在加载阶段，就能让后面每次读取 fragment 都采用相同的连续访问方式。
 
-![转置后的 A、B 分块读取到寄存器并更新输出](../../assets/cuda/sgemm/sgemm-a-transpose-register.svg){ width="950" }
+![转置后的 A、B 分块读取到寄存器并更新输出](../../assets/cuda/sgemm/sgemm-a-transpose-register.svg){ width="800" }
 
 === "核心修改"
 
@@ -679,7 +679,7 @@ Global Memory 到 Shared Memory 的加载继续使用 `float4`。固定 k 时，
 
 这一版将分块设为 $bm=bn=128$、$bk=8$，线程仍为 `Block(16,16)`；每个线程计算 $8 \times 8$ 个输出。A tile 为 $128 \times 8$，B tile 为 $8 \times 128$，各有 1024 个 `float`，256 个线程每人加载四个元素。
 
-![128×8 和 8×128 分块的加载及 A 的转置映射](../../assets/cuda/sgemm/sgemm-double-buffer-load-map.svg){ width="950" }
+![128×8 和 8×128 分块的加载及 A 的转置映射](../../assets/cuda/sgemm/sgemm-double-buffer-load-map.svg){ width="800" }
 
 加载时先将二维线程编号展平，再**按 A、B 各自的加载布局重新分配线程位置**。A 每行 8 个数，需要两个线程；B 每行 128 个数，需要 32 个线程：
 
@@ -709,7 +709,7 @@ const int B_tile_tid_y = tid / B_tile_thread_per_row;
 
 例如只有三个 K 分块时，先将第 0 块放入缓冲 0；第一轮加载第 1 块到缓冲 1、计算第 0 块；第二轮加载第 2 块到缓冲 0、计算第 1 块。此时循环结束，但第 2 块还没有参与累加，所以要再次切换读取索引并补算它，之后才能写回 C。
 
-![Shared Memory 两套缓冲的轮换、寄存器读取与最后一块计算](../../assets/cuda/sgemm/sgemm-double-buffer-pipeline.svg){ width="950" }
+![Shared Memory 两套缓冲的轮换、寄存器读取与最后一块计算](../../assets/cuda/sgemm/sgemm-double-buffer-pipeline.svg){ width="800" }
 
 这一版使用普通 `float4` 加载，两套缓冲让不同 Warp 的搬运与计算有机会交错推进；并不是显式的异步拷贝指令。**Double Buffer 用在 Shared Memory 上，寄存器 fragment 仍只有一套。**
 

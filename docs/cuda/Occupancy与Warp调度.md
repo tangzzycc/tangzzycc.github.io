@@ -36,16 +36,16 @@ $$
 
 NCU 的 **Occupancy Calculator** 输入 Block 线程数、每线程寄存器数、每 Block 的 Shared Memory，以及架构对应的资源容量，计算这些约束共同允许的最大驻留量。
 
-![NCU Occupancy Calculator 的输入与资源限制](../../assets/cuda/occupancy/ncu-occupancy-calculator.png){ width="950" }
+![NCU Occupancy Calculator 的输入与资源限制](../../assets/cuda/occupancy/ncu-occupancy-calculator.png){ width="800" }
 
 **线程数与 Block 数限制**：假设寄存器和共享内存占用很少，Block 为 160 个线程时，每 Block 有五个 Warp。48 个 Warp 只能容纳九个完整 Block，即 45 个 Warp，理论 Occupancy 为 $45/48=93.75\%$。
 
-![160 线程 Block：每 SM 九个 Block、45 个 Warp](../../assets/cuda/occupancy/ncu-occupancy-block160.png){ width="900" }
+![160 线程 Block：每 SM 九个 Block、45 个 Warp](../../assets/cuda/occupancy/ncu-occupancy-block160.png){ width="800" }
 
 
 Block 为 32 个线程时，每 Block 只有一个 Warp，先触及 24 个 Block 的上限，只能驻留 24 个 Warp，Occupancy 为 $24/48=50\%$。所以，Block 足够小并不意味着 SM 能放下更多线程。
 
-![32 线程 Block 先触及每 SM 的 Block 数上限](../../assets/cuda/occupancy/ncu-occupancy-block32.png){ width="900" }
+![32 线程 Block 先触及每 SM 的 Block 数上限](../../assets/cuda/occupancy/ncu-occupancy-block32.png){ width="800" }
 
 例如 128 个线程的 Block 有四个 Warp，若其他资源足够，12 个 Block 恰好填满 48 个 Warp；256 个线程则每 Block 八个 Warp，六个 Block 同样可以填满。**理论 Occupancy 相同，线程分组、同步粒度和实际调度表现仍然可能不同。**
 
@@ -63,7 +63,7 @@ Calculator 的 **Graphs** 页把这种限制画成阶梯曲线：固定其他参
 
 每 Block 四个 Warp，共占 $4\times1792=7168$ 个寄存器。一个 SM 最多容纳九个这样的 Block，即 36 个 Warp，Occupancy 为 75%。
 
-![51 个寄存器每线程时，寄存器限制驻留九个 Block](../../assets/cuda/occupancy/ncu-occupancy-register51.png){ width="900" }
+![51 个寄存器每线程时，寄存器限制驻留九个 Block](../../assets/cuda/occupancy/ncu-occupancy-register51.png){ width="800" }
 
 这里还存在两个不同的粒度：**寄存器分配粒度**决定一个 Warp 实际占多少寄存器；截图中的 **Warp Allocation Granularity** 再对可分配的 Warp 容量取整。图中的 Calculator 将这个容量按四个 Warp 为粒度向下取整。
 
@@ -73,7 +73,7 @@ Calculator 的 **Graphs** 页把这种限制画成阶梯曲线：固定其他参
 
 若每线程改为 90 个寄存器，一个 Warp 的需求为 $90\times32=2880$，取整后为 3072；每 Block 需要 12288 个寄存器，只能驻留五个 Block，即 20 个 Warp，Occupancy 降为 $20/48\approx41.67\%$。
 
-![每线程 90 个寄存器时的驻留 Block 限制](../../assets/cuda/occupancy/ncu-occupancy-register-limits.png){ width="900" }
+![每线程 90 个寄存器时的驻留 Block 限制](../../assets/cuda/occupancy/ncu-occupancy-register-limits.png){ width="800" }
 
 不能只算 $65536/3072\approx21.33$，就认为能驻留 21 个 Warp：本例中每个 Block 有四个 Warp，**剩余寄存器不足以容纳下一个完整 Block**。
 
@@ -86,7 +86,7 @@ $$
 
 此时最多驻留五个 Block；若每 Block 为 128 个线程，同样得到 20 个 Warp、41.67% 的 Occupancy。这里的 5000 B 是**每 Block 的用量**，保留量和取整规则对应这组 Calculator 设置。
 
-![Shared Memory 限制下，每 SM 最多驻留五个 Block](../../assets/cuda/occupancy/ncu-occupancy-shared-memory.png){ width="900" }
+![Shared Memory 限制下，每 SM 最多驻留五个 Block](../../assets/cuda/occupancy/ncu-occupancy-shared-memory.png){ width="800" }
 
 Shared Memory 的计算也包含**实际占用量与配置容量**两侧。`__shared__` 的静态数组、启动时指定的动态共享内存、分配取整与保留空间，都会影响占用量；SM 的共享内存配置则决定有多少空间可分给驻留 Block。
 
@@ -98,7 +98,7 @@ Shared Memory 的计算也包含**实际占用量与配置容量**两侧。`__sh
 
 **Theoretical Occupancy** 是启动配置和资源限制允许的上限；**Achieved Occupancy** 是按报告指标的周期口径测得的平均驻留比例。同一 SM 上的 Warp 提前退出、后续 Block 未及时补入等情况，都可能让实际值低于理论值。Grid 太小或最后一批 Block 未填满，还可能让部分 SM 完全空闲，需要结合全卡的工作分布分析。
 
-![另一份报告中理论 100% 与实际 86.57% 的 Occupancy](../../assets/cuda/occupancy/ncu-occupancy-high-achieved.png){ width="950" }
+![另一份报告中理论 100% 与实际 86.57% 的 Occupancy](../../assets/cuda/occupancy/ncu-occupancy-high-achieved.png){ width="800" }
 
 这份报告的理论 Active Warp 为 48，实际为 41.55，对应 $41.55/48\approx86.56\%$，与显示的 86.57% 接近。Calculator 只给出配置允许的上限，运行时是否一直有足够的 Block、各 Warp 何时退出，还需要从实际执行中测量。
 
@@ -108,7 +108,7 @@ Shared Memory 的计算也包含**实际占用量与配置容量**两侧。`__sh
 
 例如四个 SM、每 SM 两个 Block，Grid 一共十个 Block。选择每 Block 768 个线程、寄存器和共享内存足够小，那么每个 Block 有 24 个 Warp，两个 Block 恰好填满 48 个 Warp。
 
-![十个 Block 在四个 SM 上的 Wave 与 Tail Effect](../../assets/cuda/occupancy/occupancy-wave-tail-effect.svg){ width="900" }
+![十个 Block 在四个 SM 上的 Wave 与 Tail Effect](../../assets/cuda/occupancy/occupancy-wave-tail-effect.svg){ width="800" }
 
 假设每个 Block 都执行 T 时间，第一轮八个 Block 占满 GPU，第二轮只剩两个。两轮共有 16 个 Block 容量，实际只使用十个；**以全卡四个 SM、完整 2T 时间区间为分母**，Warp 容量利用率为 $10/16=62.5\%$。尾轮未填满，留下了空闲的 SM。
 
@@ -140,7 +140,7 @@ Ada 的一个 SM 有四个 Warp Scheduler，48 个 Warp 的容量对应每个 Sc
 
 当某个 Warp 在等待取指、数据依赖、执行管线或 barrier 时，它暂时不 Eligible。**Selected 也属于 Eligible**，下图只是用另一种颜色突出本周期被选中的 Warp。
 
-![四个周期内 Warp 的驻留、就绪和发射状态](../../assets/cuda/occupancy/scheduler-warp-four-cycles.svg){ width="900" }
+![四个周期内 Warp 的驻留、就绪和发射状态](../../assets/cuda/occupancy/scheduler-warp-four-cycles.svg){ width="800" }
 
 四个周期的 Active 数分别为 5、5、4、6，平均每周期五个；相对于 12 个 slot，实际 Occupancy 为 $5/12\approx41.67\%$。Eligible 数包含本周期选中的 Warp，分别为 2、1、0、2，总计五个。
 
@@ -152,9 +152,9 @@ Ada 的一个 SM 有四个 Warp Scheduler，48 个 Warp 的容量对应每个 Sc
 
 这次数组加法测试中，理论 Occupancy 为 100%，实际约 43.2%；每个 Scheduler 平均有 5.15 个 Active Warp，却只有约 0.04 个 Eligible Warp，平均每 23.9 个周期才发射一次。问题已经从“能放多少 Warp”转为“这些 Warp 在等什么”。
 
-![Active 很多但 Eligible 很少的 Scheduler Statistics](../../assets/cuda/occupancy/ncu-scheduler-statistics.png){ width="950" }
+![Active 很多但 Eligible 很少的 Scheduler Statistics](../../assets/cuda/occupancy/ncu-scheduler-statistics.png){ width="800" }
 
-![同一数组加法报告中的理论、实际 Occupancy 与 Block 限制](../../assets/cuda/occupancy/ncu-occupancy-theoretical-achieved.png){ width="950" }
+![同一数组加法报告中的理论、实际 Occupancy 与 Block 限制](../../assets/cuda/occupancy/ncu-occupancy-theoretical-achieved.png){ width="800" }
 
 这份报告的实际 Active Warp 为每 SM 20.74 个，$20.74/48\approx43.2\%$。按四个 Scheduler 粗略平分为 5.19 个，与 Scheduler 表中的 5.15 接近。两处指标的采样单元与活跃周期分母可能不同，应按各自定义读取，不要求相乘后严格相等。
 
@@ -162,7 +162,7 @@ Ada 的一个 SM 有四个 Warp Scheduler，48 个 Warp 的容量对应每个 Sc
 
 再看 **Warp State Statistics** 中主要的等待原因。这里的条形图按其标注单位解读；每指令等待周期、采样数量、占比是不同指标，不能直接混在一起比较。
 
-![Warp State Statistics 中的等待原因](../../assets/cuda/occupancy/ncu-warp-state-statistics.png){ width="900" }
+![Warp State Statistics 中的等待原因](../../assets/cuda/occupancy/ncu-warp-state-statistics.png){ width="800" }
 
 本例中，两次连续指令之间平均间隔约 123.0 个周期，其中 Long Scoreboard 约 115.2 个周期，占 93.7%。**主要等待发生在依赖 L1TEX 的结果上**，因此先追踪 load 的地址模式和后续消费关系，而不是先调整数学指令。
 
@@ -209,7 +209,7 @@ for (int i = 0; i < 1000; i++)
 
 循环展开只减少循环控制，无法解除这一串地址依赖。即便数组命中缓存，消费指令仍要等待 L1TEX 返回结果；Long Scoreboard 并不专指 DRAM miss。
 
-![依赖式读取的 Scheduler 与 Warp State 对照](../../assets/cuda/occupancy/ncu-stall-pointer-chasing.png){ width="950" }
+![依赖式读取的 Scheduler 与 Warp State 对照](../../assets/cuda/occupancy/ncu-stall-pointer-chasing.png){ width="800" }
 
 这张图中 Active Warp 接近理论上限，但 Eligible 和 Issued 很低，Long Scoreboard 约为每指令 20 个周期。**有足够多的驻留 Warp，仍然可能同时等待同类结果**。它与前面 115.2 个周期的数组加法是两个不同案例，不能按数值大小直接比较访存延迟。
 
@@ -227,7 +227,7 @@ for (int i = 0; i < 2000; i++)
 
 它与指针追逐不同：后一次 load 的地址不需要等待前一次返回，但**提交的内存指令太密集，队列处理不过来**，新的指令因 LG Throttle 等待。
 
-![窄字节复制中 Active、Eligible 与发射空洞](../../assets/cuda/occupancy/ncu-stall-byte-copy-scheduler.png){ width="950" }
+![窄字节复制中 Active、Eligible 与发射空洞](../../assets/cuda/occupancy/ncu-stall-byte-copy-scheduler.png){ width="800" }
 
 图中每个 Scheduler 平均有 8.13 个 Active Warp，却只有 0.01 个 Eligible Warp；99.79% 的周期没有就绪 Warp。这里优先考虑减少内存指令数量：满足对齐与布局条件时，用更宽的访问合并多条窄 load / store，并在内存操作之间穿插独立计算。
 
@@ -247,7 +247,7 @@ Warp State 图使用 **Cycles per Instruction** 时，数值表示一个 Warp �
 
 最后进入 **Source Counters**，把主要等待原因定位到源代码和 SASS。PC Sampling 可能标在消费 load 结果的指令上，因此还要向前追踪：它在等待哪条指令产生的数据？
 
-![Source Counters 中的 Warp Stall Sampling 与源代码定位](../../assets/cuda/occupancy/ncu-source-counters.png){ width="900" }
+![Source Counters 中的 Warp Stall Sampling 与源代码定位](../../assets/cuda/occupancy/ncu-source-counters.png){ width="800" }
 
 Source Counters 中的 Warp Stall Sampling 在运行期间定期采样，描述被采样 Warp 当时的状态；**采样数量不是这条源码实际执行的次数**。一条消费指令可能因为同一次 load 等待很久，在多个采样点反复出现。
 

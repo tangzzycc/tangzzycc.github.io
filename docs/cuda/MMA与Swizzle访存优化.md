@@ -45,7 +45,7 @@ mma.sync.aligned.m16n8k16.row.col.f16.f16.f16.f16
 
 这一组 FP16 MMA 没有单条 `m16n16k16`；$16\times16$ 输出需要沿 N 拆为两个 $16\times8$。PTX ISA 版本与 GPU Compute Capability 不同：`ldmatrix.m8n8.b16` 需要 `sm_75`，本例 `mma.m16n8k16` 需要 `sm_80`，组合实现面向 Ampere 及后续支持该指令的架构。
 
-[![一个 Warp 在全局矩阵中计算 16×8 输出 tile](../../assets/cuda/mma-swizzle/mma-one-warp-tile-ppt224.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-one-warp-tile-ppt224.png)
+[![一个 Warp 在全局矩阵中计算 16×8 输出 tile](../../assets/cuda/mma-swizzle/mma-one-warp-tile-ppt224.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-one-warp-tile-ppt224.png)
 
 取 $M=512$、$N=2048$、$K=1024$，一个 Block 为一个 Warp，Grid 的二维尺寸为：
 
@@ -80,13 +80,13 @@ ldmatrix.sync.aligned.m8n8.x4.shared.b16 {R0, R1, R2, R3}, [addr];
 
 低位宽扩展还有 `.dst_fmt.src_fmt` 形式；`.dst_fmt=.b8x16`，`.src_fmt` 可为 `.b6x16_p32`、`.b4x16_p64`。其中 `.m16n16` 要求 `.trans`，仅支持 `.x1`、`.x2`。**16×16 half 使用四个 m8n8 子矩阵** ，与这些低位宽形式不同。
 
-[![A、B、C 及其 Shared tile 的位置与尺寸](../../assets/cuda/mma-swizzle/mma-shared-operand-tiles-ppt225.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-shared-operand-tiles-ppt225.png)
+[![A、B、C 及其 Shared tile 的位置与尺寸](../../assets/cuda/mma-swizzle/mma-shared-operand-tiles-ppt225.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-shared-operand-tiles-ppt225.png)
 
 ### 哪些 lane 提供地址
 
 一个 $8\times8$ half 子矩阵需要八个行起点，每行八个连续 half，共 16 B。行与行可有 stride、Padding 或重排。
 
-[![16×16 A 与 Shared A 按四个 8×8 子矩阵划分](../../assets/cuda/mma-swizzle/mma-a-four-subtiles-ppt226.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-a-four-subtiles-ppt226.png)
+[![16×16 A 与 Shared A 按四个 8×8 子矩阵划分](../../assets/cuda/mma-swizzle/mma-a-four-subtiles-ppt226.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-a-four-subtiles-ppt226.png)
 
 | `.num` | lane 0～7 | lane 8～15 | lane 16～23 | lane 24～31 | 每个 lane 接收寄存器数 |
 | --- | --- | --- | --- | --- | --- |
@@ -100,7 +100,7 @@ ldmatrix.sync.aligned.m8n8.x4.shared.b16 {R0, R1, R2, R3}, [addr];
 
 不带 `.trans` 时，令 $g=\lfloor\mathrm{lane}/4\rfloor$、$t=\mathrm{lane}\bmod4$。该 lane 接收第 $g$ 行、第 $2t$、$2t+1$ 列的两个 half；四个连续 lane 合起来接收一整行。
 
-[![NVIDIA PTX：一个 8×8 half 子矩阵的接收 lane](../../assets/cuda/mma-swizzle/nvidia-mma-ldmatrix-fragments.png){ width="960" }](../../assets/cuda/mma-swizzle/nvidia-mma-ldmatrix-fragments.png)
+[![NVIDIA PTX：一个 8×8 half 子矩阵的接收 lane](../../assets/cuda/mma-swizzle/nvidia-mma-ldmatrix-fragments.png){ width="800" }](../../assets/cuda/mma-swizzle/nvidia-mma-ldmatrix-fragments.png)
 
 例如 lane 1 提供第 1 行地址，却接收第 0 行第 2、3 列；lane 4 提供第 4 行地址，却接收第 1 行第 0、1 列。
 
@@ -115,7 +115,7 @@ A 使用 `&sa[lane % 16][(lane / 16) * 8]`。四组地址按 **左上、左下�
 | 16～23 | `sa[0..7][8]` | `RA[2]` |
 | 24～31 | `sa[8..15][8]` | `RA[3]` |
 
-[![A 的四个子块与 R0、R1、R2、R3 接收布局](../../assets/cuda/mma-swizzle/mma-ldmatrix-x4-official.png){ width="1200" }](../../assets/cuda/mma-swizzle/mma-ldmatrix-x4-official.png)
+[![A 的四个子块与 R0、R1、R2、R3 接收布局](../../assets/cuda/mma-swizzle/mma-ldmatrix-x4-official.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-ldmatrix-x4-official.png)
 
 | 寄存器 | 低 16 bit | 高 16 bit |
 | --- | --- | --- |
@@ -148,7 +148,7 @@ lane 0 因而获得 `B[0,0]`、`B[1,0]`、`B[8,0]`、`B[9,0]`。`.trans` 匹配 
 
 <div markdown="1">
 
-[![NVIDIA PTX：MMA m16n8k16 的 A 元素分布](../../assets/cuda/mma-swizzle/nvidia-mma-16816-A-f16.png){ width="960" }](../../assets/cuda/mma-swizzle/nvidia-mma-16816-A-f16.png)
+[![NVIDIA PTX：MMA m16n8k16 的 A 元素分布](../../assets/cuda/mma-swizzle/nvidia-mma-16816-A-f16.png){ width="800" }](../../assets/cuda/mma-swizzle/nvidia-mma-16816-A-f16.png)
 
 </div>
 
@@ -430,13 +430,13 @@ $$
 
 若生成 128 bit Shared store，每个 lane 写 16 B，Warp 的 512 B 写入分为四组 128 B 服务，每组八个连续 lane。T0～T7 的起点为 $h=8\,\mathrm{lane}$，各占四个 bank，恰好覆盖 0～31，因此无重复。T8 属于后续服务，不与 T0 合并判断。
 
-[![Global→Shared 搬运中的线程位置与 bank 边界](../../assets/cuda/mma-swizzle/mma-global-to-shared-ppt231.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-global-to-shared-ppt231.png)
+[![Global→Shared 搬运中的线程位置与 bank 边界](../../assets/cuda/mma-swizzle/mma-global-to-shared-ppt231.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-global-to-shared-ppt231.png)
 
 ### Shared→寄存器：一个 m8n8 子块内的冲突
 
 一个 $8\times8$ half 子块有 128 B，需要八段连续 16 B。stride 为 16 half 时，左上 R0 子块的行起点 bank 为 **0、8、16、24、0、8、16、24** 。第 0、4 行重复使用 bank 0～3 的不同 word，其他三对同理，形成 2-way conflict。
 
-[![Shared→寄存器中 T0、T16 的元素位置与 bank 分布](../../assets/cuda/mma-swizzle/mma-shared-to-register-banks-ppt232.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-shared-to-register-banks-ppt232.png)
+[![Shared→寄存器中 T0、T16 的元素位置与 bank 分布](../../assets/cuda/mma-swizzle/mma-shared-to-register-banks-ppt232.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-shared-to-register-banks-ppt232.png)
 
 上方红框标记最终属于 T0、T16 的 half2；下方 bank 带示意元素落入哪些 bank。同一个 lane 在不同子块中会再次出现，不能把这些标记直接相加判断冲突。上面的 2-way 结论只统计 **左上 R0 的八段行数据**；其他三个子块、A/B 的两条装载分别判断。
 
@@ -446,13 +446,13 @@ NCU 中分别检查 Shared Load、Shared Store，并在 Source 中定位 `LDSM`�
 
 A、B 每行增加八个 half 的空槽，Shared 为 `half[16][24]`。Global 地址保持 `8*lane`，Shared 写入改成 `&sa[lane/2][(lane%2)*8]`；fragment 的 leading dimension 同时改为 24。
 
-[![Padding 后 Global→Shared 的线程位置、空槽与 bank 边界](../../assets/cuda/mma-swizzle/mma-padding-global-to-shared-ppt233.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-padding-global-to-shared-ppt233.png)
+[![Padding 后 Global→Shared 的线程位置、空槽与 bank 边界](../../assets/cuda/mma-swizzle/mma-padding-global-to-shared-ppt233.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-padding-global-to-shared-ppt233.png)
 
 对 128 bit store 的 T0～T7 服务，T1 写入 half 偏移 8，T6 写入偏移 72；两者的不同 word 共用 bank 4～7，产生 2-way 写入冲突。Padding 并不自动保持原来的无冲突写入。
 
 读取左上 $8\times8$ 子块时，行起点 bank 变为 $12r\bmod32$，依次为 **0、12、24、4、16、28、8、20** 。每行占其后的四个 bank，八行恰好覆盖全部 32 个 bank；其他子块同理。
 
-[![Padding 后 Shared→寄存器的元素位置与 bank 分布](../../assets/cuda/mma-swizzle/mma-padding-shared-to-register-ppt234.png){ width="960" }](../../assets/cuda/mma-swizzle/mma-padding-shared-to-register-ppt234.png)
+[![Padding 后 Shared→寄存器的元素位置与 bank 分布](../../assets/cuda/mma-swizzle/mma-padding-shared-to-register-ppt234.png){ width="800" }](../../assets/cuda/mma-swizzle/mma-padding-shared-to-register-ppt234.png)
 
 Padding 改善上述读取，代价是 Shared 从 1536 B 增至 2048 B，并可能引入向量写入冲突。空槽无需初始化；C 仍使用 stride 16，其 store 单独判断。若 store 被拆成其他指令宽度，按实际 SASS 的服务分组分析。
 
@@ -557,7 +557,7 @@ WMMA fragment 也可作为这些元素的容器：`.x` 为 half 数组，`b_frag
 
 Swizzle 在原有空间中移动整个八 half 小组，写入、装载和结果写回使用匹配的地址；**寄存器中的逻辑元素位置保持不变** 。
 
-[![Swizzle 前：R0 的八行使用重复 bank，寄存器保持逻辑位置](../../assets/cuda/mma-swizzle/swizzle-shared-register-before.svg){ width="900" }](../../assets/cuda/mma-swizzle/swizzle-shared-register-before.svg)
+[![Swizzle 前：R0 的八行使用重复 bank，寄存器保持逻辑位置](../../assets/cuda/mma-swizzle/swizzle-shared-register-before.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-shared-register-before.svg)
 
 ### 16×16 的两组交换
 
@@ -570,7 +570,7 @@ $$
 
 行号和组内顺序不变，第 4～7、12～15 行交换左右两组。图中编号表示从 Global 搬入的八 half 小组。
 
-[![全部 32 个小组在线性与 Swizzle Shared 中的位置](../../assets/cuda/mma-swizzle/swizzle-group-numbers-ppt236.png){ width="960" }](../../assets/cuda/mma-swizzle/swizzle-group-numbers-ppt236.png)
+[![全部 32 个小组在线性与 Swizzle Shared 中的位置](../../assets/cuda/mma-swizzle/swizzle-group-numbers-ppt236.png){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-group-numbers-ppt236.png)
 
 Global 搬运 lane 8 的逻辑偏移 64 改存到物理偏移 72，lane 9 的 72 改存到 64。Shared 装载的地址提供 lane 4 也改为提供 72，仍取回第 4 行的逻辑左半。
 
@@ -578,7 +578,7 @@ Global 搬运 lane 8 的逻辑偏移 64 改存到物理偏移 72，lane 9 的 72
 
 T0～T3 的行地址不变，T4～T7 指向物理右半。接收 lane 仍按官方 fragment 图获得相同元素；只改写入、不改装载地址会取错小组。
 
-[![Swizzle 后八行分散到不同 bank，R0 寄存器元素与重排前相同](../../assets/cuda/mma-swizzle/swizzle-shared-register-after.svg){ width="900" }](../../assets/cuda/mma-swizzle/swizzle-shared-register-after.svg)
+[![Swizzle 后八行分散到不同 bank，R0 寄存器元素与重排前相同](../../assets/cuda/mma-swizzle/swizzle-shared-register-after.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-shared-register-after.svg)
 
 八个逻辑行的起点 bank 为 0、8、16、24、4、12、20、28，各占四个 bank，不再重复。向量写入也只在每个八 lane 服务内部交换小段，保持无冲突；Shared 仍占 1536 B。
 
@@ -637,7 +637,7 @@ T0～T3 的行地址不变，T4～T7 指向物理右半。接收 lane 仍按官�
 
 一行 64 个 half 为 128 B，含八个八 half 小组。固定逻辑列组的八个行起点若只移动到两个物理列组，仍会每四行重复同一四 bank 小段：
 
-[![16×64 只使用两个组位置时，一个子块仍有 4-way conflict](../../assets/cuda/mma-swizzle/swizzle-half64-remaining-conflict.svg){ width="1100" }](../../assets/cuda/mma-swizzle/swizzle-half64-remaining-conflict.svg)
+[![16×64 只使用两个组位置时，一个子块仍有 4-way conflict](../../assets/cuda/mma-swizzle/swizzle-half64-remaining-conflict.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-half64-remaining-conflict.svg)
 
 ### 循环平移与 XOR
 
@@ -655,13 +655,13 @@ XOR 使用 $g'=g\oplus(r\ \&\ 7)$：第 0 组仍落在 0～7，第 1 组则落�
 
 <div markdown="1">
 
-[![循环平移的完整 Global→Shared→寄存器数据流](../../assets/cuda/mma-swizzle/swizzle-half64-cyclic.svg){ width="1100" }](../../assets/cuda/mma-swizzle/swizzle-half64-cyclic.svg)
+[![循环平移的完整 Global→Shared→寄存器数据流](../../assets/cuda/mma-swizzle/swizzle-half64-cyclic.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-half64-cyclic.svg)
 
 </div>
 
 <div markdown="1">
 
-[![XOR 的完整 Global→Shared→寄存器数据流](../../assets/cuda/mma-swizzle/swizzle-half64-xor.svg){ width="1100" }](../../assets/cuda/mma-swizzle/swizzle-half64-xor.svg)
+[![XOR 的完整 Global→Shared→寄存器数据流](../../assets/cuda/mma-swizzle/swizzle-half64-xor.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-half64-xor.svg)
 
 </div>
 
@@ -689,6 +689,6 @@ s(h)       = 0100 101 000 = 296
 
 行号保持 4，列组 $1\oplus4=5$，组内偏移仍为 0。
 
-[![第 4 行蓝色小组与行号、列组位 XOR 的完整地址变换](../../assets/cuda/mma-swizzle/swizzle-half64-bit-transform.svg){ width="1100" }](../../assets/cuda/mma-swizzle/swizzle-half64-bit-transform.svg)
+[![第 4 行蓝色小组与行号、列组位 XOR 的完整地址变换](../../assets/cuda/mma-swizzle/swizzle-half64-bit-transform.svg){ width="800" }](../../assets/cuda/mma-swizzle/swizzle-half64-bit-transform.svg)
 
 这里的地址单位为 half。若改用 byte 偏移，同一个 16 B 小组要保护四个低位；不能直接套用 M=3。保留组内低位，使写入 `shared[s(h)]` 后，`ldmatrix` 仍可从同一个映射起点连续读取八个 half。

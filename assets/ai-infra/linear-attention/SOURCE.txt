@@ -1,0 +1,36 @@
+Recurrent / Linear Attention figures
+
+qwen3-next-gdn-gated-attention.png
+  Official Qwen3-Next architecture diagram.
+  https://qwen.ai/blog?id=4074cca80393150c248e508aa62983f9cb7d27cd
+  https://qianwen-res.oss-accelerate.aliyuncs.com/Qwen3-Next/model_architecture.png
+  Original resolution: 2340 x 2428, retained without resizing.
+  Transparent background composited onto white for readable labels/arrows.
+
+Original paper: Kimi Linear, https://arxiv.org/pdf/2510.26692
+
+kimi-linear-kda-mla-architecture.svg
+  Figure 3, page 6, complete diagram.
+  PDF crop in points: (131, 68, 487, 442).
+  Text glyphs, lines and shapes are exported as vectors. Original PDF shading
+  and soft masks are preserved; no module or arrow was redrawn.
+
+kimi-linear-quality-decoding-results.svg
+  Figure 1, page 1, including the original caption.
+  PDF crop in points: (68, 456, 545, 688).
+  Text glyphs, axes, curves and measurements are exported as vectors.
+  Quality comparisons use matched 1.4T-token training runs.
+  TPOT measurements describe the paper's serving conditions, including larger
+  batches enabled by lower cache usage; they are not a standalone KDA speedup.
+
+raschka-nemotron3-nano-mamba2-gqa-hires.webp
+  Original diagram by Sebastian Raschka from LLM Architecture Gallery.
+  https://sebastianraschka.com/llm-architecture-gallery/
+  https://www.sebastianraschka.com/llm-architecture-gallery/images/architectures/nemotron-3-nano-30b-a3b.webp
+  Original resolution: 3140 x 3194, replacing the 1596 x 1562 article export.
+  Attribution, the layer pattern, Mamba-2 and GQA insets are retained.
+  The four-query inset illustrates sharing; the model has 32 query heads and
+  2 KV heads, as stated in the note and official configuration.
+
+No raster image was enlarged and presented as a higher-resolution source.
+High-resolution source and visual review records: .cache/attention-hires-20261106/.

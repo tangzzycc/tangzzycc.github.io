@@ -6,6 +6,9 @@ copyright: "© 2026 Tang's Notebook"
 docs_dir: docs
 site_dir: site
 use_directory_urls: true
+# 本地保存的参考网页不参与站点构建。
+exclude_docs: |
+  ai-infra/*知乎.html
 watch:
   - assets
 
@@ -19,6 +22,10 @@ nav:
   - Tang's Notebook: index.md
   - AI Infra:
       - 学习索引: ai-infra/index.md
+      - Attention:
+          - Dense Attention：MHA、GQA、MQA 与 MLA: ai-infra/LLM主流模型结构之Dense Attention.md
+          - Sparse Attention：SWA 与 DSA: ai-infra/LLM主流模型结构之Sparse Attention.md
+          - Recurrent / Linear Attention：GDN、KDA 与 Mamba-2: ai-infra/LLM主流模型结构之Recurrent-Linear Attention.md
       - PD 分离推理架构详解: ai-infra/PD分离推理架构详解.md
       - vLLM 推理框架:
           - vLLM Model Runner V2 架构: ai-infra/vLLM Model Runner V2 架构.md
@@ -114,7 +121,7 @@ hooks:
   - scripts/search_visibility.py
 
 extra_css:
-  - stylesheets/extra.css?v=26
+  - stylesheets/extra.css?v=30
   - stylesheets/notebook-theme.css?v=9
   - stylesheets/home.css?v=34
   - stylesheets/interview-notes.css?v=2
@@ -122,7 +129,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/header-search.js
-  - javascripts/mathjax.js
+  - javascripts/mathjax.js?v=2
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=7
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

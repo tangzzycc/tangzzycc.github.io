@@ -1,0 +1,59 @@
+Sparse Attention figures
+
+Original diagrams by Sebastian Raschka, with attribution retained.
+
+raschka-causal-vs-sliding-window-hires.png
+  The Big LLM Architecture Comparison, Figure 12.
+  https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison
+  https://substack-post-media.s3.amazonaws.com/public/images/f32c2d74-ec34-43ef-86bc-bcce832426b3_1600x792.png
+  Original resolution: 1600 x 792. Displayed at up to 800 CSS pixels.
+  The worked example follows this figure's five-token sequence and window 3.
+
+raschka-gemma3-27b-swa-architecture-hires.webp
+  LLM Architecture Gallery, Gemma 3 27B.
+  https://sebastianraschka.com/llm-architecture-gallery/
+  https://www.sebastianraschka.com/llm-architecture-gallery/images/architectures/gemma-3-27b.webp
+  Original resolution: 2543 x 2686.
+  This replaces the 528-pixel-wide Gemma 3 4B crop. The note's caption and layer
+  count explicitly refer to the 62-layer 27B model.
+
+gemma3-local-global-ablation.svg
+  Gemma 3 Technical Report, Figures 3 and 4, pages 6 and 7.
+  https://arxiv.org/pdf/2503.19786
+  Original vector axes, labels, values, legends and curves retain the author's
+  two-panel layout. PDF plot crops in points:
+    Figure 3: (327.5, 482, 510.6, 582).
+    Figure 4: (84.5, 135, 267.6, 234.5).
+  The original blue headings, text and arrows are retained as a transparent
+  overlay from the lossless 1600 x 477 PNG, without redrawing them.
+  Annotation source, The Big LLM Architecture Comparison, Figure 13:
+  https://substack-post-media.s3.amazonaws.com/public/images/788a5023-1ba3-4372-89cd-4ebeff132255_1600x477.png
+
+raschka-deepseek-v32-dsa-architecture.webp
+  A Visual Guide to Attention Variants in Modern LLMs.
+  https://magazine.sebastianraschka.com/p/visual-attention-variants
+  https://substack-post-media.s3.amazonaws.com/public/images/ad5026e1-1dbd-4004-814f-6cd6d735e572_2787x2731.webp
+  Original resolution: 2787 x 2731; retained without modification.
+
+raschka-dsa-token-selection.png
+  A Visual Guide to Attention Variants in Modern LLMs, Figure 19, DSA panel.
+  https://substack-post-media.s3.amazonaws.com/public/images/ed46e1ba-6c43-421a-b98a-973987cff3f7_4065x4327.webp
+  Crop: (800, 2160, 3650, 4327), resulting in 2850 x 2167 pixels.
+  The title, masks, arrows, labels and attribution remain unchanged.
+
+Original paper: DeepSeek-V3.2, https://arxiv.org/pdf/2512.02556
+
+deepseek-v32-mla-indexer-topk.svg
+  Figure 2, page 4, including the original caption.
+  PDF crop in points: (66, 80, 534, 347).
+  Text, lines and shapes are exported as vectors.
+
+deepseek-v32-inference-cost.svg
+  Figure 3, page 6, including axes, legends and the original caption.
+  PDF crop in points: (68, 88, 535, 298).
+  Text, lines and curves are exported as vectors.
+  Costs were estimated from H800 service benchmarks at USD 2 per GPU hour.
+  The figure is not an API price chart or a standalone attention-kernel benchmark.
+
+No raster image was enlarged and presented as a higher-resolution source.
+High-resolution source and visual review records: .cache/attention-hires-20261106/.

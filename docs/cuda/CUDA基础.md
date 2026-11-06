@@ -37,13 +37,13 @@ FLOPS （Floating-point operations per second的缩写），即每秒浮点运�
 
 GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程。当同一个 Warp 内的线程进入不同分支，或循环次数不同时，就会出现 **Warp divergence（Warp 分歧）**：不同执行路径需要分别处理，部分线程暂时不参与计算，降低线程利用率。
 
-![Pre-Volta 与 Volta 的 Warp 调度结构对照](../../assets/cuda/basics/warp-divergence-scheduling-comparison.svg){ width="1000" }
+![Pre-Volta 与 Volta 的 Warp 调度结构对照](../../assets/cuda/basics/warp-divergence-scheduling-comparison.svg){ width="800" }
 
 在 Pascal 及更早的架构中，同一个 Warp 的线程共享一个 **Program Counter（PC，程序计数器）**，通过 **Active Mask（活跃线程掩码）**标记当前指令由哪些线程执行。
 
 以 `threadIdx.x < 4` 为例，warp 0 中的 thread 0～3 执行 A、B，其余线程执行 X、Y。**两个分支分别执行，每次只激活当前分支对应的线程**；完成分支后，在共同的 Z 处重新汇合。分支的先后顺序不应作为程序正确性的前提。
 
-![Volta 之前的共享 PC、活跃掩码与分支执行](../../assets/cuda/basics/warp-divergence-pre-volta.svg){ width="1000" }
+![Volta 之前的共享 PC、活跃掩码与分支执行](../../assets/cuda/basics/warp-divergence-pre-volta.svg){ width="800" }
 
 同一个 Warp 内的不同分支不能依赖彼此同时推进；如果一组线程在分支中等待另一组线程完成操作，可能造成死锁。不同 Warp 则有各自独立的执行进度。
 
@@ -60,13 +60,13 @@ GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程�
 
 `__syncwarp(mask)` 等待掩码指定的线程到达屏障，并保证参与线程之间的内存访问顺序。无参数的 `__syncwarp()` 默认使用完整 Warp 的掩码，应放在所有未退出的参与线程都会执行到的位置。
 
-![独立线程调度下的交错执行与 Warp 同步](../../assets/cuda/basics/warp-divergence-volta-scheduling.svg){ width="1000" }
+![独立线程调度下的交错执行与 Warp 同步](../../assets/cuda/basics/warp-divergence-volta-scheduling.svg){ width="800" }
 
 > 示例在 Z 后调用 `__syncwarp()`，表示参与线程完成 Z 后再继续执行；如果 Z 本身需要读取其他线程写入的数据，同步就应放在 Z 之前。
 
 当循环上限 `N` 由每个线程的数据决定时，线程的迭代次数可能不同。**迭代次数较少的线程先退出循环，其他线程继续执行**，后几轮的活跃线程逐渐减少；需要等所有线程完成各自的工作，这个 Warp 才全部完成。
 
-![同一个 Warp 中不同循环上限的线程执行示意](../../assets/cuda/basics/warp-divergence-variable-loop.svg){ width="1000" }
+![同一个 Warp 中不同循环上限的线程执行示意](../../assets/cuda/basics/warp-divergence-variable-loop.svg){ width="800" }
 
 ## Bank Conflict
 
@@ -74,7 +74,7 @@ GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程�
 
 以 4 字节的 `float` 为例，连续元素依次映射到连续 Bank，元素 $k$ 对应的 Bank 编号为 $k \bmod 32$；若用字节地址表示，则为 $\lfloor \mathrm{addr} / 4 \rfloor \bmod 32$。因此，`data[0]`、`data[32]`、`data[64]` 都位于 Bank 0，但它们是不同地址的数据。这里的 4 字节是映射的基本单位，不是一个 Bank 的总容量。
 
-![Shared Memory 中 float 数组的 Bank 分布](../../assets/cuda/basics/shared-memory-bank-layout.svg){ width="850" }
+![Shared Memory 中 float 数组的 Bank 分布](../../assets/cuda/basics/shared-memory-bank-layout.svg){ width="800" }
 
 以下以同一个 Warp 的每个线程执行一次 `float` 读取为例。**当同一条访存指令中的多个线程访问同一个 Bank 的不同地址时，就会产生 Bank Conflict（Bank 冲突）**。硬件需要将这次请求拆成多次无冲突访问，依次处理，从而降低有效带宽。不同指令先后访问同一个 Bank，不属于这里讨论的冲突。
 
@@ -82,7 +82,7 @@ GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程�
 
 **多个线程读取同一个地址时，可以通过 Broadcast（广播）共享读取结果，不产生 Bank 冲突**。广播不要求整个 Warp 都读取同一个地址，一部分线程读取同一个地址也可以。多组线程分别读取各自相同的地址，只要这些地址落在不同 Bank，也可以并行广播。多个线程对同一地址执行普通写入则存在数据竞争，最终由哪个线程写入不确定，不能按广播读取来理解。
 
-![六种 Shared Memory 读取方式与 Bank Conflict、广播的区别](../../assets/cuda/basics/shared-memory-bank-access-patterns.svg){ width="1000" }
+![六种 Shared Memory 读取方式与 Bank Conflict、广播的区别](../../assets/cuda/basics/shared-memory-bank-access-patterns.svg){ width="800" }
 
 从左到右看这六种访问方式：
 
@@ -100,7 +100,7 @@ GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程�
 
 一个 Warp 包含 32 个线程，每个线程在 Warp 内的编号称为 **Lane ID**，范围为 0～31。对于一维 Block，令 `tid = threadIdx.x`、`WARP_SIZE = 32`，则 `laneId = tid % WARP_SIZE`，`warpId = tid / WARP_SIZE`；这里的 `warpId` 是 Block 内的 Warp 编号。每进入下一个 Warp，Lane ID 都从 0 重新开始，Shuffle 只能在同一个 Warp 内传值。
 
-![一维 Block 中的线程编号、Lane ID 与 Warp ID](../../assets/cuda/basics/shuffle-warp-lane-indexing.svg){ width="1000" }
+![一维 Block 中的线程编号、Lane ID 与 Warp ID](../../assets/cuda/basics/shuffle-warp-lane-indexing.svg){ width="800" }
 
 四种 Shuffle 函数分别采用不同的方式选择**源线程**：
 
@@ -109,7 +109,7 @@ GPU 以 **Warp** 为单位执行 SIMT 指令，一个 Warp 包含 32 个线程�
 - **`__shfl_down_sync(mask, x, delta, width)`：从较大的 Lane ID 读取。** 偏移量为 3 时，lane $i$ 获取 lane $i+3$ 的 `x`；每组最后三个线程返回自己的 `x`。它常用于规约，让前面的线程获取后面线程的部分结果。
 - **`__shfl_xor_sync(mask, x, laneMask, width)`：按 Lane ID 的异或结果读取。** 默认 `width = 32` 时，源线程编号为 $i \mathbin{\oplus} \mathrm{laneMask}$。例如 `laneMask = 1` 时，lane 0、1 相互获取对方的值，lane 2、3 也是如此；`laneMask = 3` 时，配对关系变为 0 与 3、1 与 2，以此类推，形成蝶形交换。
 
-![四种 Shuffle 函数的源线程选择与寄存器值传递](../../assets/cuda/basics/shuffle-register-transfer-modes.svg){ width="1000" }
+![四种 Shuffle 函数的源线程选择与寄存器值传递](../../assets/cuda/basics/shuffle-register-transfer-modes.svg){ width="800" }
 
 `width` 默认为 32，合法值为 **1、2、4、8、16、32**。对按编号读取和 `up/down`，它将 Warp 划分为连续的逻辑分组，各组按组内编号选择源线程；例如 `width = 8` 时，一个 Warp 中有四个 8 线程分组，`up/down` 不会跨越分组边界。**这只是传值范围的划分，并没有改变实际的 Warp 大小。**
 

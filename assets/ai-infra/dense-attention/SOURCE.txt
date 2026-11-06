@@ -1,0 +1,49 @@
+Dense Attention figures
+
+Original model diagrams by Sebastian Raschka, with attribution retained:
+  LLM Architecture Gallery
+  https://sebastianraschka.com/llm-architecture-gallery/
+  Gallery metadata: https://github.com/rasbt/LLM-architecture-gallery/blob/main/models.yml
+
+raschka-olmo2-mha-architecture-hires.webp
+  https://sebastianraschka.com/llm-architecture-gallery/images/architectures/olmo-2-7b.webp
+  Original resolution: 2581 x 2679, replacing the 1366 x 1410 article export.
+
+raschka-deepseek-v3-architecture-hires.webp
+  https://sebastianraschka.com/llm-architecture-gallery/images/architectures/deepseek-v3-r1-671-billion.webp
+  Original resolution: 2787 x 2724.
+  The complete model diagram is retained. The note uses a separate original-paper
+  vector panel for MLA internals instead of enlarging the previous 1550-pixel collage.
+
+Original article figures by Sebastian Raschka:
+  A Visual Guide to Attention Variants in Modern LLMs
+  https://magazine.sebastianraschka.com/p/visual-attention-variants
+
+raschka-mha-gqa-head-sharing.png
+  Figure 10, original resolution: 2523 x 1248.
+  https://substack-post-media.s3.amazonaws.com/public/images/6f39923c-8357-487d-9e69-40ee18a902e8_2523x1248.png
+
+raschka-sarvam-gqa-mla-cache-comparison.webp
+  Figure 12, original resolution: 5860 x 5682.
+  https://substack-post-media.s3.amazonaws.com/public/images/2d04f89a-aad5-4af7-8b46-4623d1d53ae9_5860x5682.webp
+
+Original paper: DeepSeek-V2, https://arxiv.org/pdf/2405.04434
+
+deepseek-v2-mla-dataflow.svg
+  Complete MLA panel of Figure 2, page 5.
+  PDF crop in points: (238, 240, 524, 449).
+  Text glyphs, lines and shapes are exported as vectors. The panel includes
+  Query/KV latents, content projections, decoupled RoPE and cached state.
+
+deepseek-v2-attention-ablation.svg
+  Original Tables 8 and 9, page 32, with the article's original blue annotations.
+  PDF crop in points: (52.8, 33.5, 536, 422.8), placed on a 952 x 902 canvas.
+  Table text, values and rules are vectors. The author's blue comments, arrows
+  and boxes are retained as a transparent image overlay in their original positions.
+  No annotation was redrawn or rewritten.
+  Annotation source:
+  https://substack-post-media.s3.amazonaws.com/public/images/f564ec9f-5fcb-49c3-b728-b4c8a769bb6c_952x902.png
+  The note distinguishes the dense 7B and MoE comparison groups.
+
+No raster image was enlarged and presented as a higher-resolution source.
+High-resolution source and visual review records: .cache/attention-hires-20261106/.
