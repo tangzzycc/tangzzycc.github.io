@@ -11,3 +11,28 @@
 
 {# 模块导航已并入页头，移除原来的第二行标签栏。 #}
 {% block tabs %}{% endblock %}
+
+{# 文章目录和站点导航共用左栏，正文右侧不再保留一列。 #}
+{% block site_nav %}
+  {% set hidden_sections = page.meta.hide | default([]) if page else [] %}
+  {% set toc = page.toc if page else [] %}
+  {% set first = toc | first %}
+  {% if first and first.level == 1 %}
+    {% set toc = first.children %}
+  {% endif %}
+  {% set show_toc = toc and "toc" not in hidden_sections %}
+  {% if nav or show_toc %}
+    <div class="md-sidebar md-sidebar--primary notebook-sidebar" data-md-component="sidebar" data-md-type="navigation"{% if "navigation" in hidden_sections %} data-navigation-hidden{% if not show_toc %} hidden{% endif %}{% endif %}>
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner notebook-sidebar-stack">
+          {% if nav %}
+            {% include "partials/nav.html" %}
+          {% endif %}
+          {% if show_toc %}
+            {% include "partials/toc.html" %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

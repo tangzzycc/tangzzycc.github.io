@@ -9,11 +9,13 @@
 {% endif %}
 {% if toc %}
   <nav class="md-nav md-nav--secondary notebook-toc-card" aria-label="{{ title | e }}">
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      {{ title }}
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+    <div class="md-nav__title">
+      <span>{{ title }}</span>
+      <button class="notebook-toc-toggle" type="button" aria-controls="notebook-page-toc" aria-expanded="true" aria-label="收起目录" title="收起目录" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 10 5 5 5-5"></path></svg>
+      </button>
+    </div>
+    <ul id="notebook-page-toc" class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       {% for toc_item in toc %}
         {% include "partials/toc-item.html" %}
       {% endfor %}

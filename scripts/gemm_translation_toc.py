@@ -37,7 +37,7 @@ class ArticleHeadings(HTMLParser):
 
 
 def on_page_content(html, page, config, files):
-    if page.file.src_uri != "ai-infra/CUDA矩阵乘法优化：从Naive到cuBLAS.md":
+    if page.file.src_uri != "cuda/CUDA矩阵乘法优化：从Naive到cuBLAS.md":
         return html
 
     parser = ArticleHeadings()

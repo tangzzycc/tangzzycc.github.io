@@ -291,10 +291,26 @@
   display: none;
 }
 
-/* 笔记左侧使用站点卡片，提供栏目入口。 */
+/* 站点卡片固定在上方，只有下方目录列表可以滚动。 */
+.notebook-sidebar .md-sidebar__scrollwrap {
+  height: calc(100dvh - 64px - 3.9rem);
+  overflow: clip;
+}
+
+.notebook-sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+
 .notebook-site-card.md-nav,
 .notebook-toc-card.md-nav {
   position: relative;
+  height: auto;
+  flex-shrink: 0;
+  margin: 0;
   padding: 22px 18px 18px;
   border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: 14px;
@@ -304,33 +320,110 @@
 }
 
 .notebook-toc-card.md-nav {
-  padding: 18px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 10px 12px 8px;
   font-size: 14px;
 }
 
 .notebook-toc-card > .md-nav__title {
   position: static;
-  margin: 0 0 8px;
-  padding: 0 4px 12px;
+  flex-shrink: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 0 4px 8px;
   border-bottom: 1px solid var(--md-default-fg-color--lightest);
   color: var(--md-default-fg-color);
-  background: transparent;
+  background: var(--md-default-bg-color);
   box-shadow: none;
   font-size: 15px;
   line-height: 1.5;
 }
 
 [dir] .notebook-toc-card > .md-nav__list {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+.notebook-toc-card:has(> .md-nav__list[hidden]) {
+  flex: 0 0 auto;
+}
+
+.notebook-toc-card > .md-nav__list[hidden] {
+  display: none;
+}
+
+.notebook-toc-card:has(> .md-nav__list[hidden]) > .md-nav__title {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.notebook-toc-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--md-default-fg-color--light);
+  background: transparent;
+  cursor: pointer;
+}
+
+.notebook-toc-toggle[hidden] {
+  display: none;
+}
+
+.notebook-toc-toggle:hover {
+  color: var(--md-typeset-a-color);
+  background: var(--notebook-hover);
+}
+
+.notebook-toc-toggle:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 2px;
+}
+
+.notebook-toc-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.notebook-toc-toggle[aria-expanded="false"] svg {
+  transform: rotate(-90deg);
 }
 
 .notebook-toc-card .md-nav {
   font-size: inherit;
 }
 
+.notebook-toc-card .md-nav__list .md-nav__list {
+  padding-inline-start: 12px;
+}
+
 [dir] .notebook-toc-card .md-nav__item > .md-nav__link {
   margin: 0;
-  padding: 7px 4px;
+  padding: 5px 4px;
   border-radius: 7px;
   line-height: 1.6;
 }
@@ -346,41 +439,17 @@
   outline-offset: -2px;
 }
 
-@media screen and (min-width: 60em) {
-  .md-sidebar--secondary {
-    width: 260px;
+@media screen and (min-width: 76.25em) {
+  .notebook-sidebar {
+    width: clamp(260px, 18vw, 300px);
   }
 
-  .md-sidebar--secondary .md-sidebar__scrollwrap {
-    position: relative;
-  }
-
-  [dir] .md-sidebar--secondary .md-sidebar__inner {
+  [dir] .notebook-sidebar .md-sidebar__inner {
     padding: 0;
   }
-}
 
-@media screen and (min-width: 76.25em) {
-  .md-sidebar--secondary {
-    width: clamp(280px, 20vw, 300px);
-  }
-
-  .notebook-toc-card > .md-nav__title {
-    padding-right: 34px;
-  }
-
-  .md-sidebar--secondary .sidebar-rail-toggle--secondary {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    margin: 0;
-  }
-
-  body.sidebar-secondary-collapsed .md-sidebar--secondary .sidebar-rail-toggle--secondary {
-    position: relative;
-    top: 0.35rem;
-    right: auto;
-    margin: 0.1rem auto 0.35rem;
+  .notebook-sidebar[data-navigation-hidden] .notebook-site-card {
+    display: none;
   }
 }
 
@@ -495,6 +564,76 @@
   display: none;
 }
 
+/* 短屏桌面给下方目录留出空间，宽屏的原卡片比例保持不变。 */
+@media screen and (min-width: 76.25em) and (max-height: 850px) {
+  .notebook-site-card.md-nav {
+    padding: 16px 14px 14px;
+  }
+
+  .site-card-avatar {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px;
+  }
+
+  .site-card-name {
+    font-size: 18px;
+  }
+
+  .site-card-stats {
+    padding: 10px 0;
+    margin: 14px 0 10px;
+  }
+
+  .site-card-stats strong {
+    font-size: 22px;
+  }
+
+  .site-card-link {
+    margin: 2px 0;
+    padding: 6px 10px;
+  }
+
+  .site-card-footer {
+    margin-top: 12px;
+  }
+}
+
+/* 横屏或较矮的窗口中，把站点入口排成两列，留出目录的滚动高度。 */
+@media screen and (max-height: 700px) {
+  .site-card-avatar {
+    display: none;
+  }
+
+  .site-card-name {
+    font-size: 18px;
+  }
+
+  .site-card-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 6px;
+  }
+
+  .site-card-link {
+    gap: 6px;
+    padding: 6px;
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 76.234375em) and (max-height: 700px) {
+  .notebook-site-card.md-nav {
+    padding-top: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-sidebar {
+    transition: none;
+  }
+}
+
 @media screen and (max-width: 76.234375em) {
   .notebook-header .notebook-drawer-toggle {
     display: inline-flex;
@@ -502,6 +641,10 @@
 
   .md-sidebar--primary .md-sidebar__inner {
     padding: 12px;
+  }
+
+  .notebook-sidebar .md-sidebar__scrollwrap {
+    height: 100%;
   }
 
   .site-card-close {

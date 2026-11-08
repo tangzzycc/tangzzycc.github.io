@@ -5,8 +5,7 @@
 }
 
 .md-typeset .gemm-translation-source {
-  max-width: 1120px;
-  margin: 0 auto 2rem;
+  margin: 0 0 2rem;
   color: var(--md-default-fg-color--light);
   font-size: 0.75rem;
 }
@@ -14,8 +13,7 @@
 .md-typeset .gemm-translation {
   position: relative;
   width: 62.5%;
-  max-width: 760px;
-  margin-left: max(0px, calc((100% - 1120px) / 2));
+  margin: 0;
   padding: 0 0 3rem;
   counter-reset: gemm-sidenote;
   font-size: 0.9rem;
@@ -118,11 +116,6 @@
 
 .gemm-translation input.margin-toggle {
   display: none;
-}
-
-.md-typeset .gemm-translation li .sidenote {
-  margin-right: -63.29%;
-  width: 51.6%;
 }
 
 .md-typeset .gemm-translation blockquote {
@@ -228,12 +221,11 @@
   color: var(--md-code-hl-number-color);
 }
 
-/* 以正文的实际可用宽度判断是否容得下旁注，兼容侧栏展开或收起。 */
-@container (max-width: 1050px) {
+/* 窄屏正文占满可用宽度，旁注改为点击展开。 */
+@container (max-width: 1024px) {
   .md-typeset .gemm-translation {
     width: 100%;
-    max-width: 850px;
-    margin: 0 auto;
+    margin: 0;
   }
 
   .md-typeset .gemm-translation .sidenote,

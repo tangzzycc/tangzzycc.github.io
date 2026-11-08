@@ -6,9 +6,11 @@ copyright: "© 2026 Tang's Notebook"
 docs_dir: docs
 site_dir: site
 use_directory_urls: true
-# 本地保存的参考网页不参与站点构建。
+# 本地参考网页与归档笔记不参与站点构建。
 exclude_docs: |
   ai-infra/*知乎.html
+  rocm/*知乎.html
+  assets/archive/**
 watch:
   - assets
 
@@ -34,19 +36,16 @@ nav:
           - Speculative Decoding 之 DFlash 与 DSpark: ai-infra/DFlash与DSpark.md
   - CUDA:
       - 学习索引: cuda/index.md
-      - CUDA 基础: cuda/CUDA基础.md
-      - Reduce 规约求和: cuda/Reduce规约求和.md
-      - SGEMM 单精度矩阵乘: cuda/Sgemm单精度矩阵乘.md
+      - CUDA 矩阵乘法优化：逐步接近 cuBLAS 性能: cuda/CUDA矩阵乘法优化：从Naive到cuBLAS.md
       - NCU性能分析与Kernel调优:
           - 合并访存与缓存: cuda/合并访存与缓存.md
           - Occupancy 与 Warp 调度: cuda/Occupancy与Warp调度.md
           - 矩阵转置与访存优化: cuda/矩阵转置与访存优化.md
           - NCU 性能分析与 Roofline: cuda/NCU性能分析与Roofline.md
-      - Tensor Core 与 WMMA: cuda/TensorCore与WMMA矩阵乘.md
-      - MMA 与 Swizzle 访存优化: cuda/MMA与Swizzle访存优化.md
       - FlashAttention v1 & v2 浅析: cuda/FlashAttention.md
   - ROCm:
       - 学习索引: rocm/index.md
+      - RDNA3.5架构与HIP编程: rocm/RDNA3.5架构与HIP编程.md
   - Tags: tags/index.md
 theme:
   name: material
@@ -119,19 +118,21 @@ plugins:
 hooks:
   - scripts/tag_cloud.py
   - scripts/search_visibility.py
+  - scripts/gemm_translation_toc.py
 
 extra_css:
-  - stylesheets/extra.css?v=30
-  - stylesheets/notebook-theme.css?v=9
+  - stylesheets/extra.css?v=34
+  - stylesheets/notebook-theme.css?v=13
   - stylesheets/home.css?v=34
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
+  - stylesheets/gemm-translation.css?v=5
 
 extra_javascript:
   - javascripts/header-search.js
   - javascripts/mathjax.js?v=2
   - javascripts/code-mark.js
-  - javascripts/sidebar-toggle.js?v=7
+  - javascripts/sidebar-toggle.js?v=8
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
