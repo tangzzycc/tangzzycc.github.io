@@ -5,7 +5,8 @@
 ## 首轮生成
 
 ```text
-Create ONE technical teaching illustration in English.
+Create ONE technical teaching illustration with Chinese labels, retaining
+English technical terms. Follow any explicit language requirement for this task.
 Teaching takeaway: {one sentence the reader should understand}.
 Audience and assumed knowledge: {prerequisites}.
 

@@ -20,7 +20,10 @@ Label positions in original PDF points (text, x, baseline y): [('2.1', 295, 293.
 
 Editable implementation diagrams:
 Outputs: dflash-prefill-draft-verify.svg; dspark-backbone-markov-confidence.svg
-Redrawn as SVG text and vector objects; embedded subset of LXGW WenKai GB Screen.
+Redrawn as editable SVG objects with Rough.js 4.6.6 and solid color fills.
+Embedded Comic Shanns for English and digits, plus a subset of LXGW WenKai GB Screen for Chinese.
+Subscripts use explicit glyph positions; model and tensor relationships retain the examples below.
+Sketch style reference: assets/cuda/flashattention/flashattention-v1-tile-shapes.svg.
 Visual references: the notebook's attention-project-rotate-match-mix.svg,
 mla-full-decode-path.svg, and hidden-states-output-token.svg.
 Technical references:

@@ -1,0 +1,34 @@
+Original article: FP16 GEMM Optimization on AMD RDNA™ 3 and RDNA™ 4 Architectures
+Authors: Adel Johar, Jan Stephan, Istvan Kiss
+Published: 2026-10-16
+Article: https://rocm.blogs.amd.com/software-tools-optimization/rdna-fp16-gemm/README.html
+Markdown: https://github.com/ROCm/rocm-blogs/blob/release/blogs/software-tools-optimization/rdna-fp16-gemm/README.md
+Figures: https://github.com/ROCm/rocm-blogs/tree/release/blogs/software-tools-optimization/rdna-fp16-gemm/images
+
+The five SVG diagrams were redrawn from the article's figures, with Chinese labels,
+Rough.js hand-drawn outlines, Comic Shanns for English and digits, and LXGW WenKai
+for Chinese. The original lane mappings, tile sizes, operand ranges, block ordering,
+and depicted instruction sequences are preserved. Embedded font licenses are in
+each SVG's font-license metadata.
+
+Original article license:
+
+Copyright (c) 2026 Advanced Micro Devices, Inc. (AMD)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

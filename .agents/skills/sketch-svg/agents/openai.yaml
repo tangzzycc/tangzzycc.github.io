@@ -1,0 +1,4 @@
+interface:
+  display_name: "笔记 SVG 手绘图"
+  short_description: "绘制中文为主的 Excalidraw 风格 SVG，统一字体、小字号和紧凑数学上下标"
+  default_prompt: "使用 $sketch-svg 为这篇笔记绘制或优化 SVG，沿用仓库的手绘风格和字体约定。"

@@ -85,14 +85,7 @@ tags:
 
 以 Qwen3-8B 为例，隐藏维度为 4096。本例每轮生成 3 个草稿 token，下文的形状省略 batch 维。
 
-<div class="inference-section" markdown="1">
-<div class="inference-layout" markdown="1">
-<div class="inference-figure" markdown="1">
-
 [![DFlash：预填充、并行草拟与目标模型验证](../../assets/ai-infra/speculative-decoding/dflash-prefill-draft-verify.svg){ width=1100 }](../../assets/ai-infra/speculative-decoding/dflash-prefill-draft-verify.svg)
-
-</div>
-<div class="inference-description" markdown="1">
 
 **Step 1：Target Model Prefill**
 
@@ -139,22 +132,11 @@ V = concat(v_proj(H_ctx), v_proj(H_d), dim=token_dim)
 
 随机采样时，验证需要依据目标分布和草稿分布执行拒绝采样，不能仅比较两次独立采样是否得到同一个 token。
 
-</div>
-</div>
-</div>
-
 ## DSpark 推理流程
 
 以 DeepSeek-V4-Flash 为例，`hidden_size=4096`、`vocab_size=129280`、`markov_rank=256`。本例取草稿长度 $\gamma=3$，演示 3 个候选的生成和验证，形状同样省略 batch 维。
 
-<div class="inference-section" markdown="1">
-<div class="inference-layout" markdown="1">
-<div class="inference-figure" markdown="1">
-
 [![DSpark：并行骨干、Markov Head、Confidence Head 与验证流程](../../assets/ai-infra/speculative-decoding/dspark-backbone-markov-confidence.svg){ width=1100 }](../../assets/ai-infra/speculative-decoding/dspark-backbone-markov-confidence.svg)
-
-</div>
-<div class="inference-description" markdown="1">
 
 **Step 1：Target Model Prefill**
 
@@ -214,7 +196,3 @@ c = sigmoid(confidence_linear(features))         # [3, 1]
 - **只接受 `G′`，在 `H′` 处拒绝**：本轮新增 `[G′, H]`，共 2 个 token。`H` 是修正 token，也是下一轮的 anchor。
 
 这些数量同样不包含已经输出的 `F`。验证后，裁去无效的目标 KV 后缀，保留有效位置的隐藏状态，融合为新的目标上下文，供下一轮草稿生成使用。随机采样时使用与 DFlash 相同的拒绝采样原则。
-
-</div>
-</div>
-</div>
