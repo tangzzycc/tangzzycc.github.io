@@ -47,6 +47,7 @@ nav:
       - 学习索引: rocm/index.md
       - RDNA3.5 架构与 AMD GPU 基础: rocm/RDNA3.5架构与AMD GPU基础.md
       - RDNA 3 与 RDNA 4 上的 FP16 GEMM 优化: rocm/RDNA3与RDNA4上的FP16 GEMM优化.md
+      - Thread Trace 第 1 部分：ROCprof Compute Viewer: rocm/GPU线程追踪（一）：ROCprof Compute Viewer.md
   - Tags: tags/index.md
 theme:
   name: material
