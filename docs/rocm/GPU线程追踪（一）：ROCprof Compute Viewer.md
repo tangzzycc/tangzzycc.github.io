@@ -5,7 +5,6 @@ tags:
   - ROCm
   - Profiling
   - GPU
-  - 性能分析
 description: 使用 rocprofv3 采集 AMD GPU 线程追踪，并在 ROCprof Compute Viewer 中分析指令时序、停顿、利用率和性能计数器。
 date: 2026-09-15
 author: Giovanni Lenzi Baraldi, Gianpaolo Tommasi

@@ -6,7 +6,7 @@ tags:
   - RDNA
   - GEMM
   - HIP
-  - 性能优化
+  - Optimization
 description: 逐步使用 WMMA 构建 AMD RDNA 3 和 RDNA 4 上的 FP16 GEMM Kernel，并接近 hipBLASLt 的性能。
 date: 2026-10-16
 author: Adel Johar, Jan Stephan, Istvan Kiss

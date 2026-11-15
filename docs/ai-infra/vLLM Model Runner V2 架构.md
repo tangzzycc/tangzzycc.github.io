@@ -6,7 +6,6 @@ title: vLLM Model Runner V2 架构
 description: 从 Persistent Batch 解耦与 RequestState 管理出发，理解模型执行中的异步调度、输入输出组织与投机解码。
 date: 2026-10-18
 ---
-
 # vLLM Model Runner V2 架构
 
 ## 一、Persistent Batch 解耦
@@ -701,7 +700,7 @@ V1 试图在 CPU 侧打补丁，最终受限于 CPU 状态管理中心的架构�
 
 > 尽管投机解码还有一些问题待解决，但其已经成为生产级功能，也是所有 Provider 必须的能力。本节会带你理解当前 vLLM 的投机解码是怎么跑的。
 
-本篇只涉及 MRV2 + 异步调度下的投机实现，这也是 vLLM 很长一段时间内不会改变的路线。
+本节只涉及 MRV2 + 异步调度下的投机实现，这也是 vLLM 很长一段时间内不会改变的路线。
 
 > 文章基于 vLLM v0.20.1，代码路径可能随版本更新变化，但核心逻辑会保持稳定。
 
