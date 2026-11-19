@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 FlyDSL Project Contributors
-# Notebook driver for ROCm/FlyDSL at 605d7f5fee6bed9a1ddaf6c3e4f96e79a70484d5.
+# Notebook driver for ROCm/FlyDSL at v0.5.0.
 # The kernel remains in the upstream source checkout; put that checkout on PYTHONPATH.
 
 import flydsl

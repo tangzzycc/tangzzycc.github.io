@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 FlyDSL Project Contributors
 # Adapted from the scalar vectorAdd example discussed at
-# https://jinnpan.com/sources/flydsl.html, using the current FlyDSL expression API.
+# https://jinnpan.com/sources/flydsl.html, using the FlyDSL v0.5.0 expression API.
 # Changes: complete the omitted B/C partitions, fix graph stream selection,
-# and limit this teaching example to complete 64-element blocks.
+# enable bounded A buffer access, and require complete 64-element blocks.
 
 import flydsl
 import flydsl.compiler as flyc
@@ -14,7 +14,7 @@ import torch
 @flyc.kernel
 def vector_add_kernel(A: fx.Tensor, B: fx.Tensor, C: fx.Tensor, block_dim: fx.Constexpr[int]):
     bid, tid = fx.block_idx.x, fx.thread_idx.x
-    A = fx.rocdl.make_buffer_tensor(A)
+    A = fx.rocdl.make_buffer_tensor(A, max_size=False)
 
     def thread_tiles(t):
         t = fx.logical_divide(t, fx.make_layout(block_dim, 1))

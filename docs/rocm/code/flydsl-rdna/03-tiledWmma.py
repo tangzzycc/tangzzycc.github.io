@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 FlyDSL Project Contributors
 # Adapted for the notebook from ROCm/FlyDSL at
-# 605d7f5fee6bed9a1ddaf6c3e4f96e79a70484d5:
+# v0.5.0:
 # tests/kernels/test_rdna3_wmma_atom.py::_compile_tiled_wmma.
 # Changes: fixed 64x64x32 FP16 case, M-first wave order, and standalone checks.
 
