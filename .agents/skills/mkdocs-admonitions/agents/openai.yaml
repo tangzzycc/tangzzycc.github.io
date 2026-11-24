@@ -1,0 +1,4 @@
+interface:
+  display_name: "MkDocs Material 提示框排版"
+  short_description: "按语义选用 !!! note / tip / warning / example / question 等 MkDocs Material 原生提示框美化笔记排版"
+  default_prompt: "使用 $mkdocs-admonitions 为这篇笔记优化 MkDocs Material 提示框排版，按信息性质区分视觉层次并校验渲染结果。"

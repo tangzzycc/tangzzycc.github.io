@@ -46,6 +46,8 @@ nav:
   - ROCm:
       - 学习索引: rocm/index.md
       - RDNA3.5 架构与 AMD GPU 基础: rocm/RDNA3.5架构与AMD GPU基础.md
+      - Triton on ROCm（一）：从零理解块级编程与 RDNA 3.5 编译映射: rocm/Triton on ROCm（一）：从零理解块级编程与RDNA3.5编译映射.md
+      - Triton on ROCm（二）：深度剖析 AITER 的 gemm_a16w16 算子: rocm/Triton on ROCm（二）：深度剖析AITER的gemm_a16w16算子.md
       - RDNA 3 与 RDNA 4 上的 FP16 GEMM 优化: rocm/RDNA3与RDNA4上的FP16 GEMM优化.md
       - FlyDSL：RDNA 3 的布局与矩阵计算: rocm/FlyDSL：RDNA3的布局与矩阵计算.md
       - Thread Trace 第 1 部分：ROCprof Compute Viewer: rocm/GPU线程追踪（一）：ROCprof Compute Viewer.md
@@ -133,7 +135,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/header-search.js
-  - javascripts/mathjax.js?v=2
+  - javascripts/mathjax.js?v=4
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=8
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

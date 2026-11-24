@@ -26,6 +26,7 @@
 | [explain-vllm](.agents/skills/explain-vllm/SKILL.md) | 从指定版本的 vLLM 源码解释架构、函数、数据结构、请求路径和资源生命周期。 |
 | [sketch-svg](.agents/skills/sketch-svg/SKILL.md) | 新建、重画或调整笔记中的 SVG 技术图；这是仓库默认的 SVG 绘图规范和工具入口。 |
 | [course-illustration](.agents/skills/course-illustration/SKILL.md) | 用具体对象和连续状态设计机制图，改善过度抽象或只有文字框的教学插图。用于 SVG 时结合 `sketch-svg`；确需位图生成时再使用宿主提供的图片生成技能与工具。 |
+| [mkdocs-admonitions](.agents/skills/mkdocs-admonitions/SKILL.md) | 使用 MkDocs Material 原生提示框（`!!! note / tip / warning / example / question / info / abstract`）与折叠块（`???`）美化笔记排版与信息层级。 |
 
 技能的字体、工具参数和检查细节以对应文件为准。保留技能的相对引用与支持文件，不只复制 `SKILL.md`。
 

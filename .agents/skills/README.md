@@ -10,6 +10,7 @@
 | [explain-vllm](explain-vllm/SKILL.md) | 从实际调用链、数据结构与状态变化解释 vLLM | 用 `$explain-vllm` 解释请求的 KV Cache 如何分配和释放 |
 | [course-illustration](course-illustration/SKILL.md) | 用具体对象、贯穿例子和多轮纠错制作课程机制图 | 用 `$course-illustration` 展示这节课的优化过程，参考 Attention 插图的表达方式 |
 | [sketch-svg](sketch-svg/SKILL.md) | 绘制 Excalidraw 风格 SVG，统一 Comic Shanns、霞鹜文楷、小字号和紧凑上下标 | 用 `$sketch-svg` 重画这张笔记配图，保留原有颜色含义 |
+| [mkdocs-admonitions](mkdocs-admonitions/SKILL.md) | 按语义使用 MkDocs Material 提示框（`!!! note / tip / warning / example / question` 等）和折叠块美化笔记排版 | 用 `$mkdocs-admonitions` 优化这篇笔记的提示框排版与信息层级 |
 
 这些技能可以组合：先组织课程，再核查实现，最后把难点画成图；SVG 使用 `sketch-svg` 的视觉约定与工具。每个目录是完整的技能包，不应只复制 `SKILL.md` 而遗漏相对引用的文件。
 
