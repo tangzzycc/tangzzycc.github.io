@@ -72,7 +72,7 @@
       "number": 8371,
       "title": "[FlyDSL] [gfx1151] Add GDN prefill support",
       "summary": "基于 FlyDSL 与 Wave32 BF16 WMMA 为 gfx1151 实现融合版 GDN Prefill，将状态递推常驻片上 FP32，省去中间状态落盘与多次核启动。",
-      "note_url": "rocm/FlyDSL实战：gfx1151上的GDN Prefill融合算子设计与优化/",
+      "note_url": "rocm/gfx1151上的GDN Prefill融合算子设计与优化/",
       "state": "open",
       "is_draft": false,
       "created_at": "2026-11-20",
