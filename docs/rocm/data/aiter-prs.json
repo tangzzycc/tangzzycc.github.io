@@ -1,0 +1,111 @@
+{
+  "repo": "ROCm/aiter",
+  "author": "tangzzycc",
+  "repo_url": "https://github.com/ROCm/aiter",
+  "author_prs_url": "https://github.com/ROCm/aiter/pulls/tangzzycc",
+  "synced_at": "2026-11-25 07:02 UTC",
+  "counts": {
+    "total": 5,
+    "open": 4,
+    "merged": 0,
+    "closed": 1
+  },
+  "items": [
+    {
+      "number": 8654,
+      "title": "[Triton/Gluon] Enable moe_gemm_a16w4 on software-emulated FP4 archs with gfx1151 configs",
+      "summary": "为 gfx1151 启用 MXFP4 MoE GEMM，新增 Wave32 调优配置与 K_ROTATE 错位访存缓解 L2/MALL 通道冲突，并修复 Split-K 尾部掩码与 FP32 累加精度。",
+      "state": "open",
+      "is_draft": false,
+      "created_at": "2026-11-25",
+      "updated_at": "2026-11-25",
+      "merged_at": null,
+      "closed_at": null,
+      "url": "https://github.com/ROCm/aiter/pull/8654",
+      "labels": [
+        {
+          "name": "Triton/Gluon",
+          "color": "1d76db"
+        }
+      ],
+      "comments": 1
+    },
+    {
+      "number": 8572,
+      "title": "[Triton/Gluon] Add gfx1151 3D-tiled wave32 na3d_flash forward kernel and tuning configs",
+      "summary": "为 gfx1151 新增 3D 分块 Wave32 邻域 FlashAttention（na3d_flash）前向核与调优配置，消除非连续 QKV 整卷拷贝与 MALL 抖动。",
+      "state": "open",
+      "is_draft": false,
+      "created_at": "2026-11-24",
+      "updated_at": "2026-11-25",
+      "merged_at": null,
+      "closed_at": null,
+      "url": "https://github.com/ROCm/aiter/pull/8572",
+      "labels": [
+        {
+          "name": "Triton/Gluon",
+          "color": "1d76db"
+        }
+      ],
+      "comments": 1
+    },
+    {
+      "number": 8549,
+      "title": "[Triton/Gluon] Add gfx1151 GDN decode tuning configs",
+      "summary": "针对 32 MiB MALL 内外工作集，为 Qwen3-Next / Qwen3.5 的 3 个 GDN Decode Triton 算子补充 gfx1151 分级调优配置与公共查表逻辑。",
+      "state": "open",
+      "is_draft": false,
+      "created_at": "2026-11-24",
+      "updated_at": "2026-11-25",
+      "merged_at": null,
+      "closed_at": null,
+      "url": "https://github.com/ROCm/aiter/pull/8549",
+      "labels": [
+        {
+          "name": "Triton/Gluon",
+          "color": "1d76db"
+        }
+      ],
+      "comments": 1
+    },
+    {
+      "number": 8371,
+      "title": "[FlyDSL] [gfx1151] Add GDN prefill support",
+      "summary": "基于 FlyDSL 与 Wave32 BF16 WMMA 为 gfx1151 实现融合版 GDN Prefill，将状态递推常驻片上 FP32，省去中间状态落盘与多次核启动。",
+      "note_url": "rocm/FlyDSL实战：gfx1151上的GDN Prefill融合算子设计与优化/",
+      "state": "open",
+      "is_draft": false,
+      "created_at": "2026-11-20",
+      "updated_at": "2026-11-21",
+      "merged_at": null,
+      "closed_at": null,
+      "url": "https://github.com/ROCm/aiter/pull/8371",
+      "labels": [
+        {
+          "name": "FlyDSL",
+          "color": "d93f0b"
+        }
+      ],
+      "comments": 2
+    },
+    {
+      "number": 4814,
+      "title": "[Triton][gfx1151] Enable GEMM-A16W16",
+      "summary": "为 gfx1151 补充 Triton BF16 GEMM-A16W16 默认分级配置，打通矩阵乘调用路径。",
+      "state": "closed",
+      "is_draft": false,
+      "created_at": "2026-08-18",
+      "updated_at": "2026-10-10",
+      "merged_at": null,
+      "closed_at": "2026-10-10",
+      "url": "https://github.com/ROCm/aiter/pull/4814",
+      "labels": [
+        {
+          "name": "stale",
+          "color": "716a51"
+        }
+      ],
+      "comments": 2
+    }
+  ]
+}

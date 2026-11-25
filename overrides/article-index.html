@@ -6,6 +6,37 @@
       <h1>{{ page.meta.title | e }}</h1>
       <p lang="en">{{ page.meta.description | e }}</p>
     </header>
+    {% if pr_projects %}
+      <section class="pr-showcase-section" aria-label="PR 贡献">
+        <div class="pr-showcase-list">
+          {% for proj in pr_projects %}
+            {% set data = proj.pr_data %}
+            {% set c = data.counts %}
+            <a class="pr-repo-card"
+               href="{{ proj.url | url }}"
+               data-pr-card
+               data-repo="{{ data.repo | e }}"
+               data-author="{{ data.author | e }}">
+              <span class="pr-repo-card__brand">
+                <span class="pr-repo-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
+                    <path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/>
+                  </svg>
+                </span>
+                <span class="pr-repo-card__repo">{{ data.repo | e }}</span>
+              </span>
+              <span class="pr-repo-card__stats">
+                <span class="pr-stat"><strong data-pr-count="total">{{ c.total }}</strong> PRs</span>
+                <span class="pr-stat pr-stat--open"><span class="pr-dot pr-dot--open" aria-hidden="true"></span><strong data-pr-count="open">{{ c.open }}</strong> Open</span>
+                <span class="pr-stat pr-stat--merged"><span class="pr-dot pr-dot--merged" aria-hidden="true"></span><strong data-pr-count="merged">{{ c.merged }}</strong> Merged</span>
+                <span class="pr-stat pr-stat--closed"><span class="pr-dot pr-dot--closed" aria-hidden="true"></span><strong data-pr-count="closed">{{ c.closed }}</strong> Closed</span>
+              </span>
+              <span class="pr-repo-card__arrow" aria-hidden="true">→</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
     {% include "partials/article-list.html" %}
   </div>
 {% endblock %}

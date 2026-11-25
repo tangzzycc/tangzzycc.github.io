@@ -45,11 +45,13 @@ nav:
       - FlashAttention v1 & v2 浅析: cuda/FlashAttention.md
   - ROCm:
       - 学习索引: rocm/index.md
+      - AITER PR 列表: rocm/aiter-prs.md
       - RDNA3.5 架构与 AMD GPU 基础: rocm/RDNA3.5架构与AMD GPU基础.md
       - Triton on ROCm（一）：从零理解块级编程与 RDNA 3.5 编译映射: rocm/Triton on ROCm（一）：从零理解块级编程与RDNA3.5编译映射.md
       - Triton on ROCm（二）：深度剖析 AITER 的 gemm_a16w16 算子: rocm/Triton on ROCm（二）：深度剖析AITER的gemm_a16w16算子.md
       - RDNA 3 与 RDNA 4 上的 FP16 GEMM 优化: rocm/RDNA3与RDNA4上的FP16 GEMM优化.md
       - FlyDSL：RDNA 3 的布局与矩阵计算: rocm/FlyDSL：RDNA3的布局与矩阵计算.md
+      - FlyDSL 实战：gfx1151 上的 GDN Prefill 融合算子设计与优化: rocm/FlyDSL实战：gfx1151上的GDN Prefill融合算子设计与优化.md
       - Thread Trace 第 1 部分：ROCprof Compute Viewer: rocm/GPU线程追踪（一）：ROCprof Compute Viewer.md
   - Tags: tags/index.md
 theme:
@@ -122,6 +124,7 @@ plugins:
 
 hooks:
   - scripts/tag_cloud.py
+  - scripts/pr_showcase.py
   - scripts/search_visibility.py
   - scripts/gemm_translation_toc.py
 
@@ -129,6 +132,7 @@ extra_css:
   - stylesheets/extra.css?v=34
   - stylesheets/notebook-theme.css?v=13
   - stylesheets/home.css?v=34
+  - stylesheets/pr-showcase.css?v=5
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
   - stylesheets/gemm-translation.css?v=5
@@ -138,6 +142,7 @@ extra_javascript:
   - javascripts/mathjax.js?v=4
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=8
+  - javascripts/pr-tracker.js?v=5
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra:

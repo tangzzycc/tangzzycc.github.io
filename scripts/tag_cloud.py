@@ -52,6 +52,8 @@ def on_files(files, *, config):
             or file.inclusion.is_excluded()):
             continue
         _, meta = get_data(file.content_string)
+        if meta.get("exclude_from_index"):
+            continue
         labels = meta.get("tags", [])
         note = {
             "url": file.url,
