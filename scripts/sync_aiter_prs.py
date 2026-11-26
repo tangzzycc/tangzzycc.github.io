@@ -12,7 +12,7 @@ from pathlib import Path
 
 DEFAULT_REPO = "ROCm/aiter"
 DEFAULT_AUTHOR = "tangzzycc"
-DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "docs/rocm/data/aiter-prs.json"
+DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "docs/experiments/data/aiter-prs.json"
 
 
 def _classify_state(item: dict) -> str:

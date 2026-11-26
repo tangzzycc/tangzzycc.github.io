@@ -9,6 +9,7 @@
   };
 
   const BADGE_TEXT = { open: "Open", draft: "Draft", merged: "Merged", closed: "Closed" };
+  const NOTE_ICON = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8h9"/><path d="M8.5 4l4 4-4 4"/></svg>';
 
   function escapeHtml(text) {
     return String(text || "")
@@ -118,7 +119,7 @@
     const summaryText = meta.summary || pr.summary || "";
     const noteUrl = meta.noteUrl || "";
     const noteHtml = noteUrl
-      ? `<a class="pr-note-link" href="${escapeHtml(noteUrl)}">笔记 →</a>`
+      ? `<a class="pr-note-link" href="${escapeHtml(noteUrl)}" title="阅读相关笔记" aria-label="阅读相关笔记">${NOTE_ICON}</a>`
       : "";
     const summaryHtml = summaryText
       ? `<p class="pr-row__summary">${escapeHtml(summaryText)}</p>`

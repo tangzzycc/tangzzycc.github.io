@@ -11,6 +11,10 @@ exclude_docs: |
   ai-infra/*知乎.html
   rocm/*知乎.html
   assets/archive/**
+# 仅通过特定入口（如 PR 列表）或直接路由跳转的笔记，保留构建但不加入站点导航。
+not_in_nav: |
+  rocm/gfx1151上的GDN Prefill融合算子设计与优化.md
+  experiments/**
 watch:
   - assets
 
@@ -32,6 +36,7 @@ nav:
       - vLLM 推理框架:
           - vLLM Model Runner V2 架构: ai-infra/vLLM Model Runner V2 架构.md
           - vLLM Multi-LoRA 推理: ai-infra/vLLM Multi-LoRA推理.md
+      - ROCm ATOM 架构与 vLLM / SGLang 插件接入机制: ai-infra/ROCm ATOM架构与vLLM-SGLang插件机制.md
       - Speculative Decoding:
           - Speculative Decoding 之 DFlash 与 DSpark: ai-infra/DFlash与DSpark.md
   - CUDA:
@@ -45,13 +50,11 @@ nav:
       - FlashAttention v1 & v2 浅析: cuda/FlashAttention.md
   - ROCm:
       - 学习索引: rocm/index.md
-      - AITER PR 列表: rocm/aiter-prs.md
       - RDNA3.5 架构与 AMD GPU 基础: rocm/RDNA3.5架构与AMD GPU基础.md
       - Triton on ROCm（一）：从零理解块级编程与 RDNA 3.5 编译映射: rocm/Triton on ROCm（一）：从零理解块级编程与RDNA3.5编译映射.md
       - Triton on ROCm（二）：深度剖析 AITER 的 gemm_a16w16 算子: rocm/Triton on ROCm（二）：深度剖析AITER的gemm_a16w16算子.md
       - RDNA 3 与 RDNA 4 上的 FP16 GEMM 优化: rocm/RDNA3与RDNA4上的FP16 GEMM优化.md
       - FlyDSL：RDNA 3 的布局与矩阵计算: rocm/FlyDSL：RDNA3的布局与矩阵计算.md
-      - gfx1151 上的 GDN Prefill 融合算子设计与优化: rocm/gfx1151上的GDN Prefill融合算子设计与优化.md
       - Thread Trace 第 1 部分：ROCprof Compute Viewer: rocm/GPU线程追踪（一）：ROCprof Compute Viewer.md
   - Tags: tags/index.md
 theme:
@@ -132,17 +135,18 @@ extra_css:
   - stylesheets/extra.css?v=34
   - stylesheets/notebook-theme.css?v=13
   - stylesheets/home.css?v=34
-  - stylesheets/pr-showcase.css?v=5
+  - stylesheets/pr-showcase.css?v=6
   - stylesheets/interview-notes.css?v=2
   - stylesheets/study-notes.css?v=3
   - stylesheets/gemm-translation.css?v=5
+  - stylesheets/experiments.css?v=3
 
 extra_javascript:
   - javascripts/header-search.js
   - javascripts/mathjax.js?v=4
   - javascripts/code-mark.js
   - javascripts/sidebar-toggle.js?v=8
-  - javascripts/pr-tracker.js?v=5
+  - javascripts/pr-tracker.js?v=6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra:

@@ -1,6 +1,11 @@
 ---
 title: gfx1151 上的 GDN Prefill 融合算子设计与优化
 code_fold: false
+exclude_from_index: true
+search:
+  exclude: true
+hide:
+  - navigation
 tags:
   - ROCm
   - RDNA

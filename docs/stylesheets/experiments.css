@@ -1,0 +1,498 @@
+/* 私有实验索引页（/experiments/）单列大卡片与分组嵌套小卡片样式，严格限定在 .experiments-index 内。 */
+[data-md-color-scheme="default"] .experiments-index {
+  --exp-card-bg: #f5f4ed;
+  --exp-subcard-bg: #faf9f5;
+  --exp-card-cover-bg: #ffffff;
+  --exp-card-shadow: 0 2px 10px rgba(48, 48, 46, 0.04);
+  --exp-card-shadow-hover: 0 8px 22px rgba(48, 48, 46, 0.08);
+  --exp-design: #6584b0;
+  --exp-design-bg: rgba(101, 132, 176, 0.14);
+  --exp-wip: #b56c35;
+  --exp-wip-bg: rgba(217, 155, 107, 0.2);
+  --exp-done: #4f7b3b;
+  --exp-done-bg: rgba(131, 168, 108, 0.18);
+  --exp-archived: #68675f;
+  --exp-archived-bg: rgba(104, 103, 95, 0.14);
+}
+
+[data-md-color-scheme="slate"] .experiments-index {
+  --exp-card-bg: #2e2d29;
+  --exp-subcard-bg: #262624;
+  --exp-card-cover-bg: #faf9f5;
+  --exp-card-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+  --exp-card-shadow-hover: 0 10px 26px rgba(0, 0, 0, 0.34);
+  --exp-design: #93b3df;
+  --exp-design-bg: rgba(147, 179, 223, 0.18);
+  --exp-wip: #e6ab7c;
+  --exp-wip-bg: rgba(230, 171, 124, 0.18);
+  --exp-done: #9fc487;
+  --exp-done-bg: rgba(159, 196, 135, 0.18);
+  --exp-archived: #b8b5ab;
+  --exp-archived-bg: rgba(184, 181, 171, 0.16);
+}
+
+/* 单列大卡片堆叠容器 */
+.exp-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 形态 A：独立单列大卡片（桌面横向布局，窄屏自动上下堆叠） */
+.md-typeset a.exp-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 14px;
+  background: var(--exp-card-bg);
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+  box-shadow: var(--exp-card-shadow);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.md-typeset a.exp-card.exp-card--with-cover {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.md-typeset a.exp-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--md-typeset-a-color);
+  box-shadow: var(--exp-card-shadow-hover);
+}
+
+.md-typeset a.exp-card:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 3px;
+}
+
+.exp-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px 24px;
+}
+
+.exp-card__cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: var(--exp-card-cover-bg);
+  border-left: 1px solid var(--md-default-fg-color--lightest);
+  overflow: hidden;
+}
+
+.exp-card__cover img {
+  display: block;
+  width: 100%;
+  max-height: 175px;
+  object-fit: contain;
+}
+
+.exp-card__meta,
+.exp-subcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+}
+
+.exp-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-family: var(--md-code-font);
+  font-weight: 600;
+  color: var(--exp-design);
+  background: var(--exp-design-bg);
+}
+
+.exp-status--wip,
+.exp-status--in-progress {
+  color: var(--exp-wip);
+  background: var(--exp-wip-bg);
+}
+
+.exp-status--done,
+.exp-status--completed,
+.exp-status--open {
+  color: var(--exp-done);
+  background: var(--exp-done-bg);
+}
+
+.exp-status--archived {
+  color: var(--exp-archived);
+  background: var(--exp-archived-bg);
+}
+
+.exp-target {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color--light);
+  font-family: var(--md-code-font);
+  font-size: 0.72rem;
+}
+
+.exp-date {
+  margin-left: auto;
+  color: var(--md-default-fg-color--lighter);
+  font-family: var(--md-code-font);
+  font-size: 0.72rem;
+}
+
+.md-typeset .exp-card__title {
+  display: block;
+  margin: 2px 0 0;
+  color: var(--md-default-fg-color);
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.md-typeset a.exp-card:hover .exp-card__title {
+  color: var(--md-typeset-a-color);
+}
+
+.md-typeset .exp-card__desc {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.exp-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--md-default-fg-color--lightest);
+}
+
+.exp-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.exp-tag {
+  padding: 1px 8px;
+  border-radius: 5px;
+  background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color--light);
+  font-family: var(--md-code-font);
+  font-size: 0.68rem;
+}
+
+.exp-card__cta {
+  flex-shrink: 0;
+  color: var(--md-typeset-a-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 150ms ease;
+}
+
+.md-typeset a.exp-card:hover .exp-card__cta,
+.md-typeset a.exp-subcard:hover .exp-card__cta {
+  transform: translateX(3px);
+}
+
+/* 形态 B：分组大卡片（内部网格排列多个子实验小卡片，适用于 AITER 等系列工作） */
+.exp-group-card {
+  padding: 20px 24px 22px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 14px;
+  background: var(--exp-card-bg);
+  box-shadow: var(--exp-card-shadow);
+}
+
+.exp-group-card__header {
+  margin-bottom: 16px;
+}
+
+.exp-group-card__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.md-typeset .exp-group-card__title {
+  display: block;
+  margin: 0;
+  color: var(--md-default-fg-color);
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.exp-group-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.exp-group-count {
+  color: var(--md-default-fg-color--lighter);
+  font-family: var(--md-code-font);
+  font-size: 0.72rem;
+}
+
+.md-typeset .exp-group-card__desc {
+  margin: 8px 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+.exp-subcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.md-typeset a.exp-subcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 10px;
+  background: var(--exp-subcard-bg);
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+
+.md-typeset a.exp-subcard:hover {
+  transform: translateY(-1px);
+  border-color: var(--md-typeset-a-color);
+  background: var(--notebook-hover);
+}
+
+.md-typeset a.exp-subcard:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 2px;
+}
+
+.md-typeset .exp-subcard__title {
+  margin: 0;
+  color: var(--md-default-fg-color);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.md-typeset a.exp-subcard:hover .exp-subcard__title {
+  color: var(--md-typeset-a-color);
+}
+
+.md-typeset .exp-subcard__desc {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.exp-subcard__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.exp-group-empty,
+.exp-empty {
+  margin: 8px 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.84rem;
+}
+
+/* ROCm/aiter PR 分组大卡片（2×2 小卡片网格） */
+.exp-pr-group__header {
+  margin-bottom: 18px;
+}
+
+.md-typeset a.exp-pr-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+}
+
+.md-typeset a.exp-pr-repo:hover .exp-group-card__title {
+  color: var(--md-typeset-a-color);
+}
+
+.exp-pr-repo__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--md-code-bg-color);
+  color: var(--md-typeset-a-color);
+  flex-shrink: 0;
+}
+
+.exp-pr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.exp-pr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px;
+  background: var(--exp-subcard-bg);
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.exp-pr-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--md-typeset-a-color);
+  box-shadow: var(--exp-card-shadow);
+}
+
+.exp-pr-card--has-note {
+  border-color: color-mix(in srgb, var(--md-typeset-a-color) 42%, var(--md-default-fg-color--lightest));
+}
+
+.exp-pr-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+}
+
+.exp-pr-num {
+  color: var(--md-typeset-a-color);
+  font-family: var(--md-code-font);
+  font-weight: 700;
+}
+
+.md-typeset .exp-pr-card__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.48;
+  word-break: break-word;
+}
+
+.md-typeset .exp-pr-card__title a {
+  color: var(--md-default-fg-color);
+  text-decoration: none;
+}
+
+.md-typeset .exp-pr-card__title a:hover {
+  color: var(--md-typeset-a-color);
+}
+
+.md-typeset .exp-pr-card__summary {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.exp-pr-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed var(--md-default-fg-color--lightest);
+  font-size: 0.76rem;
+}
+
+.md-typeset a.exp-pr-note-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--md-accent-fg-color--transparent);
+  color: var(--md-typeset-a-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.md-typeset a.exp-pr-note-btn:hover {
+  background: color-mix(in srgb, var(--md-typeset-a-color) 18%, transparent);
+  transform: translateX(2px);
+}
+
+.exp-pr-status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--exp-done);
+  font-family: var(--md-code-font);
+  font-size: 0.72rem;
+}
+
+.exp-dot-open {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--exp-done);
+}
+
+.md-typeset a.exp-pr-ext-link {
+  margin-left: auto;
+  color: var(--md-default-fg-color--light);
+  font-family: var(--md-code-font);
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+
+.md-typeset a.exp-pr-ext-link:hover {
+  color: var(--md-typeset-a-color);
+}
+
+@media screen and (max-width: 760px) {
+  .md-typeset a.exp-card.exp-card--with-cover {
+    grid-template-columns: 1fr;
+  }
+
+  .exp-card__cover {
+    order: -1;
+    border-left: none;
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  }
+
+  .exp-card__body,
+  .exp-group-card {
+    padding: 16px 18px;
+  }
+
+  .exp-subcard-grid,
+  .exp-pr-grid {
+    grid-template-columns: 1fr;
+  }
+}

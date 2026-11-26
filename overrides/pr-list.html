@@ -63,7 +63,9 @@
                 <a class="pr-row__title" href="{{ pr.url | e }}" target="_blank" rel="noopener noreferrer">{{ pr.title | e }}</a>
                 <span class="pr-row__badges">
                   {% if pr.note_url %}
-                    <a class="pr-note-link" href="{{ pr.note_url | url }}">笔记 →</a>
+                    <a class="pr-note-link" href="{{ pr.note_url | url }}" title="阅读相关笔记" aria-label="阅读相关笔记">
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8h9"/><path d="M8.5 4l4 4-4 4"/></svg>
+                    </a>
                   {% endif %}
                   <span class="pr-status-badge pr-status-badge--{{ pr.state }}">
                     {% if pr.state == 'merged' %}Merged{% elif pr.state == 'draft' %}Draft{% elif pr.state == 'closed' %}Closed{% else %}Open{% endif %}

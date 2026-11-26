@@ -103,6 +103,7 @@ def add1d(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     ```
 
     这种显式传 `stride_am`、`stride_an` 的写法极其灵活——**转置一个矩阵只需交换两个 stride，无需任何显存拷贝**（下篇 AITER `gemm_a16w16` 的 `w = w.T` 正是靠这一点做到零拷贝转置）。
+    
 3. **`mask` 与 `other` 的分工**
    当数组长度 `n` 不能被 `BLOCK` 整除时，最后一个 Program 会有部分偏移越界。`mask=offs < n` 会禁止越界位置发起实际内存读写；`other=0.0` 则指定被屏蔽位置的填充值——在做纯逐元素写回（`tl.store(..., mask=mask)`）时 `other` 不会被写出，但在做 `tl.sum` 归约或 `tl.dot` 矩阵乘时，**必须设 `other=0.0`**（做 `tl.max` 时设 `other=-float("inf")`），否则越界槽位的未定义垃圾值会直接污染归约结果！
 

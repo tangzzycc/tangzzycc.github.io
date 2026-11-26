@@ -339,21 +339,36 @@
 }
 
 .md-typeset a.pr-note-link {
-  padding: 2px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
   border: 1px solid var(--md-typeset-a-color);
   border-radius: 999px;
   background: var(--md-accent-fg-color--transparent);
   color: var(--md-typeset-a-color);
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.5;
   text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 140ms ease;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.md-typeset a.pr-note-link svg {
+  display: block;
+  transition: transform 140ms ease;
 }
 
 .md-typeset a.pr-note-link:hover {
   background: var(--notebook-hover);
+}
+
+.md-typeset a.pr-note-link:hover svg {
+  transform: translateX(1.5px);
+}
+
+.md-typeset a.pr-note-link:focus-visible {
+  outline: 2px solid var(--md-typeset-a-color);
+  outline-offset: 2px;
 }
 
 .pr-status-badge {
@@ -474,6 +489,8 @@
   .md-typeset a.pr-repo-card,
   .pr-filter-pill,
   .md-typeset .pr-action-btn,
+  .md-typeset a.pr-note-link,
+  .md-typeset a.pr-note-link svg,
   .pr-row {
     transition: none;
   }
